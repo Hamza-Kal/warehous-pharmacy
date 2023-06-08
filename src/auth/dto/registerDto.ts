@@ -4,18 +4,19 @@ import {
   IsPhoneNumber,
   IsString,
   IsStrongPassword,
-  Max,
+  MaxLength,
+  IsEmail,
 } from 'class-validator';
 import { Role } from 'src/enums/roles';
 
 export class RegisterDto {
   @IsNotEmpty()
-  @IsString()
+  @IsEmail()
   email: string;
 
   @IsNotEmpty()
   @IsStrongPassword()
-  @Max(20)
+  @MaxLength(20)
   password: string;
 
   @IsNotEmpty()

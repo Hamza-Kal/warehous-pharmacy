@@ -13,20 +13,19 @@ export class UserService {
 
   async findOne(id: number) {
     if (!id) throw new NotFoundException('user not found !');
-    return await this.userRepository.findOne({
-      where: { id },
-    });
+    return await this.userRepository.findOneBy({ id });
   }
 
+  async findOneByUserName(username: string) {
+    return this.userRepository.findOneBy({ username });
+  }
   async createOne(data: CreateUserDto) {
     const user = this.userRepository.create(data);
     return this.userRepository.save(user);
   }
 
   async update(id: number, data: Partial<CreateUserDto>) {
-    const user = await this.userRepository.findOne({
-      where: { id },
-    });
+    const user = await this.userRepository.findOneBy({ id });
     if (!user) throw new NotFoundException('user not found !');
     //method 1 :
     //if the sent entity does not exist it insert it else it updates it partailly
@@ -41,9 +40,7 @@ export class UserService {
   }
 
   async remove(id: number) {
-    const user = await this.userRepository.findOne({
-      where: { id },
-    });
+    const user = await this.userRepository.findOneBy({ id });
     if (!user) throw new NotFoundException('user not found !');
     return this.userRepository.remove(user);
   }

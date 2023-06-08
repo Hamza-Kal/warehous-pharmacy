@@ -6,6 +6,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Role } from 'src/enums/roles';
 
 @Entity()
 export class User {
@@ -40,6 +41,10 @@ export class User {
   })
   password: string;
 
+  @Column({
+    type: 'enum',
+    enum: Role,
+  })
   @AfterInsert()
   logInsert() {
     console.log('user with id %d created', this.id);

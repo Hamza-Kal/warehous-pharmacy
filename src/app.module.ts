@@ -6,6 +6,9 @@ import { AuthModule } from './auth/auth.module';
 import { password } from '../ormconfig.json';
 import { APP_PIPE } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { WarehouseModule } from './warehouse/warehouse.module';
+import { Warehouse } from './warehouse/entities/warehouse.entity';
+
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -15,11 +18,13 @@ import { ValidationPipe } from '@nestjs/common';
       username: 'root',
       password,
       database: 'mkhzan',
-      entities: [User],
+      entities: [User, Warehouse],
       synchronize: true,
     }),
     UserModule,
     AuthModule,
+    WarehouseModule,
+    WarehouseModule,
   ],
   controllers: [],
   providers: [

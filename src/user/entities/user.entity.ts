@@ -5,8 +5,10 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from 'typeorm';
 import { Role } from 'src/enums/roles';
+import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 
 @Entity()
 export class User {
@@ -45,6 +47,9 @@ export class User {
     type: 'enum',
     enum: Role,
   })
+  @OneToMany(() => Warehouse, (warehouse) => warehouse.user)
+  warehouses: Warehouse[];
+
   @AfterInsert()
   logInsert() {
     console.log('user with id %d created', this.id);

@@ -19,7 +19,7 @@ export class UserService {
   async findOneByUserName(username: string) {
     return this.userRepository.findOneBy({ username });
   }
-  async createOne(data: CreateUserDto) {
+  async createOne(data: any) {
     const user = this.userRepository.create(data);
     return this.userRepository.save(user);
   }

@@ -8,6 +8,11 @@ import { APP_PIPE } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { WarehouseModule } from './warehouse/warehouse.module';
 import { Warehouse } from './warehouse/entities/warehouse.entity';
+import { InventoryModule } from './inventory/inventory.module';
+import { PharmacyModule } from './pharmacy/pharmacy.module';
+import { SupplierModule } from './supplier/supplier.module';
+import { Inventory } from './inventory/entities/inventory.entity';
+import { Pharmacy } from './pharmacy/entities/pharmacy.entity';
 
 @Module({
   imports: [
@@ -18,13 +23,15 @@ import { Warehouse } from './warehouse/entities/warehouse.entity';
       username: 'root',
       password,
       database: 'mkhzan',
-      entities: [User, Warehouse],
+      entities: [User, Warehouse, Inventory, Pharmacy],
       synchronize: true,
     }),
     UserModule,
     AuthModule,
     WarehouseModule,
-    WarehouseModule,
+    InventoryModule,
+    PharmacyModule,
+    SupplierModule,
   ],
   controllers: [],
   providers: [

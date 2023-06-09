@@ -4,13 +4,11 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   JoinColumn,
-  OneToMany,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
-import { Inventory } from 'src/inventory/entities/inventory.entity';
 
 @Entity()
-export class Warehouse {
+export class Supplier {
   @PrimaryGeneratedColumn({
     type: 'int',
   })
@@ -38,8 +36,4 @@ export class Warehouse {
   @OneToOne(() => User)
   @JoinColumn()
   user: User;
-
-  @OneToMany(() => Inventory, (inventory) => inventory.warehouse)
-  @JoinColumn()
-  inventories: Inventory[];
 }

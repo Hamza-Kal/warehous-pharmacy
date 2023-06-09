@@ -1,14 +1,13 @@
+import { Role } from 'src/enums/roles';
 import {
   AfterInsert,
   AfterRemove,
   AfterUpdate,
+  BeforeInsert,
   Column,
   Entity,
   PrimaryGeneratedColumn,
-  OneToMany,
 } from 'typeorm';
-import { Role } from 'src/enums/roles';
-import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 
 @Entity()
 export class User {
@@ -47,14 +46,16 @@ export class User {
     type: 'enum',
     enum: Role,
   })
-  @OneToMany(() => Warehouse, (warehouse) => warehouse.user)
-  warehouses: Warehouse[];
-
-  @AfterInsert()
+  role: Role;
+  @BeforeInsert()
   logInsert() {
     console.log('user with id %d created', this.id);
   }
 
+  @AfterInsert()
+  logAfterInsert() {
+    console.log('user with id %d inserted', this.id);
+  }
   @AfterUpdate()
   logUpdate() {
     console.log('user with id %d updated', this.id);

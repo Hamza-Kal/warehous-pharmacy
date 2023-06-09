@@ -1,16 +1,16 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  OneToOne,
-  JoinColumn,
-  OneToMany,
-} from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
-import { Inventory } from 'src/inventory/entities/inventory.entity';
+import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
-export class Warehouse {
+export class Inventory {
   @PrimaryGeneratedColumn({
     type: 'int',
   })
@@ -39,7 +39,7 @@ export class Warehouse {
   @JoinColumn()
   user: User;
 
-  @OneToMany(() => Inventory, (inventory) => inventory.warehouse)
+  @ManyToOne(() => Warehouse, (warehouse) => warehouse.inventories)
   @JoinColumn()
-  inventories: Inventory[];
+  warehouse: Warehouse;
 }

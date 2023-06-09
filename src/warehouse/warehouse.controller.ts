@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Injectable,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Body, Controller, Get, Injectable, Post } from '@nestjs/common';
 import { WarehouseService } from './warehouse.service';
 
 @Injectable()

@@ -2,6 +2,6 @@ export enum Role {
   PHARMACY = 'pharmacy',
   WAREHOUSE = 'warehouse',
   STOREHOUSE = 'storehouse',
-  SUPPLIER = 'SUPPLIER',
+  SUPPLIER = 'supplier',
   INVENTORY = 'inventory',
 }

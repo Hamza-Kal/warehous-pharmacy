@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import { RegisterDto } from './dto/registerDto';
+import { Bcrypt } from 'src/utils/bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -10,13 +11,16 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(username: string, password: string) {
-    const user = await this.userService.findOneByUserName(username);
-    if (user && user.password === password) {
-      const { password, ...result } = user;
-      return result;
+  async validateUser(username: string, pass: string) {
+    const user = await this.userService.findOneByUsername(username);
+    if (!user) return null;
+    const isMatch = await Bcrypt.comparePassword(pass, user.password);
+
+    if (!isMatch) {
+      return null;
     }
-    return null;
+    const { password, ...result } = user;
+    return result;
   }
   async logIn(user: any) {
     const payload = { username: user.username, sub: user.id };
@@ -24,7 +28,18 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
     };
   }
-  signUp(data: RegisterDto) {
-    return this.userService.createOne(data);
+  async signUp(user: RegisterDto) {
+    if (user.role === 'ADMIN')
+      throw new HttpException('Unauthoried', HttpStatus.UNAUTHORIZED);
+    const oldUser = await this.userService.findOneByUsernameOrEmail(
+      user.username,
+      user.email,
+    );
+
+    if (oldUser)
+      throw new HttpException(
+        'user is already registered',
+        HttpStatus.BAD_REQUEST,
+      );
   }
 }

@@ -1,4 +1,5 @@
 import { Role } from 'src/enums/roles';
+import { Bcrypt } from 'src/utils/bcrypt';
 import {
   AfterInsert,
   AfterRemove,
@@ -47,9 +48,16 @@ export class User {
     enum: Role,
   })
   role: Role;
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  isApproved: boolean;
+
   @BeforeInsert()
-  logInsert() {
-    console.log('user with id %d created', this.id);
+  async logInsert() {
+    this.password = await Bcrypt.hashPassword(this.password);
   }
 
   @AfterInsert()

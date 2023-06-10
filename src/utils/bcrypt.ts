@@ -1,13 +1,13 @@
 import { hash, compare } from 'bcrypt';
 export class Bcrypt {
-  async hashPassword(password: string): Promise<string> {
+  static async hashPassword(password: string): Promise<string> {
     const salt = 10;
 
     const hashedPassword = await hash(password, salt);
     return hashedPassword;
   }
 
-  async comparePassword(
+  static async comparePassword(
     password: string,
     hashedPassword: string,
   ): Promise<boolean> {

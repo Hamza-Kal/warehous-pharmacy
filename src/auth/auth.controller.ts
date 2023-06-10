@@ -6,7 +6,6 @@ import {
   UseGuards,
   Body,
 } from '@nestjs/common';
-import { registerSchema } from 'class-validator';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/registerDto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';

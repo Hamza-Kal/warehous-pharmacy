@@ -11,13 +11,17 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  async findOne(id: number) {
+  async findOneById(id: number) {
     if (!id) throw new NotFoundException('user not found !');
     return await this.userRepository.findOneBy({ id });
   }
 
-  async findOneByUserName(username: string) {
+  async findOneByUsername(username: string) {
     return this.userRepository.findOneBy({ username });
+  }
+
+  async findOneByUsernameOrEmail(username: string, email: string) {
+    return this.userRepository.findOne({ where: [{ username }, { email }] });
   }
   async createOne(data: any) {
     const user = this.userRepository.create(data);

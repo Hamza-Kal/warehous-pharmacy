@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
+import { Medicine } from 'src/global-entities/medicine.entity';
 
 @Entity()
 export class Warehouse {
@@ -33,13 +34,16 @@ export class Warehouse {
     type: 'varchar',
     length: 15,
   })
-  phone_number: string;
+  phoneNumber: string;
 
   @OneToOne(() => User)
   @JoinColumn()
-  user: User;
+  owner: User;
 
   @OneToMany(() => Inventory, (inventory) => inventory.warehouse)
   @JoinColumn()
   inventories: Inventory[];
+
+  @OneToMany(() => Medicine, (medicine) => medicine.warehouse)
+  medicines: Medicine[];
 }

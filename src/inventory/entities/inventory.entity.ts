@@ -37,7 +37,7 @@ export class Inventory {
 
   @OneToOne(() => User)
   @JoinColumn()
-  user: User;
+  manager: User;
 
   @ManyToOne(() => Warehouse, (warehouse) => warehouse.inventories)
   @JoinColumn()

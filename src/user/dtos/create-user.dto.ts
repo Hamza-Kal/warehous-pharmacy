@@ -30,7 +30,4 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   fullName: string;
-
-  @IsEnum(Role)
-  role: string;
 }

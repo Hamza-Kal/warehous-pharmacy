@@ -2,9 +2,9 @@ import { Role } from 'src/enums/roles';
 import { Bcrypt } from 'src/utils/bcrypt';
 import {
   AfterInsert,
-  AfterRemove,
   AfterUpdate,
   BeforeInsert,
+  BeforeRemove,
   Column,
   Entity,
   PrimaryGeneratedColumn,
@@ -27,6 +27,12 @@ export class User {
   @Column({
     type: 'varchar',
     length: 64,
+  })
+  password: string;
+
+  @Column({
+    type: 'varchar',
+    length: 64,
     unique: true,
   })
   username: string;
@@ -38,22 +44,11 @@ export class User {
   fullName: string;
 
   @Column({
-    type: 'varchar',
-    length: 64,
-  })
-  password: string;
-
-  @Column({
     type: 'enum',
     enum: Role,
+    default: Role.GUEST,
   })
   role: Role;
-
-  @Column({
-    type: 'boolean',
-    default: false,
-  })
-  isApproved: boolean;
 
   @BeforeInsert()
   async logInsert() {
@@ -69,7 +64,7 @@ export class User {
     console.log('user with id %d updated', this.id);
   }
 
-  @AfterRemove()
+  @BeforeRemove()
   logRemove() {
     console.log('user with id %d removed', this.id);
   }

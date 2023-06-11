@@ -13,6 +13,7 @@ import { PharmacyModule } from './pharmacy/pharmacy.module';
 import { SupplierModule } from './supplier/supplier.module';
 import { Inventory } from './inventory/entities/inventory.entity';
 import { Pharmacy } from './pharmacy/entities/pharmacy.entity';
+import { Medicine } from './global-entities/medicine.entity';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { Pharmacy } from './pharmacy/entities/pharmacy.entity';
       username: 'root',
       password,
       database: 'mkhzan',
-      entities: [User, Warehouse, Inventory, Pharmacy],
+      entities: [User, Warehouse, Inventory, Pharmacy, Medicine],
       synchronize: true,
     }),
     UserModule,

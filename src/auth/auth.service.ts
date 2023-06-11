@@ -1,4 +1,8 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import { RegisterDto } from './dto/registerDto';
@@ -29,17 +33,13 @@ export class AuthService {
     };
   }
   async signUp(user: RegisterDto) {
-    if (user.role === 'ADMIN')
-      throw new HttpException('Unauthoried', HttpStatus.UNAUTHORIZED);
+    const { email, username } = user;
     const oldUser = await this.userService.findOneByUsernameOrEmail(
-      user.username,
-      user.email,
+      username,
+      email,
     );
-
     if (oldUser)
-      throw new HttpException(
-        'user is already registered',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('this user is already signed up');
+    return this.userService.createOne(user);
   }
 }

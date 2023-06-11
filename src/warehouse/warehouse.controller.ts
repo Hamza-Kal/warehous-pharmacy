@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Injectable, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Injectable,
+  Param,
+  ParseIntPipe,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { WarehouseService } from './warehouse.service';
 
 @Injectable()
@@ -10,8 +20,14 @@ export class WarehouseController {
   async getWareHouses() {
     return this.wareHouseService.getAll();
   }
+
   @Post()
   createWareHouse(@Body() body: any) {
     return this.wareHouseService.create(body);
+  }
+
+  @Delete('/:id')
+  removeWareHouse(@Param('id', ParseIntPipe) id: number) {
+    return this.wareHouseService.remove(id);
   }
 }

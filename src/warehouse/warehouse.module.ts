@@ -8,12 +8,6 @@ import { APP_GUARD } from '@nestjs/core';
 @Module({
   imports: [TypeOrmModule.forFeature([Warehouse])],
   controllers: [WarehouseController],
-  providers: [
-    WarehouseService,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-  ],
+  providers: [WarehouseService],
 })
 export class WarehouseModule {}

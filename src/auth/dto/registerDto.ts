@@ -6,9 +6,7 @@ import {
   IsStrongPassword,
   MaxLength,
   IsEmail,
-  IsBoolean,
 } from 'class-validator';
-import { Role } from 'src/enums/roles';
 
 export class RegisterDto {
   @IsNotEmpty()
@@ -31,11 +29,4 @@ export class RegisterDto {
   @IsNotEmpty()
   @IsString()
   fullName: string;
-
-  @IsEnum(Role)
-  role: string;
-
-  @IsNotEmpty()
-  @IsBoolean()
-  isApproved: boolean;
 }

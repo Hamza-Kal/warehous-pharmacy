@@ -5,33 +5,33 @@ import {
   OneToOne,
   JoinColumn,
   OneToMany,
-} from 'typeorm';
-import { User } from 'src/user/entities/user.entity';
-import { Inventory } from 'src/inventory/entities/inventory.entity';
-import { Medicine } from 'src/global-entities/medicine.entity';
+} from "typeorm";
+import { User } from "src/user/entities/user.entity";
+import { Inventory } from "src/inventory/entities/inventory.entity";
+import { Medicine } from "src/db-entities/medicine.entity";
 
 @Entity()
 export class Warehouse {
   @PrimaryGeneratedColumn({
-    type: 'int',
+    type: "int",
   })
   id: number;
 
   @Column({
-    type: 'varchar',
+    type: "varchar",
     length: 50,
     unique: true,
   })
   name: string;
 
   @Column({
-    type: 'varchar',
+    type: "varchar",
     length: 255,
   })
   location: string;
 
   @Column({
-    type: 'varchar',
+    type: "varchar",
     length: 15,
   })
   phoneNumber: string;
@@ -43,7 +43,4 @@ export class Warehouse {
   @OneToMany(() => Inventory, (inventory) => inventory.warehouse)
   @JoinColumn()
   inventories: Inventory[];
-
-  @OneToMany(() => Medicine, (medicine) => medicine.warehouse)
-  medicines: Medicine[];
 }

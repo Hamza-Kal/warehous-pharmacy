@@ -7,12 +7,13 @@ import {
   Param,
   ParseIntPipe,
   Post,
-  Req,
-} from '@nestjs/common';
-import { WarehouseService } from './warehouse.service';
+  Patch,
+} from "@nestjs/common";
+import { CreateWarehouseDto } from "./dtos/create-warehouse.dto";
+import { WarehouseService } from "./warehouse.service";
 
 @Injectable()
-@Controller('warehouse')
+@Controller("warehouse")
 export class WarehouseController {
   constructor(private wareHouseService: WarehouseService) {}
 
@@ -22,12 +23,12 @@ export class WarehouseController {
   }
 
   @Post()
-  createWareHouse(@Body() body: any) {
+  createWarehouse(@Body() body: CreateWarehouseDto) {
     return this.wareHouseService.create(body);
   }
 
-  @Delete('/:id')
-  removeWareHouse(@Param('id', ParseIntPipe) id: number) {
+  @Delete("/:id")
+  removeWarehouse(@Param("id", ParseIntPipe) id: number) {
     return this.wareHouseService.remove(id);
   }
 }

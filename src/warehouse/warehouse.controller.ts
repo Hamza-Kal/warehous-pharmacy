@@ -17,11 +17,6 @@ import { WarehouseService } from "./warehouse.service";
 export class WarehouseController {
   constructor(private wareHouseService: WarehouseService) {}
 
-  @Get()
-  async getWareHouses() {
-    return this.wareHouseService.getAll();
-  }
-
   @Post()
   createWarehouse(@Body() body: CreateWarehouseDto) {
     return this.wareHouseService.create(body);

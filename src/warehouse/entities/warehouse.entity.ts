@@ -9,6 +9,8 @@ import {
 import { User } from "src/user/entities/user.entity";
 import { Inventory } from "src/inventory/entities/inventory.entity";
 import { Medicine } from "src/db-entities/medicine.entity";
+import { Medicine_Warehouse } from "src/db-entities/medicine-entity/medicine-warehouse.entity";
+import { PendingOrder_Supplier } from "src/db-entities/pendingOrder-entity/pendingOrder-supplier.entity";
 
 @Entity()
 export class Warehouse {
@@ -43,4 +45,16 @@ export class Warehouse {
   @OneToMany(() => Inventory, (inventory) => inventory.warehouse)
   @JoinColumn()
   inventories: Inventory[];
+
+  @OneToMany(
+    () => Medicine_Warehouse,
+    (medicineWarehouse) => medicineWarehouse.warehouse,
+  )
+  medicines: Medicine_Warehouse[];
+
+  @OneToMany(
+    () => PendingOrder_Supplier,
+    (pendingOrderSupplier) => pendingOrderSupplier.warehouse,
+  )
+  pendingOrdersSupplier: PendingOrder_Supplier[];
 }

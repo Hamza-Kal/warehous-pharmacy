@@ -1,71 +1,78 @@
-import { Role } from 'src/enums/roles';
-import { Bcrypt } from 'src/utils/bcrypt';
+import { Role } from "src/enums/roles";
+import { Bcrypt } from "src/utils/bcrypt";
 import {
   AfterInsert,
   AfterUpdate,
   BeforeInsert,
   BeforeRemove,
+  BeforeUpdate,
   Column,
   Entity,
   PrimaryGeneratedColumn,
-} from 'typeorm';
+} from "typeorm";
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn({
-    type: 'int',
+    type: "int",
   })
   id: number;
 
   @Column({
-    type: 'varchar',
+    type: "varchar",
     length: 64,
     unique: true,
   })
   email: string;
 
   @Column({
-    type: 'varchar',
+    type: "varchar",
     length: 64,
   })
   password: string;
 
   @Column({
-    type: 'varchar',
+    type: "varchar",
     length: 64,
     unique: true,
   })
   username: string;
 
   @Column({
-    type: 'varchar',
+    type: "varchar",
     length: 64,
   })
   fullName: string;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: Role,
     default: Role.GUEST,
   })
   role: Role;
 
   @BeforeInsert()
-  async logInsert() {
+  async logBeforeInsert() {
     this.password = await Bcrypt.hashPassword(this.password);
   }
 
   @AfterInsert()
   logAfterInsert() {
-    console.log('user with id %d inserted', this.id);
+    console.log("user with id %d inserted", this.id);
   }
+
+  @BeforeUpdate()
+  async logBeforeUpdate() {
+    this.password = await Bcrypt.hashPassword(this.password);
+  }
+
   @AfterUpdate()
-  logUpdate() {
-    console.log('user with id %d updated', this.id);
+  logAfterUpdate() {
+    console.log("user with id %d updated", this.id);
   }
 
   @BeforeRemove()
-  logRemove() {
-    console.log('user with id %d removed', this.id);
+  logBeforeRemove() {
+    console.log("user with id %d removed", this.id);
   }
 }

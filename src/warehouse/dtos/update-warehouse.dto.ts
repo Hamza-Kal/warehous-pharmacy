@@ -1,8 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, IsPhoneNumber, IsOptional } from "class-validator";
-import { User } from "src/user/entities/user.entity";
 
-export class CreateWarehouseDto {
+export class UpdateWareHouseDto {
   @ApiProperty()
   @IsString()
   name: string;
@@ -14,8 +13,4 @@ export class CreateWarehouseDto {
   @ApiProperty()
   @IsPhoneNumber()
   phoneNumber: string;
-
-  @ApiProperty()
-  @IsOptional()
-  owner: Partial<User>;
 }

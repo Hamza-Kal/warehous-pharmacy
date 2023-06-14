@@ -3,8 +3,8 @@ import {
   IsPhoneNumber,
   IsString,
   MaxLength,
-} from "class-validator";
-import { User } from "src/user/entities/user.entity";
+} from 'class-validator';
+import { User } from 'src/user/entities/user.entity';
 
 export class UpdateInventoryDto {
   @IsString()

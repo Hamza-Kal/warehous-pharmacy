@@ -8,18 +8,18 @@ import {
   ParseIntPipe,
   Post,
   Patch,
-} from "@nestjs/common";
-import { CreateWarehouseDto } from "./dtos/create-warehouse.dto";
-import { UpdateWareHouseDto } from "./dtos/update-warehouse.dto";
-import { WarehouseService } from "./warehouse.service";
+} from '@nestjs/common';
+import { CreateWarehouseDto } from './dtos/create-warehouse.dto';
+import { UpdateWareHouseDto } from './dtos/update-warehouse.dto';
+import { WarehouseService } from './warehouse.service';
 
 @Injectable()
-@Controller("warehouse")
+@Controller('warehouse')
 export class WarehouseController {
   constructor(private warehouseService: WarehouseService) {}
 
-  @Get("/:id")
-  getWarehouse(@Param("id", ParseIntPipe) id: number) {
+  @Get('/:id')
+  getWarehouse(@Param('id', ParseIntPipe) id: number) {
     return this.warehouseService.findOne(id);
   }
   @Get()
@@ -32,16 +32,16 @@ export class WarehouseController {
     return this.warehouseService.create(body);
   }
 
-  @Patch("/:id")
+  @Patch('/:id')
   updateWarehouse(
-    @Param("id", ParseIntPipe) warehouseId: number,
+    @Param('id', ParseIntPipe) warehouseId: number,
     @Body() body: UpdateWareHouseDto,
   ) {
     return this.warehouseService.update(warehouseId, body);
   }
 
-  @Delete("/:id")
-  removeWarehouse(@Param("id", ParseIntPipe) id: number) {
+  @Delete('/:id')
+  removeWarehouse(@Param('id', ParseIntPipe) id: number) {
     return this.warehouseService.remove(id);
   }
 }

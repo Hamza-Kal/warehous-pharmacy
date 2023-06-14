@@ -4,21 +4,21 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
   JoinColumn,
-} from "typeorm";
-import { Medicine_Inventory } from "./medicine-entity/medicine-inventory.entity";
-import { Medicine_Pharmacy } from "./medicine-entity/medicine-pharmacy.entity";
-import { Medicine_Supplier } from "./medicine-entity/medicine-supplier.entity";
-import { Medicine_Warehouse } from "./medicine-entity/medicine-warehouse.entity";
+} from 'typeorm';
+import { Medicine_Inventory } from './medicine-entity/medicine-inventory.entity';
+import { Medicine_Pharmacy } from './medicine-entity/medicine-pharmacy.entity';
+import { Medicine_Supplier } from './medicine-entity/medicine-supplier.entity';
+import { Medicine_Warehouse } from './medicine-entity/medicine-warehouse.entity';
 
 @Entity()
 export class Medicine {
-  @PrimaryGeneratedColumn({ type: "int" })
+  @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
-  @Column({ type: "varchar", length: 50, unique: true })
+  @Column({ type: 'varchar', length: 50, unique: true })
   name: string;
 
-  @Column({ type: "varchar", length: 1024 })
+  @Column({ type: 'varchar', length: 1024 })
   prescreption: string;
 
   @OneToMany(

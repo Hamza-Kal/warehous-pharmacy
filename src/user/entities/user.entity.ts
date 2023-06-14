@@ -1,5 +1,5 @@
-import { Role } from "src/enums/roles";
-import { Bcrypt } from "src/utils/bcrypt";
+import { Role } from 'src/enums/roles';
+import { Bcrypt } from 'src/utils/bcrypt';
 import {
   AfterInsert,
   AfterUpdate,
@@ -9,43 +9,43 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
-} from "typeorm";
+} from 'typeorm';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn({
-    type: "int",
+    type: 'int',
   })
   id: number;
 
   @Column({
-    type: "varchar",
+    type: 'varchar',
     length: 64,
     unique: true,
   })
   email: string;
 
   @Column({
-    type: "varchar",
+    type: 'varchar',
     length: 64,
   })
   password: string;
 
   @Column({
-    type: "varchar",
+    type: 'varchar',
     length: 64,
     unique: true,
   })
   username: string;
 
   @Column({
-    type: "varchar",
+    type: 'varchar',
     length: 64,
   })
   fullName: string;
 
   @Column({
-    type: "enum",
+    type: 'enum',
     enum: Role,
     default: Role.GUEST,
   })
@@ -58,7 +58,7 @@ export class User {
 
   @AfterInsert()
   logAfterInsert() {
-    console.log("user with id %d inserted", this.id);
+    console.log('user with id %d inserted', this.id);
   }
 
   @BeforeUpdate()
@@ -68,11 +68,11 @@ export class User {
 
   @AfterUpdate()
   logAfterUpdate() {
-    console.log("user with id %d updated", this.id);
+    console.log('user with id %d updated', this.id);
   }
 
   @BeforeRemove()
   logBeforeRemove() {
-    console.log("user with id %d removed", this.id);
+    console.log('user with id %d removed', this.id);
   }
 }

@@ -6,8 +6,8 @@ import {
   IsStrongPassword,
   MaxLength,
   IsEmail,
-} from "class-validator";
-import { ApiProperty } from "@nestjs/swagger";
+} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
   @ApiProperty()

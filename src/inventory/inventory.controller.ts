@@ -6,18 +6,18 @@ import {
   Post,
   Body,
   Patch,
-} from "@nestjs/common";
-import { UpdateDescription } from "typeorm";
-import { CreateInventoryDto } from "./dtos/create-inventory.dto";
-import { UpdateInventoryDto } from "./dtos/update-inventory.entity";
-import { InventoryService } from "./inventory.service";
+} from '@nestjs/common';
+import { UpdateDescription } from 'typeorm';
+import { CreateInventoryDto } from './dtos/create-inventory.dto';
+import { UpdateInventoryDto } from './dtos/update-inventory.entity';
+import { InventoryService } from './inventory.service';
 
-@Controller("inventory")
+@Controller('inventory')
 export class InventoryController {
   constructor(private inventoryService: InventoryService) {}
 
-  @Get("/:id")
-  getInventory(@Param("id", ParseIntPipe) inventoryId: number) {
+  @Get('/:id')
+  getInventory(@Param('id', ParseIntPipe) inventoryId: number) {
     return this.inventoryService.findOne(inventoryId);
   }
   @Get()
@@ -30,9 +30,9 @@ export class InventoryController {
     return this.inventoryService.create(body);
   }
 
-  @Patch("/:id")
+  @Patch('/:id')
   updateInventory(
-    @Param("id", ParseIntPipe) inventoryId: number,
+    @Param('id', ParseIntPipe) inventoryId: number,
     @Body() body: UpdateInventoryDto,
   ) {
     return this.inventoryService.update(inventoryId, body);

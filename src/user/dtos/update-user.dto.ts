@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsStrongPassword } from "class-validator";
+import { IsOptional, IsString, IsStrongPassword } from 'class-validator';
 
 export class UpdateUserDto {
   @IsOptional()

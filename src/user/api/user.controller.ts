@@ -8,10 +8,10 @@ import {
   Body,
   ParseIntPipe,
 } from '@nestjs/common';
-import { CreateUserDto } from './dtos/create-user.dto';
-import { UserService } from './user.service';
-import { Role } from 'src/enums/roles';
-import { UpdateUserDto } from './dtos/update-user.dto';
+import { CreateUserDto } from '../dtos/create-user.dto';
+import { UserService } from '../services/user.service';
+import { Role } from 'src/shared/enums/roles';
+import { UpdateUserDto } from '../dtos/update-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -39,7 +39,7 @@ export class UserController {
   @Patch('/:id')
   updateUser(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: UpdateUserDto,
+    @Body() body: Partial<UpdateUserDto>,
   ) {
     return this.userService.update(id, body);
   }

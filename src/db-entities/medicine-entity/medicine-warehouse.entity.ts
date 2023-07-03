@@ -1,6 +1,6 @@
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Medicine } from '../medicine.entity';
+import { Medicine } from './medicine.entity';
 @Entity()
 export class Medicine_Warehouse {
   @PrimaryGeneratedColumn()

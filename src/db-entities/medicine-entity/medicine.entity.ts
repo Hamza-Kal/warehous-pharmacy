@@ -5,10 +5,10 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
-import { Medicine_Inventory } from './medicine-entity/medicine-inventory.entity';
-import { Medicine_Pharmacy } from './medicine-entity/medicine-pharmacy.entity';
-import { Medicine_Supplier } from './medicine-entity/medicine-supplier.entity';
-import { Medicine_Warehouse } from './medicine-entity/medicine-warehouse.entity';
+import { Medicine_Inventory } from './medicine-inventory.entity';
+import { Medicine_Pharmacy } from './medicine-pharmacy.entity';
+import { Medicine_Supplier } from './medicine-supplier.entity';
+import { Medicine_Warehouse } from './medicine-warehouse.entity';
 
 @Entity()
 export class Medicine {

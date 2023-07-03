@@ -1,5 +1,5 @@
-import { Role } from 'src/enums/roles';
-import { Bcrypt } from 'src/utils/bcrypt';
+import { Role } from 'src/shared/enums/roles';
+import { hashPassword } from 'src/shared/utils/bcrypt';
 import {
   AfterInsert,
   AfterUpdate,
@@ -52,8 +52,8 @@ export class User {
   role: Role;
 
   @BeforeInsert()
-  async logBeforeInsert() {
-    this.password = await Bcrypt.hashPassword(this.password);
+  async logBeforeInsertOrUpdate() {
+    this.password = await hashPassword(this.password);
   }
 
   @AfterInsert()
@@ -63,7 +63,7 @@ export class User {
 
   @BeforeUpdate()
   async logBeforeUpdate() {
-    this.password = await Bcrypt.hashPassword(this.password);
+    this.password = await hashPassword(this.password);
   }
 
   @AfterUpdate()

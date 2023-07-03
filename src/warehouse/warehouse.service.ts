@@ -4,9 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { retry } from 'rxjs';
-import { User } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { Repository } from 'typeorm';
 import { CreateWarehouseDto } from './dtos/create-warehouse.dto';
 import { UpdateWareHouseDto } from './dtos/update-warehouse.dto';

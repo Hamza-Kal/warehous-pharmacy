@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { Modules } from './shared/modules/modules';
 import { ConfigModule } from '@nestjs/config';
 import TypeOrmModule from './shared/modules/connection.module';
+
 @Module({
   imports: [ConfigModule.forRoot(), ...TypeOrmModule, ...Modules],
   controllers: [],

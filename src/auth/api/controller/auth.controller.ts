@@ -1,7 +1,9 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from 'src/auth/services/auth.service';
-import { RegisterDto } from '../dto';
+import { LoginDto, RegisterDto } from '../dto';
 import { Role } from 'src/shared/enums/roles';
+import { LocalAuthGuard } from 'src/auth/guards/local-auth.guard';
+import { CurrUser } from 'src/shared/decorators/user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -31,5 +33,10 @@ export class AuthController {
   async registerSupplier(@Body() body: RegisterDto) {
     body.assignedRole = Role.SUPPLIER;
     return this.authService.register(body);
+  }
+  @UseGuards(LocalAuthGuard)
+  @Post('login')
+  async logIn(@CurrUser() user: any) {
+    return this.authService.login(user, Role.ADMIN);
   }
 }

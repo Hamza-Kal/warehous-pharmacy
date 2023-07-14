@@ -7,6 +7,7 @@ import {
   MaxLength,
   IsEmail,
   IsNumberString,
+  MinLength,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from 'src/shared/enums/roles';
@@ -15,10 +16,13 @@ export class RegisterDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsEmail()
+  @MinLength(4)
+  @MaxLength(24)
   email: string;
 
   @ApiProperty()
   @IsNotEmpty()
+  @MinLength(4)
   @MaxLength(16)
   password: string;
 

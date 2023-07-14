@@ -14,7 +14,6 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
-
   async findOneById(id: number) {
     if (!id) throw new NotFoundException('user not found !');
     return await this.userRepository.findOneBy({ id });
@@ -27,7 +26,6 @@ export class UserService {
   async findOneByEmail(email: string) {
     return this.userRepository.findOneBy({ email });
   }
-
   async findOneByUsernameOrEmail(username: string, email: string) {
     return await this.userRepository.findOne({
       where: [{ email }, { username }],

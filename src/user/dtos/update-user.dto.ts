@@ -8,6 +8,7 @@ import {
   IsString,
   IsStrongPassword,
   MaxLength,
+  MinLength,
 } from 'class-validator';
 import { Role } from 'src/shared/enums/roles';
 
@@ -15,6 +16,8 @@ export class UpdateUserDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsEmail()
+  @MinLength(4)
+  @MaxLength(24)
   email: string;
 
   @ApiProperty()

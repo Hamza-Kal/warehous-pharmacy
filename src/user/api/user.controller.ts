@@ -21,10 +21,6 @@ export class UserController {
   getUser(@Param('id', ParseIntPipe) id: number) {
     return this.userService.findOneById(id);
   }
-  @Get()
-  getUsers() {
-    return this.userService.find();
-  }
 
   @Post()
   createUser(@Body() body: CreateUserDto) {
@@ -34,14 +30,6 @@ export class UserController {
   @Patch('/set-role/:id')
   SetRole(@Param('id', ParseIntPipe) id: number, @Body() body: { role: Role }) {
     return this.userService.setRole(id, body.role);
-  }
-
-  @Patch('/:id')
-  updateUser(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: Partial<UpdateUserDto>,
-  ) {
-    return this.userService.update(id, body);
   }
 
   @Delete('/:id')

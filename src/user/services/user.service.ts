@@ -6,6 +6,7 @@ import { CreateUserDto } from '../dtos/create-user.dto';
 import { Role } from 'src/shared/enums/roles';
 import passport from 'passport';
 import { IsStrongPassword } from 'class-validator';
+import { error } from 'console';
 
 @Injectable()
 export class UserService {
@@ -18,13 +19,11 @@ export class UserService {
     if (!id) throw new NotFoundException('user not found !');
     return await this.userRepository.findOneBy({ id });
   }
-  async find() {
-    return this.userRepository.find();
-  }
 
   async findOneByUsername(username: string) {
     return this.userRepository.findOneBy({ username });
   }
+
   async findOneByEmail(email: string) {
     return this.userRepository.findOneBy({ email });
   }
@@ -34,6 +33,7 @@ export class UserService {
       where: [{ email }, { username }],
     });
   }
+
   async createOne(data: CreateUserDto) {
     const user = this.userRepository.create(data);
     await this.userRepository.save(user);

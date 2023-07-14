@@ -31,19 +31,23 @@ export class AllExceptionFilter implements ExceptionFilter {
             message: typeormException.driverError.sqlMessage,
             code: 23000,
           },
+          timestamps: Date.now(),
+          path: request.url,
         });
       } else {
         response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          message: 'something wrong happened',
           error: { message: typeormException },
+          timestamps: Date.now(),
+          path: request.url,
         });
       }
     } else {
       response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        message: 'unknown something happened',
         error: {
           message: exception.message,
         },
+        timestamps: Date.now(),
+        path: request.url,
       });
     }
   }

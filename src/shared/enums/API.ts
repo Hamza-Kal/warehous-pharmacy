@@ -3,5 +3,5 @@ export enum Api {
   POST = 'Post',
   PATCH = 'Patch',
   PUT = 'Put',
-  Delete = 'Delete',
+  DELETE = 'Delete',
 }

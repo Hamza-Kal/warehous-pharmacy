@@ -1,35 +1,35 @@
-import {
-  Request,
-  Controller,
-  Get,
-  Post,
-  UseGuards,
-  Body,
-} from '@nestjs/common';
-import { AuthService } from '../../services/auth.service';
-import { RegisterDto } from '../../dto/registerDto';
-import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
-import { LocalAuthGuard } from '../../guards/local-auth.guard';
-import { CurrUser } from 'src/shared/decorators/user.decorator';
-import { IUser } from 'src/shared/interface/user.interface';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { AuthService } from 'src/auth/services/auth.service';
+import { RegisterDto } from '../dto';
+import { Role } from 'src/shared/enums/roles';
+
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('/register')
-  register(@Body() registerDto: RegisterDto) {
-    return this.authService.signup(registerDto);
+  @Post('admin-register')
+  async registerAdmin(@Body() body: RegisterDto) {
+    body.assignedRole = Role.ADMIN;
+    return this.authService.register(body);
   }
-
-  @UseGuards(LocalAuthGuard)
-  @Post('/login')
-  async logIn(@Request() req) {
-    return this.authService.login(req.user);
+  @Post('pharmacy-register')
+  async registerPharmacy(@Body() body: RegisterDto) {
+    body.assignedRole = Role.PHARMACY;
+    return this.authService.register(body);
   }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('/me/profile')
-  getProfile(@CurrUser() user: IUser) {
-    return user;
+  @Post('inventory-register')
+  async registerInventory(@Body() body: RegisterDto) {
+    body.assignedRole = Role.INVENTORY;
+    return this.authService.register(body);
+  }
+  @Post('warehouse-register')
+  async registerWarehouse(@Body() body: RegisterDto) {
+    body.assignedRole = Role.WAREHOUSE;
+    return this.authService.register(body);
+  }
+  @Post('supplier-register')
+  async registerSupplier(@Body() body: RegisterDto) {
+    body.assignedRole = Role.SUPPLIER;
+    return this.authService.register(body);
   }
 }

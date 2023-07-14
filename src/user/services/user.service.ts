@@ -37,8 +37,7 @@ export class UserService {
   async createOne(data: CreateUserDto) {
     const user = this.userRepository.create(data);
     await this.userRepository.save(user);
-    delete user.password;
-    delete user.role;
+
     return user;
   }
 

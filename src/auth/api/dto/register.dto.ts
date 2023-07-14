@@ -6,8 +6,10 @@ import {
   IsStrongPassword,
   MaxLength,
   IsEmail,
+  IsNumberString,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from 'src/shared/enums/roles';
 
 export class RegisterDto {
   @ApiProperty()
@@ -22,7 +24,7 @@ export class RegisterDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsPhoneNumber()
+  @IsNumberString()
   phoneNumber: string;
 
   @ApiProperty()
@@ -36,4 +38,6 @@ export class RegisterDto {
   @IsString()
   @MaxLength(16)
   fullName: string;
+
+  assignedRole: Role;
 }

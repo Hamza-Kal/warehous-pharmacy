@@ -5,4 +5,5 @@ export enum Role {
   STOREHOUSE = 'storehouse',
   SUPPLIER = 'supplier',
   INVENTORY = 'inventory',
+  ADMIN = 'admin',
 }

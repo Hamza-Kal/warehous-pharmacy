@@ -8,6 +8,7 @@ import {
   IsEmail,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from 'src/shared/enums/roles';
 
 export class CreateUserDto {
   @ApiProperty()
@@ -36,4 +37,6 @@ export class CreateUserDto {
   @IsString()
   @MaxLength(16)
   fullName: string;
+
+  assignedRole: Role;
 }

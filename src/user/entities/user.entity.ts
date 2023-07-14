@@ -51,6 +51,12 @@ export class User {
   })
   role: Role;
 
+  @Column({
+    type: 'enum',
+    enum: Role,
+  })
+  assignedRole: Role;
+
   @BeforeInsert()
   async logBeforeInsertOrUpdate() {
     this.password = await hashPassword(this.password);

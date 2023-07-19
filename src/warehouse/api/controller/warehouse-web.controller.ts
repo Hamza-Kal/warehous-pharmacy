@@ -19,18 +19,19 @@ import { ApiMethods } from 'src/shared/decorators/get-api-methods/get.api.method
 import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
 import { Api } from 'src/shared/enums/API';
 import { Role } from 'src/shared/enums/roles';
+import { DataSource } from 'typeorm';
 @AuthenticatedController({
   controller: 'warehouse',
 })
 export class WarehouseController {
   constructor(private warehouseWebService: WarehouseWebService) {}
 
-  @AuthorizedApi({
-    api: Api.GET,
-    role: [Role.WAREHOUSE],
-    url: '/inventories',
-  })
-  async getAllInventories(@CurrUser() user) {
-    return await this.warehouseWebService.
-  }
+  // @AuthorizedApi({
+  //   api: Api.GET,
+  //   role: [Role.WAREHOUSE],
+  //   url: '/inventories',
+  // })
+  // async getAllInventories(@CurrUser() user) {
+  //   return await this.warehouseWebService.
+  // }
 }

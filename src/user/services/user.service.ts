@@ -7,6 +7,7 @@ import { Role } from 'src/shared/enums/roles';
 import passport from 'passport';
 import { IsStrongPassword } from 'class-validator';
 import { error } from 'console';
+import { IParams } from 'src/shared/interface/params.interface';
 
 @Injectable()
 export class UserService {
@@ -17,6 +18,13 @@ export class UserService {
   async findOneById(id: number) {
     if (!id) throw new NotFoundException('user not found !');
     return await this.userRepository.findOneBy({ id });
+  }
+
+  async getAllGuests() {
+    return this.userRepository.find({
+      where: { role: Role.GUEST },
+      select: { username: true, email: true, id: true },
+    });
   }
 
   async findOneByUsername(username: string) {
@@ -30,6 +38,14 @@ export class UserService {
     return await this.userRepository.findOne({
       where: [{ email }, { username }],
     });
+  }
+
+  async acceptAccount({ id }: IParams) {
+    const account = await this.userRepository.findOne({
+      where: { id },
+    });
+    console.log(account);
+    return;
   }
 
   async createOne(data: CreateUserDto) {

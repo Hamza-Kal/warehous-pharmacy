@@ -4,6 +4,7 @@ import { LoginDto, RegisterDto } from '../dto';
 import { Role } from 'src/shared/enums/roles';
 import { LocalAuthGuard } from 'src/auth/guards/local-auth.guard';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
+import { LocalStrategy } from 'src/auth/strategies/local.strategy';
 
 @Controller('auth')
 export class AuthController {
@@ -35,8 +36,9 @@ export class AuthController {
     return this.authService.register(body);
   }
   @UseGuards(LocalAuthGuard)
-  @Post('login')
+  @Post('login-admin')
   async logIn(@CurrUser() user: any) {
+    console.log(user);
     return this.authService.login(user, Role.ADMIN);
   }
 }

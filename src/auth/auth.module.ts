@@ -11,16 +11,11 @@ import { PharmacyAuthService } from './services/pharmacy.auth.service';
 import { WarehouseAuthService } from './services/warehouse.auth.service';
 import { InventoryAuthService } from './services/inventory.auth.service';
 import { SupplierAuthService } from './services/supplier.auth.service';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import jwtModule from 'src/shared/jwt/jwt.module';
 
 @Module({
-  imports: [
-    UserModule,
-    PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '180h' },
-    }),
-  ],
+  imports: [UserModule, PassportModule, jwtModule],
   providers: [
     AuthService,
     LocalStrategy,

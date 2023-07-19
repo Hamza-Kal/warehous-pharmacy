@@ -1,6 +1,6 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { IUser } from 'src/shared/interface/user.interface';
 
 @Injectable()
@@ -9,11 +9,18 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: `faek`,
+      passReqToCallback: true,
     });
   }
 
-  async validate(payload: IUser) {
-    return { id: payload.id, username: payload.username, role: payload.role };
+  async validate(req: Request, payload: any) {
+    if (!payload)
+      throw new HttpException('expired token', HttpStatus.UNAUTHORIZED);
+    return {
+      username: payload.username,
+      id: payload.id,
+      role: payload.role,
+    };
   }
 }

@@ -27,7 +27,7 @@ export const Modules = [
   SupplierModule,
 ];
 
-export const Entities = [
+export const entities = [
   User,
   Warehouse,
   Inventory,

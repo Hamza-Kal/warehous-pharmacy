@@ -45,7 +45,11 @@ export class UserService {
   }
 
   async acceptAccount({ id }: IParams) {
-    const user = await this.userRepository.findOneBy({ id, role: Role.GUEST });
+    const user = await this.userRepository.findOneBy({
+      id,
+      role: Role.GUEST,
+      completedAccount: true,
+    });
     user.role = user.assignedRole;
     this.userRepository.save(user);
     return;

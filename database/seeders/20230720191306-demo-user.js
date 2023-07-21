@@ -11,6 +11,7 @@ module.exports = {
         password: '12345678',
         fullName: 'adminName',
         role: 'admin',
+        completedAccount: true,
       },
     ]);
   },

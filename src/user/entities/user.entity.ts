@@ -57,6 +57,11 @@ export class User {
   })
   assignedRole: Role;
 
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  completedAccount?: boolean;
   @BeforeInsert()
   async logBeforeInsertOrUpdate() {
     this.password = await hashPassword(this.password);
@@ -67,10 +72,10 @@ export class User {
     console.log('user with id %d inserted', this.id);
   }
 
-  @BeforeUpdate()
-  async logBeforeUpdate() {
-    this.password = await hashPassword(this.password);
-  }
+  // @BeforeUpdate()
+  // async logBeforeUpdate() {
+  //   this.password = await hashPassword(this.password);
+  // }
 
   @AfterUpdate()
   logAfterUpdate() {

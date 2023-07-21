@@ -15,11 +15,15 @@ export class WarehouseWebService {
   constructor(
     @InjectRepository(Warehouse)
     private warehouseRepository: Repository<Warehouse>,
-    private usersService: UserService,
+    // private warehouseInventoryRepository: Repository<WarehouseInventory>,
     private dataSource: DataSource,
   ) {}
 
-  async getAllInventories(id: number) {
-    // const queryRunner = this.dataSourc
-  }
+  // async getAllInventories(id: number) {
+  //   const inventories = await this.warehouseInventoryRepository.find({
+  //     where: { warehouseId: id },
+  //     relations: ['inventoy'],
+  //   });
+  //   console.log(inventories);
+  // }
 }

@@ -8,4 +8,6 @@ export class InventoryAuthService {
     private userService: UserService,
     private jwtService: JwtService,
   ) {}
+
+  
 }

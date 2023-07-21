@@ -4,7 +4,7 @@ import { User } from '../entities/user.entity';
 import { Repository, StreamDescription } from 'typeorm';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { Role } from 'src/shared/enums/roles';
-import passport from 'passport';
+import passport, { use } from 'passport';
 import { IsStrongPassword } from 'class-validator';
 import { error } from 'console';
 import { IParams } from 'src/shared/interface/params.interface';
@@ -41,10 +41,9 @@ export class UserService {
   }
 
   async acceptAccount({ id }: IParams) {
-    const account = await this.userRepository.findOne({
-      where: { id },
-    });
-    console.log(account);
+    const user = await this.userRepository.findOneBy({ id, role: Role.GUEST });
+    user.role = user.assignedRole;
+    this.userRepository.save(user);
     return;
   }
 

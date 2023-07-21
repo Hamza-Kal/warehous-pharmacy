@@ -1,5 +1,3 @@
-import { Medicine_Inventory } from 'src/db-entities/medicine-entity/medicine-inventory.entity';
-import { PendingOrder_Pharmacy } from 'src/db-entities/pendingOrder-entity/pendingOrder-pharmacy.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 import {
@@ -45,16 +43,4 @@ export class Inventory {
   @ManyToOne(() => Warehouse, (warehouse) => warehouse.inventories)
   @JoinColumn()
   warehouse: Warehouse;
-
-  @OneToMany(
-    () => Medicine_Inventory,
-    (medicineInventory) => medicineInventory.inventory,
-  )
-  medicines: Medicine_Inventory[];
-
-  @OneToMany(
-    () => PendingOrder_Pharmacy,
-    (pendinOrderPharmacy) => pendinOrderPharmacy.inventory,
-  )
-  pendingOrdersPharmacy: PendingOrder_Pharmacy[];
 }

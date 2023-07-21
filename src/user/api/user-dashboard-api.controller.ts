@@ -26,10 +26,10 @@ export class UserDashboardController {
   constructor(private userService: UserService) {}
   @AuthorizedApi({
     api: Api.PATCH,
-    role: [Role.PHARMACY],
-    url: '',
+    role: [Role.ADMIN],
+    url: 'accept/:id',
   })
-  async acceptAccount(@Param() params: IParams) {
+  async acceptAccount(@Param('id', new ParseIntPipe()) params: IParams) {
     return this.userService.acceptAccount(params);
   }
 

@@ -43,7 +43,6 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login-warehouse')
   async loginWarehouse(@CurrUser() user: IUser) {
-    console.log('user', user);
     return this.authService.loginWarehouse(user);
   }
 }

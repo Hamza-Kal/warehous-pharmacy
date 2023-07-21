@@ -29,6 +29,12 @@ export class Warehouse {
   })
   location: string;
 
+  @Column({
+    type: 'varchar',
+    length: 16,
+  })
+  phoneNumber: string;
+
   @OneToOne(() => User)
   @JoinColumn()
   owner: User;

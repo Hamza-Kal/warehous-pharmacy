@@ -7,7 +7,7 @@ import {
   username,
   database,
 } from '../../../ormconfig.json';
-import { Entities } from './modules';
+import { entities } from './modules';
 export default [
   TypeOrmModule.forRoot({
     type: 'mysql',
@@ -16,7 +16,7 @@ export default [
     username,
     password,
     database,
-    entities: Entities,
+    entities,
     synchronize: true,
   }),
 ];

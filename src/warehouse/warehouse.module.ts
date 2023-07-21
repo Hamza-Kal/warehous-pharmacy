@@ -1,16 +1,21 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { WarehouseController } from './warehouse.controller';
-import { WarehouseService } from './warehouse.service';
+import { WarehouseController } from './api/controller/warehouse-web.controller';
+import { WarehouseWebService } from './services/warehouse-web.service';
 import { Warehouse } from './entities/warehouse.entity';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { APP_GUARD } from '@nestjs/core';
-import { MongoUnexpectedServerResponseError } from 'typeorm';
-import { UserService } from 'src/user/services/user.service';
 import { UserModule } from 'src/user/user.module';
+import { WarehouseService } from './services/warehouse.service';
+import jwtModule from 'src/shared/jwt/jwt.module';
+import { User } from 'src/user/entities/user.entity';
 @Module({
-  imports: [TypeOrmModule.forFeature([Warehouse]), UserModule],
+  imports: [
+    TypeOrmModule.forFeature([Warehouse, User]),
+    UserModule,
+    jwtModule,
+    UserModule,
+  ],
   controllers: [WarehouseController],
-  providers: [WarehouseService],
+  providers: [WarehouseWebService, WarehouseService],
+  exports: [WarehouseService],
 })
 export class WarehouseModule {}

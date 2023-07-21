@@ -4,6 +4,8 @@ import { LoginDto, RegisterDto } from '../dto';
 import { Role } from 'src/shared/enums/roles';
 import { LocalAuthGuard } from 'src/auth/guards/local-auth.guard';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
+import { LocalStrategy } from 'src/auth/strategies/local.strategy';
+import { IUser } from 'src/shared/interface/user.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -19,24 +21,29 @@ export class AuthController {
     body.assignedRole = Role.PHARMACY;
     return this.authService.register(body);
   }
-  @Post('inventory-register')
-  async registerInventory(@Body() body: RegisterDto) {
-    body.assignedRole = Role.INVENTORY;
-    return this.authService.register(body);
-  }
+
   @Post('warehouse-register')
   async registerWarehouse(@Body() body: RegisterDto) {
     body.assignedRole = Role.WAREHOUSE;
     return this.authService.register(body);
   }
+
   @Post('supplier-register')
   async registerSupplier(@Body() body: RegisterDto) {
     body.assignedRole = Role.SUPPLIER;
     return this.authService.register(body);
   }
   @UseGuards(LocalAuthGuard)
-  @Post('login')
-  async logIn(@CurrUser() user: any) {
+  @Post('login-admin')
+  async loginAdmin(@CurrUser() user: any) {
+    console.log(user);
     return this.authService.login(user, Role.ADMIN);
+  }
+
+  @UseGuards(LocalAuthGuard)
+  @Post('login-warehouse')
+  async loginWarehouse(@CurrUser() user: IUser) {
+    console.log('user', user);
+    return this.authService.loginWarehouse(user);
   }
 }

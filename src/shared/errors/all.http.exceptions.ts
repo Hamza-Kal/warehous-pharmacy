@@ -23,6 +23,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       let httpException = exception as HttpException;
       const status = httpException.getStatus();
       const { error } = httpException.getResponse() as { error: object };
+      console.log(httpException);
       const res = {
         isCustom: true,
         statusCode: status,

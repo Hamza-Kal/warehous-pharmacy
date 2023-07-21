@@ -8,15 +8,18 @@ export function AuthorizedApi({
   api,
   url,
   role,
-  created,
+  created = true,
+  completedAccount = true,
 }: {
   api: Api;
   url: string;
   role: Role[];
-  created?: boolean | true;
+  created?: boolean;
+  // indecate whether this api need to the information of the account must be completed or not
+  completedAccount?: boolean;
 }) {
   return applyDecorators(
-    Authorized({ role }),
+    Authorized({ role, completedAccount }),
     api === Api.POST && created
       ? HttpCode(HttpStatus.CREATED)
       : HttpCode(HttpStatus.ACCEPTED),

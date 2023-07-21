@@ -7,8 +7,6 @@ import {
   OneToMany,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
-import { Medicine_Supplier } from 'src/db-entities/medicine-entity/medicine-supplier.entity';
-import { PendingOrder_Supplier } from 'src/db-entities/pendingOrder-entity/pendingOrder-supplier.entity';
 
 @Entity()
 export class Supplier {
@@ -39,16 +37,4 @@ export class Supplier {
   @OneToOne(() => User)
   @JoinColumn()
   user: User;
-
-  @OneToMany(
-    () => Medicine_Supplier,
-    (medicineSupplier) => medicineSupplier.supplier,
-  )
-  medicines: Medicine_Supplier[];
-
-  @OneToMany(
-    () => PendingOrder_Supplier,
-    (pendingOrderSupplier) => pendingOrderSupplier.supplier,
-  )
-  pendingOrdersSupplier: PendingOrder_Supplier[];
 }

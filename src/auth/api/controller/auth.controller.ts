@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from 'src/auth/services/auth.service';
 import { LoginDto, RegisterDto } from '../dto';
 import { Role } from 'src/shared/enums/roles';
@@ -34,6 +41,7 @@ export class AuthController {
     return this.authService.register(body);
   }
   @UseGuards(LocalAuthGuard)
+  @HttpCode(200)
   @Post('login-admin')
   async loginAdmin(@CurrUser() user: any) {
     console.log(user);
@@ -41,6 +49,7 @@ export class AuthController {
   }
 
   @UseGuards(LocalAuthGuard)
+  @HttpCode(200)
   @Post('login-warehouse')
   async loginWarehouse(@CurrUser() user: IUser) {
     console.log('user', user);

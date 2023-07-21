@@ -47,21 +47,19 @@ export class AuthService {
       accessToken,
     };
   }
+
   async loginWarehouse(user: any) {
-    const { username, role, id } = user;
+    const { username, role, id, completedAccount } = user;
     const payload = {
       username,
       id,
       role,
-      createdAccount: false,
+      completedAccount,
     };
-    const warehouse = await this.warehouseService.findOne(id);
-    warehouse
-      ? (payload.createdAccount = true)
-      : (payload.createdAccount = false);
-    const access_token = this.jwtService.sign(payload);
+
+    const accessToken = this.jwtService.sign(payload);
     return {
-      access_token,
+      accessToken,
     };
   }
 

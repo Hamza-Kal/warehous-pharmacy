@@ -8,6 +8,7 @@ import passport, { use } from 'passport';
 import { IsStrongPassword } from 'class-validator';
 import { error } from 'console';
 import { IParams } from 'src/shared/interface/params.interface';
+import { where } from 'sequelize';
 
 @Injectable()
 export class UserService {
@@ -15,10 +16,6 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
-  async findOneById(id: number) {
-    if (!id) throw new NotFoundException('user not found !');
-    return await this.userRepository.findOneBy({ id });
-  }
 
   async getAllGuests() {
     return this.userRepository.find({
@@ -29,6 +26,13 @@ export class UserService {
 
   async findOneByUsername(username: string) {
     return this.userRepository.findOneBy({ username });
+  }
+
+  async completeInfo(id: number) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    user.completedAccount = true;
+    await this.userRepository.save(user);
+    return user;
   }
 
   async findOneByEmail(email: string) {

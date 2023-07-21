@@ -11,14 +11,4 @@ import { CreateWarehouseDto } from 'src/warehouse/api/dto/create-warehouse.dto';
 })
 export class WarehouseAuthController {
   constructor(private warehouseAuthService: WarehouseAuthService) {}
-
-  @AuthorizedApi({
-    api: Api.POST,
-    role: [Role.GUEST],
-    url: '/complete-info',
-    completedAccount: false,
-  })
-  completeWarehouseInfo(@Body() body: CreateWarehouseDto) {
-    return this.warehouseAuthService.createWarehouse(body);
-  }
 }

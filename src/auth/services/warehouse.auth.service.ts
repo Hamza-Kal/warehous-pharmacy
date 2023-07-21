@@ -17,7 +17,4 @@ export class WarehouseAuthService {
   // async register(user: IUser, body: RegisterDto) {
   //   return await this.userService.createOne()
   // }
-  async createWarehouse(data: CreateWarehouseDto) {
-    return this.warehouseWebService.createWarehouse(data);
-  }
 }

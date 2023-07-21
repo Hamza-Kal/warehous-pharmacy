@@ -25,7 +25,5 @@ export class CreateWarehouseDto {
   @IsString()
   phoneNumber: string;
 
-  @ApiProperty()
-  @IsOptional()
-  owner: Partial<User>;
+  owner: User;
 }

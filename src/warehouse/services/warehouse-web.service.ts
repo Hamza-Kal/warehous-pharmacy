@@ -1,14 +1,8 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserService } from 'src/user/services/user.service';
 import { DataSource, Repository } from 'typeorm';
-import { CreateWarehouseDto } from '../api/dto/create-warehouse.dto';
-import { UpdateWareHouseDto } from '../api/dto/update-warehouse.dto';
 import { Warehouse } from '../entities/warehouse.entity';
+import { CreateWarehouseDto } from '../api/dto/create-warehouse.dto';
 
 @Injectable()
 export class WarehouseWebService {
@@ -26,4 +20,9 @@ export class WarehouseWebService {
   //   });
   //   console.log(inventories);
   // }
+
+  async createWarehouse(data: CreateWarehouseDto) {
+    const warehouse = await this.warehouseRepository.create(data);
+    return this.warehouseRepository.save(warehouse);
+  }
 }

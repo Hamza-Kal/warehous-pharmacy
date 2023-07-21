@@ -7,7 +7,6 @@ import {
   Body,
   Patch,
 } from '@nestjs/common';
-import { UpdateDescription } from 'typeorm';
 import { CreateInventoryDto } from './dtos/create-inventory.dto';
 import { UpdateInventoryDto } from './dtos/update-inventory.entity';
 import { InventoryService } from './inventory.service';

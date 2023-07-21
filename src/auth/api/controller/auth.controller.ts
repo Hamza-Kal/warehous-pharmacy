@@ -52,7 +52,6 @@ export class AuthController {
   @HttpCode(200)
   @Post('login-warehouse')
   async loginWarehouse(@CurrUser() user: IUser) {
-    console.log('user', user);
     return this.authService.loginWarehouse(user);
   }
 }

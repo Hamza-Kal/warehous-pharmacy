@@ -18,7 +18,7 @@ import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { ApiMethods } from 'src/shared/decorators/get-api-methods/get.api.methods';
 import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
 import { Api } from 'src/shared/enums/API';
-import { Role } from 'src/shared/enums/roles';
+import { Role } from '../../../shared/enums/roles';
 import { DataSource } from 'typeorm';
 @AuthenticatedController({
   controller: 'warehouse',
@@ -34,4 +34,14 @@ export class WarehouseController {
   // async getAllInventories(@CurrUser() user) {
   //   return await this.warehouseWebService.
   // }
+
+  @AuthorizedApi({
+    api: Api.POST,
+    url: '/createWarehouse',
+    role: [Role.GUEST],
+    completedAccount: false,
+  })
+  createWarehouse(@Body() body: CreateWarehouseDto) {
+    return this.warehouseWebService.createWarehouse(body);
+  }
 }

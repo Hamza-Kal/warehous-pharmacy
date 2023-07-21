@@ -16,6 +16,6 @@ import { User } from 'src/user/entities/user.entity';
   ],
   controllers: [WarehouseController],
   providers: [WarehouseWebService, WarehouseService],
-  exports: [WarehouseService],
+  exports: [WarehouseService, WarehouseWebService],
 })
 export class WarehouseModule {}

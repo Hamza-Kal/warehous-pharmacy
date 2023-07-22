@@ -1,14 +1,9 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateInventoryDto } from '../dtos/create-inventory.dto';
 import { Inventory } from '../entities/inventory.entity';
-import { UpdateInventoryDto } from '../dtos/update-inventory.entity';
-import { NotFoundError } from 'rxjs';
+
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 
 @Injectable()

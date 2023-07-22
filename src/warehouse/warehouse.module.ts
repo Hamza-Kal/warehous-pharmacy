@@ -7,12 +7,15 @@ import { UserModule } from 'src/user/user.module';
 import { WarehouseService } from './services/warehouse.service';
 import jwtModule from 'src/shared/jwt/jwt.module';
 import { User } from 'src/user/entities/user.entity';
+import { InventoryModule } from 'src/inventory/inventory.module';
+import { Inventory } from 'src/inventory/entities/inventory.entity';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Warehouse, User]),
+    TypeOrmModule.forFeature([Warehouse, User, Inventory]),
     UserModule,
     jwtModule,
     UserModule,
+    InventoryModule,
   ],
   controllers: [WarehouseController],
   providers: [WarehouseWebService, WarehouseService],

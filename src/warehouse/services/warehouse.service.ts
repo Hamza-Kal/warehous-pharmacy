@@ -13,13 +13,7 @@ export class WarehouseService {
     private userRepo: Repository<User>,
   ) {}
 
-  async findOne(id: number) {
-    const warehouse = new Warehouse();
-    warehouse.location = 'faek';
-    warehouse.name = 'ffff';
-    warehouse.owner = await this.userRepo.findOne({ where: { id } });
-    return this.warehouseRepository.save(warehouse);
-
+  async findByUser(id: number) {
     return await this.warehouseRepository.findOne({
       where: {
         owner: {

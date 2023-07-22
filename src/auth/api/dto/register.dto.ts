@@ -64,12 +64,6 @@ export class InventroyRegister {
   @IsNotEmpty()
   @IsString()
   @MaxLength(16)
-  username: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  @MaxLength(16)
   fullName: string;
 
   @IsString()
@@ -84,4 +78,5 @@ export class InventroyRegister {
   inventoryPhoneNumber: string;
 
   assignedRole: Role;
+  completedAccount: boolean;
 }

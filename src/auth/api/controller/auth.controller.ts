@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  applyDecorators,
   Get,
   HttpCode,
   Post,
@@ -14,12 +15,19 @@ import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { LocalStrategy } from 'src/auth/strategies/local.strategy';
 import { IUser } from 'src/shared/interface/user.interface';
 import { WarehouseAuthService } from 'src/auth/services/warehouse.auth.service';
+import { InventoryAuthService } from 'src/auth/services/inventory.auth.service';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
+import { Api } from 'src/shared/enums/API';
+import { InventroyRegister } from '../dto/register.dto';
+import { AuthenticatedController } from 'src/shared/decorators/authenticated.controller.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
     private warehouseAuthService: WarehouseAuthService,
+    private inventoryAuthService: InventoryAuthService,
   ) {}
 
   @Post('admin-register')
@@ -39,12 +47,6 @@ export class AuthController {
     return this.authService.register(body);
   }
 
-  @Post('inventory-register')
-  async registerInventory(@Body() body: RegisterDto) {
-    body.assignedRole = Role.WAREHOUSE;
-    return this.authService.register(body);
-  }
-
   @Post('supplier-register')
   async registerSupplier(@Body() body: RegisterDto) {
     body.assignedRole = Role.SUPPLIER;
@@ -54,7 +56,6 @@ export class AuthController {
   @HttpCode(200)
   @Post('login-admin')
   async loginAdmin(@CurrUser() user: any) {
-    console.log(user);
     return this.authService.login(user, Role.ADMIN);
   }
 

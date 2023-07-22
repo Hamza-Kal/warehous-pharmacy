@@ -33,12 +33,6 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   @MaxLength(16)
-  username: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  @MaxLength(16)
   fullName: string;
 
   assignedRole: Role;

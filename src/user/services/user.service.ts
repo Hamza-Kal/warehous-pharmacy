@@ -19,13 +19,9 @@ export class UserService {
 
   async getAllGuests() {
     return this.userRepository.find({
-      where: { role: Role.GUEST },
-      select: { username: true, email: true, id: true },
+      where: { role: Role.GUEST, completedAccount: true },
+      select: { email: true, id: true },
     });
-  }
-
-  async findOneByUsername(username: string) {
-    return this.userRepository.findOneBy({ username });
   }
 
   async completeInfo(id: number) {
@@ -37,11 +33,6 @@ export class UserService {
 
   async findOneByEmail(email: string) {
     return this.userRepository.findOneBy({ email });
-  }
-  async findOneByUsernameOrEmail(username: string, email: string) {
-    return await this.userRepository.findOne({
-      where: [{ email }, { username }],
-    });
   }
 
   async acceptAccount({ id }: IParams) {

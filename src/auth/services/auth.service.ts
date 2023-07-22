@@ -33,30 +33,15 @@ export class AuthService {
       id: user.id,
     };
   }
+
   async login(user: any, requiredRole: Role) {
-    const { username, role, id, completedAccount } = user;
+    const { role, id, completedAccount } = user;
     this.validateRole(role, requiredRole);
     const payload = {
-      username,
       id,
       role,
       completedAccount,
     };
-    const accessToken = this.jwtService.sign(payload);
-    return {
-      accessToken,
-    };
-  }
-
-  async loginWarehouse(user: any) {
-    const { username, role, id, completedAccount } = user;
-    const payload = {
-      username,
-      id,
-      role,
-      completedAccount,
-    };
-
     const accessToken = this.jwtService.sign(payload);
     return {
       accessToken,

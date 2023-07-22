@@ -13,10 +13,14 @@ import { LocalAuthGuard } from 'src/auth/guards/local-auth.guard';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { LocalStrategy } from 'src/auth/strategies/local.strategy';
 import { IUser } from 'src/shared/interface/user.interface';
+import { WarehouseAuthService } from 'src/auth/services/warehouse.auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private warehouseAuthService: WarehouseAuthService,
+  ) {}
 
   @Post('admin-register')
   async registerAdmin(@Body() body: RegisterDto) {
@@ -31,6 +35,12 @@ export class AuthController {
 
   @Post('warehouse-register')
   async registerWarehouse(@Body() body: RegisterDto) {
+    body.assignedRole = Role.WAREHOUSE;
+    return this.authService.register(body);
+  }
+
+  @Post('inventory-register')
+  async registerInventory(@Body() body: RegisterDto) {
     body.assignedRole = Role.WAREHOUSE;
     return this.authService.register(body);
   }
@@ -52,6 +62,6 @@ export class AuthController {
   @HttpCode(200)
   @Post('login-warehouse')
   async loginWarehouse(@CurrUser() user: IUser) {
-    return this.authService.loginWarehouse(user);
+    return this.warehouseAuthService.loginWarehouse(user);
   }
 }

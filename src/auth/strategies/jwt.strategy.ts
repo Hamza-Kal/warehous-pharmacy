@@ -18,7 +18,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!payload)
       throw new HttpException('expired token', HttpStatus.UNAUTHORIZED);
     return {
-      username: payload.username,
       id: payload.id,
       role: payload.role,
       completedAccount: payload.completedAccount,

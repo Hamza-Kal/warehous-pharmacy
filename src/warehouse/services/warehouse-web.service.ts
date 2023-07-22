@@ -3,13 +3,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Warehouse } from '../entities/warehouse.entity';
 import { CreateWarehouseDto } from '../api/dto/create-warehouse.dto';
+import { IUser } from 'src/shared/interface/user.interface';
+import { User } from 'src/user/entities/user.entity';
+import { UserService } from 'src/user/services/user.service';
 
 @Injectable()
 export class WarehouseWebService {
   constructor(
     @InjectRepository(Warehouse)
     private warehouseRepository: Repository<Warehouse>,
-    // private warehouseInventoryRepository: Repository<WarehouseInventory>,
+
+    private userService: UserService,
     private dataSource: DataSource,
   ) {}
 
@@ -21,8 +25,12 @@ export class WarehouseWebService {
   //   console.log(inventories);
   // }
 
-  async createWarehouse(data: CreateWarehouseDto) {
-    const warehouse = await this.warehouseRepository.create(data);
-    return this.warehouseRepository.save(warehouse);
+  async createWarehouse(body: CreateWarehouseDto, currUser: IUser) {
+    //TODO PUT ALL THESE FUNCTION IN TRANSACTION
+    const user = await this.userService.completeInfo(currUser.id);
+    body.owner = user;
+    const warehouse = this.warehouseRepository.create(body);
+    await this.warehouseRepository.save(warehouse);
+    return { id: warehouse.id };
   }
 }

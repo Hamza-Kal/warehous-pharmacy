@@ -13,17 +13,25 @@ import { InventoryAuthService } from './services/inventory.auth.service';
 import { SupplierAuthService } from './services/supplier.auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import jwtModule from 'src/shared/jwt/jwt.module';
-import { WarehouseAuthController } from './api/controller/warehouse-auth.controller';
 import { WarehouseModule } from 'src/warehouse/warehouse.module';
+import { InventoryModule } from 'src/inventory/inventory.module';
+import { WarehouseAuthController } from './api/controller/warehouse-auth.controller';
 
 @Module({
-  imports: [UserModule, WarehouseModule, PassportModule, jwtModule],
+  imports: [
+    UserModule,
+    WarehouseModule,
+    InventoryModule,
+    PassportModule,
+    jwtModule,
+  ],
   providers: [
     AuthService,
     LocalStrategy,
     JwtStrategy,
     AdminAuthService,
     PharmacyAuthService,
+    InventoryAuthService,
     WarehouseAuthService,
   ],
   controllers: [AuthController, WarehouseAuthController],

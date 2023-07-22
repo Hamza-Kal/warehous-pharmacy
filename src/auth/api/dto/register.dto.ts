@@ -11,6 +11,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from 'src/shared/enums/roles';
+import { Api } from 'src/shared/enums/API';
 
 export class RegisterDto {
   @ApiProperty()
@@ -35,7 +36,29 @@ export class RegisterDto {
   @IsNotEmpty()
   @IsString()
   @MaxLength(16)
-  username: string;
+  fullName: string;
+
+  assignedRole: Role;
+}
+
+export class InventroyRegister {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsEmail()
+  @MinLength(4)
+  @MaxLength(24)
+  email: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @MinLength(4)
+  @MaxLength(16)
+  password: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumberString()
+  phoneNumber: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -43,5 +66,17 @@ export class RegisterDto {
   @MaxLength(16)
   fullName: string;
 
+  @IsString()
+  @MaxLength(16)
+  name: string;
+
+  @IsString()
+  @MaxLength(255)
+  location: string;
+
+  @IsPhoneNumber()
+  inventoryPhoneNumber: string;
+
   assignedRole: Role;
+  completedAccount: boolean;
 }

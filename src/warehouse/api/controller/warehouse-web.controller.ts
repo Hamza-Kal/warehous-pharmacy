@@ -20,6 +20,7 @@ import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
 import { Api } from 'src/shared/enums/API';
 import { Role } from '../../../shared/enums/roles';
 import { DataSource } from 'typeorm';
+import { IUser } from 'src/shared/interface/user.interface';
 @AuthenticatedController({
   controller: 'warehouse',
 })
@@ -37,11 +38,11 @@ export class WarehouseController {
 
   @AuthorizedApi({
     api: Api.POST,
-    url: '/createWarehouse',
+    url: '/create-warehouse',
     role: [Role.GUEST],
     completedAccount: false,
   })
-  createWarehouse(@Body() body: CreateWarehouseDto) {
-    return this.warehouseWebService.createWarehouse(body);
+  completeInfo(@Body() body: CreateWarehouseDto, @CurrUser() user: IUser) {
+    return this.warehouseWebService.createWarehouse(body, user);
   }
 }

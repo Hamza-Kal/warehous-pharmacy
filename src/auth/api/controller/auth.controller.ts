@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  applyDecorators,
+  Get,
+  HttpCode,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from 'src/auth/services/auth.service';
 import { LoginDto, RegisterDto } from '../dto';
 import { Role } from 'src/shared/enums/roles';
@@ -6,10 +14,21 @@ import { LocalAuthGuard } from 'src/auth/guards/local-auth.guard';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { LocalStrategy } from 'src/auth/strategies/local.strategy';
 import { IUser } from 'src/shared/interface/user.interface';
+import { WarehouseAuthService } from 'src/auth/services/warehouse.auth.service';
+import { InventoryAuthService } from 'src/auth/services/inventory.auth.service';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
+import { Api } from 'src/shared/enums/API';
+import { InventroyRegister } from '../dto/register.dto';
+import { AuthenticatedController } from 'src/shared/decorators/authenticated.controller.decorator';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private warehouseAuthService: WarehouseAuthService,
+    private inventoryAuthService: InventoryAuthService,
+  ) {}
 
   @Post('admin-register')
   async registerAdmin(@Body() body: RegisterDto) {
@@ -34,15 +53,16 @@ export class AuthController {
     return this.authService.register(body);
   }
   @UseGuards(LocalAuthGuard)
+  @HttpCode(200)
   @Post('login-admin')
   async loginAdmin(@CurrUser() user: any) {
-    console.log(user);
     return this.authService.login(user, Role.ADMIN);
   }
 
   @UseGuards(LocalAuthGuard)
+  @HttpCode(200)
   @Post('login-warehouse')
   async loginWarehouse(@CurrUser() user: IUser) {
-    return this.authService.loginWarehouse(user);
+    return this.warehouseAuthService.loginWarehouse(user);
   }
 }

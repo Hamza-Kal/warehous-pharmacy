@@ -8,6 +8,7 @@ import passport, { use } from 'passport';
 import { IsStrongPassword } from 'class-validator';
 import { error } from 'console';
 import { IParams } from 'src/shared/interface/params.interface';
+import { where } from 'sequelize';
 
 @Injectable()
 export class UserService {
@@ -15,33 +16,31 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
-  async findOneById(id: number) {
-    if (!id) throw new NotFoundException('user not found !');
-    return await this.userRepository.findOneBy({ id });
-  }
 
   async getAllGuests() {
     return this.userRepository.find({
-      where: { role: Role.GUEST },
-      select: { username: true, email: true, id: true },
+      where: { role: Role.GUEST, completedAccount: true },
+      select: { email: true, id: true },
     });
   }
 
-  async findOneByUsername(username: string) {
-    return this.userRepository.findOneBy({ username });
+  async completeInfo(id: number) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    user.completedAccount = true;
+    await this.userRepository.save(user);
+    return user;
   }
 
   async findOneByEmail(email: string) {
     return this.userRepository.findOneBy({ email });
   }
-  async findOneByUsernameOrEmail(username: string, email: string) {
-    return await this.userRepository.findOne({
-      where: [{ email }, { username }],
-    });
-  }
 
   async acceptAccount({ id }: IParams) {
-    const user = await this.userRepository.findOneBy({ id, role: Role.GUEST });
+    const user = await this.userRepository.findOneBy({
+      id,
+      role: Role.GUEST,
+      completedAccount: true,
+    });
     user.role = user.assignedRole;
     this.userRepository.save(user);
     return;

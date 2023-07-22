@@ -17,6 +17,5 @@ export class CreateInventoryDto {
   @IsPhoneNumber()
   phoneNumber: string;
 
-  @IsOptional()
   manager: Partial<User>;
 }

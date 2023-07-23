@@ -26,13 +26,12 @@ export class WarehouseService {
     });
   }
   async getAllInventories(warehouseOwnerId: number) {
-    return await this.inventoryRepository.find({
+    return await this.warehouseRepository.find({
       where: {
-        warehouse: {
-          owner: {
-            id: warehouseOwnerId,
-          },
-        },
+        owner: { id: warehouseOwnerId },
+      },
+      select: {
+        inventories: { name: true, location: true, phoneNumber: true },
       },
     });
   }

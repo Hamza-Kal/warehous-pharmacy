@@ -9,13 +9,13 @@ export class PharmacyAuthService {
     private jwtService: JwtService,
   ) {}
 
-  async loginPharmacy({ id, role, completedAccount }) {
+  loginPharmacy({ id, role, completedAccount }) {
     const payload = {
       id,
       role,
       completedAccount,
     };
-    const accessToken = await this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload);
     return {
       accessToken,
     };

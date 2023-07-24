@@ -2,10 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './shared/errors/all.http.exceptions';
-import { hashPassword } from './shared/utils/bcrypt';
 
 async function bootstrap() {
-  console.log(await hashPassword('12345678'));
   const app = await NestFactory.create(AppModule);
   app.useGlobalFilters(new AllExceptionsFilter());
   const config = new DocumentBuilder()

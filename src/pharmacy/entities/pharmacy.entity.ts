@@ -4,7 +4,6 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   JoinColumn,
-  OneToMany,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 
@@ -32,7 +31,7 @@ export class Pharmacy {
     type: 'varchar',
     length: 15,
   })
-  phone_number: string;
+  phoneNumber: string;
 
   @OneToOne(() => User)
   @JoinColumn()

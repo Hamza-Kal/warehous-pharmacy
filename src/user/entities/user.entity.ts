@@ -1,4 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Role } from 'src/shared/enums/roles';
+import { hashPassword } from 'src/shared/utils/bcrypt';
+import {
+  AfterInsert,
+  AfterUpdate,
+  BeforeInsert,
+  BeforeRemove,
+  BeforeUpdate,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class User {
@@ -17,9 +28,8 @@ export class User {
   @Column({
     type: 'varchar',
     length: 64,
-    unique: true,
   })
-  username: string;
+  password: string;
 
   @Column({
     type: 'varchar',
@@ -28,8 +38,45 @@ export class User {
   fullName: string;
 
   @Column({
-    type: 'varchar',
-    length: 64,
+    type: 'enum',
+    enum: Role,
+    default: Role.GUEST,
   })
-  password: string;
+  role: Role;
+
+  @Column({
+    type: 'enum',
+    enum: Role,
+  })
+  assignedRole: Role;
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  completedAccount?: boolean;
+  @BeforeInsert()
+  async logBeforeInsertOrUpdate() {
+    this.password = await hashPassword(this.password);
+  }
+
+  @AfterInsert()
+  logAfterInsert() {
+    console.log('user with id %d inserted', this.id);
+  }
+
+  // @BeforeUpdate()
+  // async logBeforeUpdate() {
+  //   this.password = await hashPassword(this.password);
+  // }
+
+  @AfterUpdate()
+  logAfterUpdate() {
+    console.log('user with id %d updated', this.id);
+  }
+
+  @BeforeRemove()
+  logBeforeRemove() {
+    console.log('user with id %d removed', this.id);
+  }
 }

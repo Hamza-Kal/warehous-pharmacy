@@ -17,7 +17,7 @@ export class InventoryService {
     { name, phoneNumber, location, manager }: CreateInventoryDto,
     warehouse: Warehouse,
   ) {
-    const inventory = await this.inventoryRepository.create({
+    const inventory = this.inventoryRepository.create({
       name,
       phoneNumber,
       location,

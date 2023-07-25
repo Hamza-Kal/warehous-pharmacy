@@ -34,9 +34,8 @@ export class AuthService {
     };
   }
 
-  async login(user: any, requiredRole: Role) {
+  async login(user: any) {
     const { role, id, completedAccount } = user;
-    this.validateRole(role, requiredRole);
     const payload = {
       id,
       role,

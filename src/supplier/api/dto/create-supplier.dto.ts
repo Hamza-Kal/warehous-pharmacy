@@ -4,8 +4,9 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { User } from 'src/user/entities/user.entity';
-export class CreatePharmacyDto {
+export class CreateSupplierDto {
   @IsString()
   @MinLength(4)
   @MaxLength(24)

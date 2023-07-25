@@ -30,8 +30,9 @@ export class PharmacyWebService {
 
   async createPharmacy(body: CreatePharmacyDto, currUser: IUser) {
     const user = await this.userService.completeInfo(currUser.id);
-    body.owner = user;
-    const pharmacy = await this.pharmacyRepository.create(body);
+    body.user = user;
+    const pharmacy = this.pharmacyRepository.create(body);
+    await this.pharmacyRepository.save(pharmacy);
     return {
       id: pharmacy.id,
     };

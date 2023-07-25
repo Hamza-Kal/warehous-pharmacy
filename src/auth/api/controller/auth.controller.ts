@@ -52,17 +52,26 @@ export class AuthController {
     body.assignedRole = Role.SUPPLIER;
     return this.authService.register(body);
   }
+
+  //TODO refactor login to make it only accept of same type and after completing the account
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
   @Post('login-admin')
   async loginAdmin(@CurrUser() user: any) {
-    return this.authService.login(user, Role.ADMIN);
+    return this.authService.login(user);
   }
 
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
   @Post('login-warehouse')
   async loginWarehouse(@CurrUser() user: IUser) {
-    return this.warehouseAuthService.loginWarehouse(user);
+    return this.authService.login(user);
+  }
+
+  @UseGuards(LocalAuthGuard)
+  @HttpCode(200)
+  @Post('login-supplier')
+  async loginSupplier(@CurrUser() user: IUser) {
+    return this.authService.login(user);
   }
 }

@@ -32,7 +32,7 @@ export class Supplier {
     type: 'varchar',
     length: 15,
   })
-  phone_number: string;
+  phoneNumber: string;
 
   @OneToOne(() => User)
   @JoinColumn()

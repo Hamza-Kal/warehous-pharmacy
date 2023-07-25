@@ -12,15 +12,9 @@ import { LoginDto, RegisterDto } from '../dto';
 import { Role } from 'src/shared/enums/roles';
 import { LocalAuthGuard } from 'src/auth/guards/local-auth.guard';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
-import { LocalStrategy } from 'src/auth/strategies/local.strategy';
 import { IUser } from 'src/shared/interface/user.interface';
 import { WarehouseAuthService } from 'src/auth/services/warehouse.auth.service';
 import { InventoryAuthService } from 'src/auth/services/inventory.auth.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
-import { Api } from 'src/shared/enums/API';
-import { InventroyRegister } from '../dto/register.dto';
-import { AuthenticatedController } from 'src/shared/decorators/authenticated.controller.decorator';
 
 @Controller('auth')
 export class AuthController {

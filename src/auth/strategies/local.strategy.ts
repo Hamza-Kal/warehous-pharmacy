@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 
-
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private authService: AuthService) {

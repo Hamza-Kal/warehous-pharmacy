@@ -1,4 +1,4 @@
-ormconfig.json
+# ormconfig.json
 .env
 # compiled output
 /dist

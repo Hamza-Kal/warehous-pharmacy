@@ -6,7 +6,13 @@ import { ConfigModule } from '@nestjs/config';
 import TypeOrmModule from './shared/modules/connection.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), ...TypeOrmModule, ...Modules],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    ...TypeOrmModule,
+    ...Modules,
+  ],
   controllers: [],
   providers: [
     {

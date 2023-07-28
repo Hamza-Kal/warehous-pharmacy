@@ -11,6 +11,7 @@ import { MedicineError } from './medicine-error.service';
 import { CreateMedicineBrew } from '../api/dto/create-medicine-brew.dto';
 import { IUser } from 'src/shared/interface/user.interface';
 import { SupplierMedicine } from '../entities/medicine-role.entities';
+import { Supplier } from 'src/supplier/entities/supplier.entity';
 
 @Injectable()
 export class MedicineWebService {
@@ -30,10 +31,10 @@ export class MedicineWebService {
     console.log(user);
     const { name, description, categoryId } = body;
     console.log('body', body);
-    const category = await this.categoryRepository.findOne({
-      where: { id: categoryId },
-    });
-    if (!category)
+    // const category = await this.categoryRepository.findOne({
+    //   where: { id: categoryId },
+    // });
+    if (!categoryId)
       throw new HttpException(
         this.medicineError.notFoundCategory(),
         HttpStatus.NOT_FOUND,
@@ -41,8 +42,8 @@ export class MedicineWebService {
     const medicine = new Medicine();
     medicine.description = description;
     medicine.name = name;
-    medicine.category = category;
-    medicine.supplier.id = user.supplierId;
+    medicine.category = categoryId;
+    medicine.supplier = user.supplierId as Supplier;
     await this.medicineRepository.save(medicine);
     return {
       data: {
@@ -50,6 +51,7 @@ export class MedicineWebService {
       },
     };
   }
+
   async getSupplierMedicines({ criteria, pagination }, user: IUser) {
     const { skip, limit } = pagination;
     const { supplierId } = user;
@@ -69,26 +71,44 @@ export class MedicineWebService {
   }
 
   async createMeicineBrew(user: IUser, body: CreateMedicineBrew) {
-    const { id } = user;
+    const { supplierId } = user;
     const { medicineId, productionDate, expireDate, quantity, price } = body;
     if (productionDate.getTime() > expireDate.getTime()) {
       throw new HttpException(
-        ['production date must be before expire date'],
+        {
+          code: 404,
+          message: ['production date must be before expire date'],
+        },
         HttpStatus.BAD_REQUEST,
       );
     }
     const medicine = await this.medicineRepository.findOne({
-      where: { id: medicineId, supplier: { id: id } },
+      where: { id: medicineId, supplier: { id: supplierId as number } },
     });
     if (!medicine)
       throw new HttpException(
         this.medicineError.notFoundMedicine(),
         HttpStatus.NOT_FOUND,
       );
-    const medicineBrew = await this.medicineDetails.create({
+    const medicineBrew = this.medicineDetails.create({
       startDate: productionDate,
       endDate: expireDate,
       medicine,
     });
+
+    await this.medicineDetails.save(medicineBrew);
+    const supplierMedicine = new SupplierMedicine();
+    supplierMedicine.medicineDetails = medicineBrew;
+    supplierMedicine.price = price;
+    supplierMedicine.quantity = quantity;
+    supplierMedicine.supplier = supplierId as Supplier;
+    console.log(supplierMedicine);
+    await this.supplierMedicineRepository.save(supplierMedicine);
+    console.log('medicine Brew');
+    return {
+      data: {
+        id: medicineBrew.id,
+      },
+    };
   }
 }

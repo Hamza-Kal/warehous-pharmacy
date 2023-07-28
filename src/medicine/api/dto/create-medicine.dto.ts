@@ -10,5 +10,5 @@ export class CreateMedicine {
   description: string;
 
   @IsNumber()
-  categoryId: number;
+  categoryId: Category;
 }

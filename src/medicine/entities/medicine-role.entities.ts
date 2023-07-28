@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { MedicineDetails } from './medicine.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
@@ -30,6 +31,7 @@ export class WarehouseMedicine {
     () => MedicineDetails,
     (medicineDetails) => medicineDetails.warehouseMedicine,
   )
+  @JoinColumn()
   medicineDetails: MedicineDetails;
 }
 @Entity()
@@ -53,11 +55,10 @@ export class SupplierMedicine {
     () => MedicineDetails,
     (medicineDetails) => medicineDetails.warehouseMedicine,
   )
+  @JoinColumn()
   medicineDetails: MedicineDetails;
 
-  @ManyToOne(() => Supplier, (supplier) => supplier.supplierMedicine, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Supplier, (supplier) => supplier.supplierMedicine)
   supplier: Supplier;
 }
 @Entity()
@@ -81,9 +82,11 @@ export class PharmacyMedicine {
     () => MedicineDetails,
     (medicineDetails) => medicineDetails.warehouseMedicine,
   )
+  @JoinColumn()
   medicineDetails: MedicineDetails;
 
   @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyMedicines)
+  @JoinColumn()
   pharmacy: Pharmacy;
 }
 @Entity()
@@ -107,5 +110,6 @@ export class InventoryMedicine {
     () => MedicineDetails,
     (medicineDetails) => medicineDetails.warehouseMedicine,
   )
+  @JoinColumn()
   medicineDetails: MedicineDetails;
 }

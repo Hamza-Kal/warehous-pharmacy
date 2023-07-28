@@ -15,6 +15,9 @@ build:dev:
   <<: *dev_only
   image: docker
   stage: build
+  rules:
+    - changes:
+        - ./src/*
   services:
     - docker:dind
   script:

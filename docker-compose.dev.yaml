@@ -19,6 +19,7 @@ services:
     image: mysql:8.0
     container_name: makhzan-database
     restart: unless-stopped
+    command: mysqld --default-authentication-plugin=mysql_native_password
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
       - MYSQL_DATABASE=makhzan

@@ -22,7 +22,6 @@ export class InventoryAuthService {
 
     //START TRANSACTION
     inventoryAccount.completedAccount = true;
-    console.log(inventoryAccount);
     const user = await this.userService.createOne(inventoryAccount);
     const warehouse = await this.warehouseService.findByUser(id);
     const inventory = await this.inventoryService.create(
@@ -30,6 +29,6 @@ export class InventoryAuthService {
       warehouse,
     );
     console.log('inventory', inventory);
-    return { id: inventory.id };
+    return { data: { id: inventory.id } };
   }
 }

@@ -14,6 +14,7 @@ import {
   SupplierMedicine,
   WarehouseMedicine,
 } from './medicine-role.entities';
+import { Supplier } from 'src/supplier/entities/supplier.entity';
 
 @Entity()
 export class Category {
@@ -55,6 +56,9 @@ export class Medicine {
   })
   description: string;
 
+  @ManyToOne(() => Supplier, (supplier) => supplier.medicine)
+  supplier: Supplier;
+
   @OneToMany(
     () => MedicineDetails,
     (medicineDetails) => medicineDetails.medicine,
@@ -72,11 +76,13 @@ export class MedicineDetails {
 
   @Column({
     type: 'date',
+    nullable: false,
   })
   startDate: Date;
 
   @Column({
     type: 'date',
+    nullable: false,
   })
   endDate: Date;
 

@@ -36,7 +36,7 @@ export class Pharmacy {
   })
   phoneNumber: string;
 
-  @OneToOne(() => User, { cascade: true })
+  @OneToOne(() => User, (user) => user.pharmacy, { cascade: true })
   @JoinColumn()
   user: User;
 

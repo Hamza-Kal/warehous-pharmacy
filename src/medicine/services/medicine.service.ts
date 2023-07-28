@@ -1,5 +1,9 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { Category, Medicine } from '../entities/medicine.entities';
+import {
+  Category,
+  Medicine,
+  MedicineDetails,
+} from '../entities/medicine.entities';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateMedicine } from '../api/dto/create-medicine.dto';
@@ -7,6 +11,7 @@ import { MedicineError } from './medicine-error.service';
 import { CreateMedicineBrew } from '../api/dto/create-medicine-brew.dto';
 import { IUser } from 'src/shared/interface/user.interface';
 import { SupplierMedicine } from '../entities/medicine-role.entities';
+import { Supplier } from 'src/supplier/entities/supplier.entity';
 
 @Injectable()
 export class MedicineWebService {
@@ -17,10 +22,13 @@ export class MedicineWebService {
     private categoryRepository: Repository<Category>,
     @InjectRepository(SupplierMedicine)
     private supplierMedicineRepository: Repository<SupplierMedicine>,
+    @InjectRepository(MedicineDetails)
+    private medicineDetails: Repository<MedicineDetails>,
     private medicineError: MedicineError,
   ) {}
 
-  async create(body: CreateMedicine) {
+  async create(user: IUser, body: CreateMedicine) {
+    console.log(user);
     const { name, description, categoryId } = body;
     console.log('body', body);
     const category = await this.categoryRepository.findOne({
@@ -35,6 +43,7 @@ export class MedicineWebService {
     medicine.description = description;
     medicine.name = name;
     medicine.category = category;
+    medicine.supplier.id = user.supplierId;
     await this.medicineRepository.save(medicine);
     return {
       data: {
@@ -44,17 +53,27 @@ export class MedicineWebService {
   }
 
   async createMeicineBrew(user: IUser, body: CreateMedicineBrew) {
+    const { id } = user;
     const { medicineId, productionDate, expireDate, quantity, price } = body;
+    if (productionDate.getTime() > expireDate.getTime()) {
+      throw new HttpException(
+        ['production date must be before expire date'],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const medicine = await this.medicineRepository.findOne({
-      where: { id: medicineId },
-      // relations: [supplie],
+      where: { id: medicineId, supplier: { id: id } },
     });
     if (!medicine)
       throw new HttpException(
         this.medicineError.notFoundMedicine(),
         HttpStatus.NOT_FOUND,
       );
-
-    // if(medicine.)
+    const medicineBrew = await this.medicineDetails.create({
+      startDate: productionDate,
+      endDate: expireDate,
+      medicine,
+      
+    });
   }
 }

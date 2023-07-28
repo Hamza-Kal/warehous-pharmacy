@@ -31,6 +31,6 @@ export class WarehouseWebService {
     body.owner = user;
     const warehouse = this.warehouseRepository.create(body);
     await this.warehouseRepository.save(warehouse);
-    return { id: warehouse.id };
+    return { data: { id: warehouse.id } };
   }
 }

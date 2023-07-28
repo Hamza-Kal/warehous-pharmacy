@@ -5,7 +5,6 @@ import {
   OneToOne,
   ManyToOne,
 } from 'typeorm';
-import { User } from 'src/user/entities/user.entity';
 import { MedicineDetails } from './medicine.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';

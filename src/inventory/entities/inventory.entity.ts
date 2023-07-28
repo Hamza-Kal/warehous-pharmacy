@@ -34,7 +34,7 @@ export class Inventory {
   })
   phoneNumber: string;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, (user) => user.inventory)
   @JoinColumn()
   manager: User;
 

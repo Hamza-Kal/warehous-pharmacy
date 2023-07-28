@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { SupplierMedicine } from 'src/medicine/entities/medicine-role.entities';
+import { Medicine } from 'src/medicine/entities/medicine.entities';
 
 @Entity()
 export class Supplier {
@@ -35,7 +36,7 @@ export class Supplier {
   })
   phoneNumber: string;
 
-  @OneToOne(() => User, { cascade: true })
+  @OneToOne(() => User, (user) => user.supplier, { cascade: true })
   @JoinColumn()
   user: User;
 
@@ -46,5 +47,8 @@ export class Supplier {
       onDelete: 'CASCADE',
     },
   )
-  supplierMedicine: SupplierMedicine;
+  supplierMedicine: SupplierMedicine[];
+
+  @OneToMany(() => Medicine, (medicine) => medicine.supplier)
+  medicine: Medicine[];
 }

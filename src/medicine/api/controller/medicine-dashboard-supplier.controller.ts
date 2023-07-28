@@ -19,8 +19,8 @@ export class MedicineController {
     url: '',
     role: [Role.SUPPLIER],
   })
-  async create(@Body() body: CreateMedicine) {
-    return await this.medicineService.create(body);
+  async create(@Body() body: CreateMedicine, @CurrUser() user: IUser) {
+    return await this.medicineService.create(user, body);
   }
 
   @AuthorizedApi({

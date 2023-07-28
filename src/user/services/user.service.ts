@@ -37,7 +37,16 @@ export class UserService {
   }
 
   async findOneByEmail(email: string) {
-    return this.userRepository.findOneBy({ email });
+    const user = await this.userRepository.findOne({
+      where: { email },
+      relations: {
+        supplier: true,
+        inventory: true,
+        warehouse: true,
+        pharmacy: true,
+      },
+    });
+    return user;
   }
 
   async acceptAccount({ id }: IParams) {

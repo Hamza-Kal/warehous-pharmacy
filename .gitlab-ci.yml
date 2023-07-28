@@ -12,12 +12,12 @@ stages:
     - master
 
 build:dev:
-  <<: *dev_only
   image: docker
   stage: build
-  rules:
-    - changes:
-        - ./src/*
+  only:
+    - master
+    - changes
+      ./src/*
   services:
     - docker:dind
   script:

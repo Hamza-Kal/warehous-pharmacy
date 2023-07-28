@@ -4,6 +4,9 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateMedicine } from '../api/dto/create-medicine.dto';
 import { MedicineError } from './medicine-error.service';
+import { CreateMedicineBrew } from '../api/dto/create-medicine-brew.dto';
+import { IUser } from 'src/shared/interface/user.interface';
+import { SupplierMedicine } from '../entities/medicine-role.entities';
 
 @Injectable()
 export class MedicineWebService {
@@ -12,6 +15,8 @@ export class MedicineWebService {
     private medicineRepository: Repository<Medicine>,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
+    @InjectRepository(SupplierMedicine)
+    private supplierMedicineRepository: Repository<SupplierMedicine>,
     private medicineError: MedicineError,
   ) {}
 
@@ -36,5 +41,20 @@ export class MedicineWebService {
         id: medicine.id,
       },
     };
+  }
+
+  async createMeicineBrew(user: IUser, body: CreateMedicineBrew) {
+    const { medicineId, productionDate, expireDate, quantity, price } = body;
+    const medicine = await this.medicineRepository.findOne({
+      where: { id: medicineId },
+      // relations: [supplie],
+    });
+    if (!medicine)
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.NOT_FOUND,
+      );
+
+    // if(medicine.)
   }
 }

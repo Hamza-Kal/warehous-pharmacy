@@ -1,5 +1,7 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
 
+config();
+console.log(`Connecting to ${process.env.DB_NAME}@${process.env.DB_HOST}`);
 export default {
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,

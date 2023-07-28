@@ -1,5 +1,6 @@
 import { Body, Controller, Query } from '@nestjs/common';
 import { CreatePharmacyDto } from 'src/pharmacy/api/dtos/create-pharmacy.dto';
+import { AuthenticatedController } from 'src/shared/decorators/authenticated.controller.decorator';
 import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { Api } from 'src/shared/enums/API';
@@ -9,13 +10,15 @@ import { SupplierDashboardService } from 'src/supplier/service/supplier-dashboar
 import { paginationParser } from 'src/shared/pagination/pagination';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 
-@Controller('supplier')
+@AuthenticatedController({
+  controller: 'supplier',
+})
 export class SupplierController {
   constructor(private supplierService: SupplierDashboardService) {}
   @AuthorizedApi({
     api: Api.POST,
     url: '/complete-info',
-    role: [Role.SUPPLIER],
+    role: [Role.GUEST],
     completedAccount: false,
   })
   async completeInfo(@Body() body: CreatePharmacyDto, @CurrUser() user: IUser) {

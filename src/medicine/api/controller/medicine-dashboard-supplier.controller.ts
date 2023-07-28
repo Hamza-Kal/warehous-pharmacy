@@ -9,7 +9,6 @@ import { Pagination } from '../../../shared/pagination/pagination.validation';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { paginationParser } from 'src/shared/pagination/pagination';
 import { IUser } from 'src/shared/interface/user.interface';
-import { th } from '@faker-js/faker';
 
 @AuthenticatedController({
   controller: 'medicine',
@@ -21,8 +20,8 @@ export class MedicineController {
     url: '',
     role: [Role.SUPPLIER],
   })
-  async create(@Body() body: CreateMedicine) {
-    return await this.medicineService.create(body);
+  async create(@Body() body: CreateMedicine, @CurrUser() user) {
+    return await this.medicineService.create(user, body);
   }
 
   @AuthorizedApi({

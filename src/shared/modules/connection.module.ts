@@ -1,16 +1,16 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { entities } from './modules';
-import dbConfig from '../../../ormconfig';
-import 'dotenv/config';
 
+import dbConfig from '../../../ormconfig';
+import { entities } from './modules';
+const { password, host, port, username, database } = dbConfig;
 export default [
   TypeOrmModule.forRoot({
     type: 'mysql',
-    host: dbConfig.host,
-    port: dbConfig.port,
-    username: dbConfig.username,
-    password: dbConfig.password,
-    database: dbConfig.database,
+    host,
+    port,
+    username,
+    password,
+    database,
     entities,
     synchronize: true,
   }),

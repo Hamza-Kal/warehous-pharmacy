@@ -21,12 +21,12 @@ export class SupplierDashboardService {
     { location, name, phoneNumber }: CreateSupplierDto,
   ) {
     const user = await this.userService.completeInfo(currUser.id);
-    const supplier = this.supplierRepository.create({
-      phoneNumber,
-      name,
-      location,
-    });
+    const supplier = new Supplier();
+    supplier.location = location;
+    supplier.name = name;
+    supplier.phoneNumber = phoneNumber;
+    supplier.user = user;
     await this.supplierRepository.save(supplier);
-    return { id: supplier.id };
+    return { data: { id: supplier.id } };
   }
 }

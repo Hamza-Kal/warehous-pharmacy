@@ -6,6 +6,7 @@ import { LoginDto, RegisterDto } from '../api/dto';
 import { Role } from 'src/shared/enums/roles';
 import { hash, compare } from 'bcrypt';
 import { WarehouseService } from 'src/warehouse/services/warehouse.service';
+import { multicast } from 'rxjs';
 @Injectable()
 export class AuthService {
   constructor(
@@ -30,16 +31,39 @@ export class AuthService {
     const user = await this.userService.createOne(body);
     delete user.password;
     return {
-      id: user.id,
+      data: {
+        id: user.id,
+      },
     };
   }
 
   async login(user: any) {
-    const { role, id, completedAccount } = user;
-    const payload = {
+    const {
+      role,
+      id,
+      completedAccount,
+      pharmacy,
+      inventory,
+      warehouse,
+      supplier,
+    } = user;
+    console.log(supplier);
+    const payload: {
+      id: number;
+      role: Role;
+      completedAccount: boolean;
+      pharmacyId?: number;
+      warehouseId?: number;
+      inventoryId?: number;
+      supplierId?: number;
+    } = {
       id,
       role,
       completedAccount,
+      pharmacyId: pharmacy ? pharmacy.id : null,
+      inventoryId: inventory ? inventory.id : null,
+      supplierId: supplier ? supplier.id : null,
+      warehouseId: warehouse ? warehouse.id : null,
     };
     const accessToken = this.jwtService.sign(payload);
     return {

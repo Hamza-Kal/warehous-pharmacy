@@ -36,7 +36,7 @@ export class Warehouse {
   })
   phoneNumber: string;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, (user) => user.warehouse)
   @JoinColumn()
   owner: User;
 

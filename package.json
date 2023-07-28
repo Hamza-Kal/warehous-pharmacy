@@ -18,7 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "rebuild:seed": "node --version &&  rm -rf node_modules && rm -f package-lock.json && npm install && cd database && npm exec sequelize-cli db:seed:all && cd .. && npm run build:webpack"
+    "rebuild:seed": "node --version &&  rm -rf node_modules && rm -f package-lock.json && npm install && cd database && npm exec sequelize-cli db:seed:all && cd .. && npm run build:webpack",
+    "run:container:dev": "cd database && npm exec sequelize-cli db:seed:all && cd .. && node ./dist/stage/src/main"
   },
   "dependencies": {
     "@faker-js/faker": "^8.0.2",

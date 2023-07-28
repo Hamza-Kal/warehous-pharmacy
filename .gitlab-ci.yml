@@ -1,0 +1,54 @@
+variables:
+  DOCKER_IMAGE_TAG: ${CI_REGISTRY_IMAGE}/makhzan/api
+  HOST: ssh.mouhandalkadri.com
+  PROJECT_DIR: /usr/local/apps/makhzan
+
+stages:
+  - build
+  - deploy
+
+.dev_only: &dev_only
+  only:
+    - master
+
+build:dev:
+  <<: *dev_only
+  image: docker
+  stage: build
+  services:
+    - docker:dind
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $DOCKER_IMAGE_TAG:latest . -f ./Dockerfile
+    - docker push $DOCKER_IMAGE_TAG:latest
+
+deploy:dev:
+  <<: *dev_only
+  image: debian
+  stage: deploy
+  variables:
+    DOCKER_COMPOSE_FILE: docker-compose.dev.yaml
+    PROJECT_DEV_DIR: $PROJECT_DIR/dev
+  environment:
+    name: dev
+
+  before_script:
+    - "command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )"
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $HOST >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+  script:
+    - scp ./$DOCKER_COMPOSE_FILE ci@$HOST:$PROJECT_DEV_DIR
+    - |
+      ssh $HOST -l ci "
+        docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&\
+        docker compose -f $PROJECT_DEV_DIR/$DOCKER_COMPOSE_FILE --env-file $PROJECT_DEV_DIR/.env pull &&\
+        docker compose -f $PROJECT_DEV_DIR/$DOCKER_COMPOSE_FILE --env-file $PROJECT_DEV_DIR/.env up -d &&\
+        docker image prune -f
+      "
+  after_script:
+    - ssh $HOST -l ci " rm  ci@$PROJECT_DEV_DIR/$DOCKER_COMPOSE_FILE"

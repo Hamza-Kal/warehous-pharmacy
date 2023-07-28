@@ -1,0 +1,34 @@
+version: '3.5'
+name: makhzan
+
+services:
+  backend:
+    build: .
+    container_name: makhzan-api
+    restart: unless-stopped
+    image: registry.gitlab.com/alayoubifaek/makhzan/makhzan/api:latest
+    env_file: .env
+    networks:
+      - master
+    ports:
+      - 8000:3000
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: makhzan-database
+    restart: unless-stopped
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_DATABASE=makhzan
+    networks:
+      - master
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+
+networks:
+  master:
+    name: makhzan-network

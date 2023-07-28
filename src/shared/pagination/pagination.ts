@@ -1,8 +1,10 @@
-import _ from 'lodash';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const _ = require('lodash');
+
 import { paginationConstant } from './pagination.constant';
 
 export const paginationParser = (reqQuery) => {
-  const fields = ['total', 'page', 'limit', 'needPagination'];
+  const fields = ['page', 'limit', 'needPagination'];
 
   const pagination = _.pick(reqQuery, fields);
 

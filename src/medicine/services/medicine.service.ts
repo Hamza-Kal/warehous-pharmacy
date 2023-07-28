@@ -11,7 +11,6 @@ import { MedicineError } from './medicine-error.service';
 import { CreateMedicineBrew } from '../api/dto/create-medicine-brew.dto';
 import { IUser } from 'src/shared/interface/user.interface';
 import { SupplierMedicine } from '../entities/medicine-role.entities';
-import { Supplier } from 'src/supplier/entities/supplier.entity';
 
 @Injectable()
 export class MedicineWebService {
@@ -53,9 +52,16 @@ export class MedicineWebService {
   }
   async getSupplierMedicines({ criteria, pagination }, user: IUser) {
     const { skip, limit } = pagination;
+    const { supplierId } = user;
     return this.medicineRepository.find({
       where: {
         ...criteria,
+        supplier: {
+          id: supplierId,
+        },
+      },
+      relations: {
+        category: true,
       },
       skip,
       take: limit,

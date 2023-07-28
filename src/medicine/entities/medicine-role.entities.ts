@@ -8,6 +8,7 @@ import {
 import { User } from 'src/user/entities/user.entity';
 import { MedicineDetails } from './medicine.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
+import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
 
 @Entity()
 export class WarehouseMedicine {
@@ -55,7 +56,9 @@ export class SupplierMedicine {
   )
   medicineDetails: MedicineDetails;
 
-  @ManyToOne(() => Supplier, (supplier) => supplier.supplierMedicine)
+  @ManyToOne(() => Supplier, (supplier) => supplier.supplierMedicine, {
+    onDelete: 'CASCADE',
+  })
   supplier: Supplier;
 }
 @Entity()
@@ -80,6 +83,9 @@ export class PharmacyMedicine {
     (medicineDetails) => medicineDetails.warehouseMedicine,
   )
   medicineDetails: MedicineDetails;
+
+  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyMedicines)
+  pharmacy: Pharmacy;
 }
 @Entity()
 export class InventoryMedicine {

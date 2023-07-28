@@ -1,12 +1,6 @@
 import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
-import {
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 export enum OrderStatus {
   Pending = 'Pending',
@@ -40,17 +34,19 @@ export class PharmacyOrders {
   })
   id: number;
 
-  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyOrder)
+  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyOrder, {
+    onDelete: 'CASCADE',
+  })
   pharmacy: Pharmacy;
 }
 
-@Entity()
-export class PharmacyWarehouseOrders {
-  @PrimaryGeneratedColumn({
-    type: 'int',
-  })
-  id: number;
+// @Entity()
+// export class PharmacyOrders {
+//   @PrimaryGeneratedColumn({
+//     type: 'int',
+//   })
+//   id: number;
 
-  @ManyToOne(() => PharmacyOrders)
-  phrmacyOrder: PharmacyOrders;
-}
+//   @ManyToOne(() => PharmacyOrders)
+//   phrmacyOrder: PharmacyOrders;
+// }

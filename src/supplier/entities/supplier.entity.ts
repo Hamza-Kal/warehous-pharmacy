@@ -35,13 +35,16 @@ export class Supplier {
   })
   phoneNumber: string;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, { cascade: true })
   @JoinColumn()
   user: User;
 
   @OneToMany(
     () => SupplierMedicine,
     (supplierMedicine) => supplierMedicine.supplier,
+    {
+      onDelete: 'CASCADE',
+    },
   )
   supplierMedicine: SupplierMedicine;
 }

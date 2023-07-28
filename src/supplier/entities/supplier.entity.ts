@@ -7,6 +7,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
+import { SupplierMedicine } from 'src/medicine/entities/medicine-role.entities';
 
 @Entity()
 export class Supplier {
@@ -37,4 +38,10 @@ export class Supplier {
   @OneToOne(() => User)
   @JoinColumn()
   user: User;
+
+  @OneToMany(
+    () => SupplierMedicine,
+    (supplierMedicine) => supplierMedicine.supplier,
+  )
+  supplierMedicine: SupplierMedicine;
 }

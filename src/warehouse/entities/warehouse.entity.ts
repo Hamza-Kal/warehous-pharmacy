@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
+import { WarehouseOrders } from 'src/order/entities/order.entities';
 
 @Entity()
 export class Warehouse {
@@ -42,4 +43,10 @@ export class Warehouse {
   @OneToMany(() => Inventory, (inventory) => inventory.warehouse)
   @JoinColumn()
   inventories: Inventory[];
+
+  @OneToMany(
+    () => WarehouseOrders,
+    (warehouseOrders) => warehouseOrders.warehouse,
+  )
+  warehouseOrder: WarehouseOrders[];
 }

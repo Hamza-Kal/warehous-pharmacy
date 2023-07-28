@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
 import { Repository, StreamDescription } from 'typeorm';
@@ -41,6 +46,7 @@ export class UserService {
       role: Role.GUEST,
       completedAccount: true,
     });
+    if (!user) throw new HttpException('user not found', HttpStatus.NOT_FOUND);
     user.role = user.assignedRole;
     this.userRepository.save(user);
     return;

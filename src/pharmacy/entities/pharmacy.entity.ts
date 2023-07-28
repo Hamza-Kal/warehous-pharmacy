@@ -4,8 +4,10 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
+import { PharmacyOrders } from 'src/order/entities/order.entities';
 
 @Entity()
 export class Pharmacy {
@@ -36,4 +38,7 @@ export class Pharmacy {
   @OneToOne(() => User)
   @JoinColumn()
   user: User;
+
+  @OneToMany(() => PharmacyOrders, (pharmacyOrders) => pharmacyOrders.pharmacy)
+  pharmacyOrder: PharmacyOrders[];
 }

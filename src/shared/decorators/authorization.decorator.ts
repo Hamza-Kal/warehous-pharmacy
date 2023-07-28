@@ -22,7 +22,7 @@ export function AuthorizedApi({
     Authorized({ role, completedAccount }),
     api === Api.POST && created
       ? HttpCode(HttpStatus.CREATED)
-      : HttpCode(HttpStatus.ACCEPTED),
+      : HttpCode(HttpStatus.OK),
     new ApiMethods(url).get(api),
   );
 }

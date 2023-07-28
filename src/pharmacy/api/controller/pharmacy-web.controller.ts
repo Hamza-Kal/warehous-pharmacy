@@ -14,10 +14,11 @@ import { IUser } from 'src/shared/interface/user.interface';
 export class PharmacyWebController {
   constructor(private pharmacyWebService: PharmacyWebService) {}
 
+  // TODO handle the user assigned role must be pharmacy
   @AuthorizedApi({
     api: Api.POST,
     url: '/complete-info',
-    role: [Role.PHARMACY],
+    role: [Role.GUEST],
     completedAccount: false,
   })
   async completeInfo(@Body() body: CreatePharmacyDto, @CurrUser() user: IUser) {

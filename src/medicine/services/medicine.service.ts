@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateMedicine } from '../api/dto/create-medicine.dto';
 import { MedicineError } from './medicine-error.service';
+import { IUser } from '../../shared/interface/user.interface';
 
 @Injectable()
 export class MedicineWebService {
@@ -36,5 +37,15 @@ export class MedicineWebService {
         id: medicine.id,
       },
     };
+  }
+  async getSupplierMedicines({ criteria, pagination }, user: IUser) {
+    const { skip, limit } = pagination;
+    return this.medicineRepository.find({
+      where: {
+        ...criteria,
+      },
+      skip,
+      take: limit,
+    });
   }
 }

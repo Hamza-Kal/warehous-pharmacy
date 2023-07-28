@@ -40,13 +40,16 @@ export class Warehouse {
   @JoinColumn()
   owner: User;
 
-  @OneToMany(() => Inventory, (inventory) => inventory.warehouse)
+  @OneToMany(() => Inventory, (inventory) => inventory.warehouse, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   inventories: Inventory[];
 
   @OneToMany(
     () => WarehouseOrders,
     (warehouseOrders) => warehouseOrders.warehouse,
+    { onDelete: 'CASCADE' },
   )
   warehouseOrder: WarehouseOrders[];
 }

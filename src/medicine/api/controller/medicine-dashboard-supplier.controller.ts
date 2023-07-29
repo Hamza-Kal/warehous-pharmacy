@@ -26,6 +26,15 @@ export class MedicineController {
   }
 
   @AuthorizedApi({
+    url: 'create-brew',
+    api: Api.POST,
+    role: [Role.SUPPLIER],
+  })
+  async createBrew(@Body() body: CreateMedicineBrew, @CurrUser() user: IUser) {
+    return await this.medicineService.createMeicineBrew(user, body);
+  }
+
+  @AuthorizedApi({
     api: Api.GET,
     url: '/',
     role: [Role.SUPPLIER],
@@ -35,15 +44,6 @@ export class MedicineController {
     @CurrUser() user: IUser,
   ) {
     const parsingResult = paginationParser(query);
-    return this.medicineService.getSupplierMedicines(parsingResult, user);
-  }
-
-  @AuthorizedApi({
-    url: 'create-brew',
-    api: Api.POST,
-    role: [Role.SUPPLIER],
-  })
-  async createBrew(@Body() body: CreateMedicineBrew, @CurrUser() user: IUser) {
-    return await this.medicineService.createMeicineBrew(user, body);
+    return this.medicineService.findAll(parsingResult, user);
   }
 }

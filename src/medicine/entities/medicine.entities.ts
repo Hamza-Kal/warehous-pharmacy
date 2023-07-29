@@ -51,6 +51,11 @@ export class Medicine {
   name: string;
 
   @Column({
+    type: 'int',
+  })
+  price: number;
+
+  @Column({
     type: 'varchar',
     length: 255,
   })

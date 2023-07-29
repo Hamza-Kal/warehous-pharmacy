@@ -17,9 +17,4 @@ export class CreateMedicineBrew {
   @Min(1)
   @Max(1000000)
   quantity: number;
-
-  @IsNumber()
-  @Min(1)
-  @Max(100000000)
-  price: number;
 }

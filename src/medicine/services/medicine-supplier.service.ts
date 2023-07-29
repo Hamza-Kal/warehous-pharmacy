@@ -29,7 +29,7 @@ export class MedicineSupplierService {
   ) {}
 
   async create(user: IUser, body: CreateMedicine) {
-    const { name, description, categoryId } = body;
+    const { name, description, categoryId, price } = body;
     if (!categoryId)
       throw new HttpException(
         this.medicineError.notFoundCategory(),
@@ -40,6 +40,7 @@ export class MedicineSupplierService {
     medicine.name = name;
     medicine.category = categoryId;
     medicine.supplier = user.supplierId as Supplier;
+    medicine.price = price;
     await this.medicineRepository.save(medicine);
     return {
       data: {
@@ -48,7 +49,7 @@ export class MedicineSupplierService {
     };
   }
 
-  async getSupplierMedicines({ criteria, pagination }, user: IUser) {
+  async findAll({ criteria, pagination }, user: IUser) {
     const { skip, limit } = pagination;
     const { supplierId } = user;
     const medicines = await this.medicineRepository.find({
@@ -73,7 +74,7 @@ export class MedicineSupplierService {
 
   async createMeicineBrew(user: IUser, body: CreateMedicineBrew) {
     const { supplierId } = user;
-    const { medicineId, productionDate, expireDate, quantity, price } = body;
+    const { medicineId, productionDate, expireDate, quantity } = body;
     if (productionDate.getTime() > expireDate.getTime()) {
       throw new HttpException(
         {
@@ -105,7 +106,6 @@ export class MedicineSupplierService {
     await this.medicineDetails.save(medicineBrew);
     const supplierMedicine = new SupplierMedicine();
     supplierMedicine.medicineDetails = medicineBrew;
-    supplierMedicine.price = price;
     supplierMedicine.quantity = quantity;
     supplierMedicine.supplier = supplierId as Supplier;
     await this.supplierMedicineRepository.save(supplierMedicine);

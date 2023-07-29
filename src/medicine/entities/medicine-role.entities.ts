@@ -5,6 +5,7 @@ import {
   OneToOne,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { MedicineDetails } from './medicine.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
@@ -34,6 +35,19 @@ export class WarehouseMedicine {
   @JoinColumn()
   medicineDetails: MedicineDetails;
 }
+
+@Entity()
+export class SupplierMedicinePrice {
+  @PrimaryGeneratedColumn({
+    type: 'int',
+  })
+  id: number;
+
+  @Column({
+    type: 'int',
+  })
+  price: number;
+}
 @Entity()
 export class SupplierMedicine {
   @PrimaryGeneratedColumn({
@@ -45,11 +59,6 @@ export class SupplierMedicine {
     type: 'int',
   })
   quantity: number;
-
-  @Column({
-    type: 'int',
-  })
-  price: number;
 
   @OneToOne(
     () => MedicineDetails,
@@ -73,11 +82,6 @@ export class PharmacyMedicine {
   })
   quantity: number;
 
-  @Column({
-    type: 'int',
-  })
-  price: number;
-
   @OneToOne(
     () => MedicineDetails,
     (medicineDetails) => medicineDetails.warehouseMedicine,
@@ -100,11 +104,6 @@ export class InventoryMedicine {
     type: 'int',
   })
   quantity: number;
-
-  @Column({
-    type: 'int',
-  })
-  price: number;
 
   @OneToOne(
     () => MedicineDetails,

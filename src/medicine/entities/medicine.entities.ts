@@ -11,8 +11,10 @@ import { User } from 'src/user/entities/user.entity';
 import {
   InventoryMedicine,
   PharmacyMedicine,
+  PharmacyMedicinePrice,
   SupplierMedicine,
   WarehouseMedicine,
+  WarehouseMedicinePrice,
 } from './medicine-role.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
 
@@ -70,7 +72,27 @@ export class Medicine {
   )
   @JoinColumn()
   medicineDetails: MedicineDetails[];
+
+  @OneToMany(
+    () => WarehouseMedicinePrice,
+    (warehouseMedicinePrice) => warehouseMedicinePrice.medicine,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
+  warehouseMedicinePrice: WarehouseMedicinePrice;
+
+  @OneToMany(
+    () => PharmacyMedicinePrice,
+    (pharmacyMedicinePrice) => pharmacyMedicinePrice.medicine,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
+  pharmacyMedicinePrice: PharmacyMedicinePrice;
 }
+
+// ####################    ####################
 
 @Entity()
 export class MedicineDetails {

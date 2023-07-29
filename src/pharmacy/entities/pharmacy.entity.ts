@@ -8,7 +8,10 @@ import {
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { PharmacyOrders } from 'src/order/entities/order.entities';
-import { PharmacyMedicine } from 'src/medicine/entities/medicine-role.entities';
+import {
+  PharmacyMedicine,
+  PharmacyMedicinePrice,
+} from 'src/medicine/entities/medicine-role.entities';
 
 @Entity()
 export class Pharmacy {
@@ -53,4 +56,14 @@ export class Pharmacy {
     { onDelete: 'CASCADE' },
   )
   pharmacyMedicines: PharmacyMedicine[];
+
+  @OneToMany(
+    () => PharmacyMedicinePrice,
+    (medicinePrice) => medicinePrice.pharmacy,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
+  @JoinColumn()
+  medicinePrice: PharmacyMedicinePrice[];
 }

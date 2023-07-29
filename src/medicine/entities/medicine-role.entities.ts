@@ -7,9 +7,10 @@ import {
   JoinColumn,
   OneToMany,
 } from 'typeorm';
-import { MedicineDetails } from './medicine.entities';
+import { Medicine, MedicineDetails } from './medicine.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
+import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 
 @Entity()
 export class WarehouseMedicine {
@@ -37,7 +38,7 @@ export class WarehouseMedicine {
 }
 
 @Entity()
-export class SupplierMedicinePrice {
+export class WarehouseMedicinePrice {
   @PrimaryGeneratedColumn({
     type: 'int',
   })
@@ -47,6 +48,34 @@ export class SupplierMedicinePrice {
     type: 'int',
   })
   price: number;
+
+  @ManyToOne(() => Medicine, (medicine) => medicine.warehouseMedicinePrice)
+  @JoinColumn()
+  medicine: Medicine;
+
+  @ManyToOne(() => Warehouse, (warehouse) => warehouse.medicinePrice)
+  @JoinColumn()
+  warehouse: Warehouse;
+}
+@Entity()
+export class PharmacyMedicinePrice {
+  @PrimaryGeneratedColumn({
+    type: 'int',
+  })
+  id: number;
+
+  @Column({
+    type: 'int',
+  })
+  price: number;
+
+  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.medicinePrice)
+  @JoinColumn()
+  pharmacy: Pharmacy;
+
+  @ManyToOne(() => Medicine, (medicine) => medicine.pharmacyMedicinePrice)
+  @JoinColumn()
+  medicine: Medicine;
 }
 @Entity()
 export class SupplierMedicine {
@@ -68,6 +97,7 @@ export class SupplierMedicine {
   medicineDetails: MedicineDetails;
 
   @ManyToOne(() => Supplier, (supplier) => supplier.supplierMedicine)
+  @JoinColumn()
   supplier: Supplier;
 }
 @Entity()

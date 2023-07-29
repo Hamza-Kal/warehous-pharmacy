@@ -8,8 +8,10 @@ import {
 import {
   InventoryMedicine,
   PharmacyMedicine,
+  PharmacyMedicinePrice,
   SupplierMedicine,
   WarehouseMedicine,
+  WarehouseMedicinePrice,
 } from './entities/medicine-role.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { MedicineController } from './api/controller/medicine-dashboard-supplier.controller';
@@ -22,6 +24,8 @@ import { MedicineSupplierService } from './services/medicine-supplier.service';
       MedicineDetails,
       InventoryMedicine,
       PharmacyMedicine,
+      PharmacyMedicinePrice,
+      WarehouseMedicinePrice,
       WarehouseMedicine,
       SupplierMedicine,
       Category,

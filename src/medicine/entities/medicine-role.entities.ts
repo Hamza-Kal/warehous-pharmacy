@@ -12,6 +12,7 @@ import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 
+// ####################  WarehouseMedicine  ####################
 @Entity()
 export class WarehouseMedicine {
   @PrimaryGeneratedColumn({
@@ -37,6 +38,7 @@ export class WarehouseMedicine {
   medicineDetails: MedicineDetails;
 }
 
+// ####################  WarehouseMedicinePrice  ####################
 @Entity()
 export class WarehouseMedicinePrice {
   @PrimaryGeneratedColumn({
@@ -57,6 +59,8 @@ export class WarehouseMedicinePrice {
   @JoinColumn()
   warehouse: Warehouse;
 }
+
+// ####################  PharmacyMedicinePrice  ####################
 @Entity()
 export class PharmacyMedicinePrice {
   @PrimaryGeneratedColumn({
@@ -77,6 +81,8 @@ export class PharmacyMedicinePrice {
   @JoinColumn()
   medicine: Medicine;
 }
+
+// ####################  SupplierMedicine  ####################
 @Entity()
 export class SupplierMedicine {
   @PrimaryGeneratedColumn({
@@ -100,6 +106,8 @@ export class SupplierMedicine {
   @JoinColumn()
   supplier: Supplier;
 }
+
+// ####################  PharmacyMedicine  ####################
 @Entity()
 export class PharmacyMedicine {
   @PrimaryGeneratedColumn({
@@ -123,6 +131,8 @@ export class PharmacyMedicine {
   @JoinColumn()
   pharmacy: Pharmacy;
 }
+
+// ####################  InventoryMedicine  ####################
 @Entity()
 export class InventoryMedicine {
   @PrimaryGeneratedColumn({

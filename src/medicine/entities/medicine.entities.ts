@@ -18,6 +18,7 @@ import {
 } from './medicine-role.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
 
+// ####################  Category  ####################
 @Entity()
 export class Category {
   @PrimaryGeneratedColumn({
@@ -35,6 +36,7 @@ export class Category {
   medicines: Medicine[];
 }
 
+// ####################  Medicine  ####################
 @Entity()
 export class Medicine {
   @PrimaryGeneratedColumn({
@@ -92,7 +94,7 @@ export class Medicine {
   pharmacyMedicinePrice: PharmacyMedicinePrice;
 }
 
-// ####################    ####################
+// ####################  MedicineDetails  ####################
 
 @Entity()
 export class MedicineDetails {

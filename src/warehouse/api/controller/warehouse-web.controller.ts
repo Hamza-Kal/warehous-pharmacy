@@ -37,7 +37,10 @@ export class WarehouseController {
     role: [Role.GUEST],
     completedAccount: false,
   })
-  async completeInfo(@Body() body: CreateWarehouseDto, @CurrUser() user: IUser) {
+  async completeInfo(
+    @Body() body: CreateWarehouseDto,
+    @CurrUser() user: IUser,
+  ) {
     return this.warehouseWebService.createWarehouse(body, user);
   }
 

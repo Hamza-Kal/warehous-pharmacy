@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Injectable,
-  Param,
-  ParseIntPipe,
-  Post,
-  Patch,
-} from '@nestjs/common';
+import { Body, Query } from '@nestjs/common';
 import { CreateWarehouseDto } from '../dto/create-warehouse.dto';
 import { UpdateWareHouseDto } from '../dto/update-warehouse.dto';
 import { WarehouseWebService } from '../../services/warehouse-web.service';
@@ -21,6 +11,8 @@ import { Api } from 'src/shared/enums/API';
 import { Role } from '../../../shared/enums/roles';
 import { IUser } from 'src/shared/interface/user.interface';
 import { WarehouseService } from 'src/warehouse/services/warehouse.service';
+import { Pagination } from 'src/shared/pagination/pagination.validation';
+import { paginationParser } from 'src/shared/pagination/pagination';
 @AuthenticatedController({
   controller: 'warehouse',
 })
@@ -36,8 +28,7 @@ export class WarehouseController {
     url: '/inventories',
   })
   async getAllInventories(@CurrUser() user: IUser) {
-    const { id } = user;
-    return await this.warehouseService.getAllInventories(id);
+    return await this.warehouseService.getAllInventories(user);
   }
 
   @AuthorizedApi({
@@ -48,5 +39,15 @@ export class WarehouseController {
   })
   completeInfo(@Body() body: CreateWarehouseDto, @CurrUser() user: IUser) {
     return this.warehouseWebService.createWarehouse(body, user);
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/get-suppliers',
+    role: [Role.WAREHOUSE],
+  })
+  getSuppliers(@Query() query: Pagination) {
+    const parsingResult = paginationParser(query);
+    return this.warehouseWebService.getAllSuppliers(parsingResult);
   }
 }

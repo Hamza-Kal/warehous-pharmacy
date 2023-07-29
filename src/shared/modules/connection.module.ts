@@ -1,8 +1,15 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
+<<<<<<< HEAD
 import { entities } from './modules';
 import dbConfig from '../../../ormconfig';
 import 'dotenv/config';
 
+=======
+
+import dbConfig from '../../../ormconfig';
+import { entities } from './modules';
+const { password, host, port, username, database } = dbConfig;
+>>>>>>> dev
 export default [
   TypeOrmModule.forRoot({
     type: 'mysql',

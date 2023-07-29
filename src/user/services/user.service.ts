@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
 import { Repository, StreamDescription } from 'typeorm';
@@ -32,17 +37,27 @@ export class UserService {
   }
 
   async findOneByEmail(email: string) {
-    return this.userRepository.findOneBy({ email });
+    const user = await this.userRepository.findOne({
+      where: { email },
+      relations: {
+        supplier: true,
+        inventory: true,
+        warehouse: true,
+        pharmacy: true,
+      },
+    });
+    return user;
   }
 
   async acceptAccount({ id }: IParams) {
     const user = await this.userRepository.findOneBy({
-      id,
+      id: +id,
       role: Role.GUEST,
       completedAccount: true,
     });
+    if (!user) throw new HttpException('user not found', HttpStatus.NOT_FOUND);
     user.role = user.assignedRole;
-    this.userRepository.save(user);
+    await this.userRepository.save(user);
     return;
   }
 

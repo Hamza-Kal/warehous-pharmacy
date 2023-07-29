@@ -8,6 +8,8 @@ import {
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
+import { WarehouseOrders } from 'src/order/entities/order.entities';
+import { WarehouseMedicinePrice } from 'src/medicine/entities/medicine-role.entities';
 
 @Entity()
 export class Warehouse {
@@ -35,11 +37,29 @@ export class Warehouse {
   })
   phoneNumber: string;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, (user) => user.warehouse)
   @JoinColumn()
   owner: User;
 
-  @OneToMany(() => Inventory, (inventory) => inventory.warehouse)
+  @OneToMany(() => Inventory, (inventory) => inventory.warehouse, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   inventories: Inventory[];
+
+  @OneToMany(
+    () => WarehouseOrders,
+    (warehouseOrders) => warehouseOrders.warehouse,
+    { onDelete: 'CASCADE' },
+  )
+  warehouseOrder: WarehouseOrders[];
+
+  @OneToMany(
+    () => WarehouseMedicinePrice,
+    (medicinePrice) => medicinePrice.warehouse,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
+  medicinePrice: WarehouseMedicinePrice[];
 }

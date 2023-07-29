@@ -57,6 +57,13 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @HttpCode(200)
+  @Post('login-pharmacy')
+  async loginPharmacy(@CurrUser() user: IUser) {
+    return this.authService.login(user);
+  }
+
+  @UseGuards(LocalAuthGuard)
+  @HttpCode(200)
   @Post('login-warehouse')
   async loginWarehouse(@CurrUser() user: IUser) {
     return this.authService.login(user);

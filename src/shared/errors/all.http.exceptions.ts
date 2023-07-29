@@ -36,6 +36,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     } else if (exception instanceof QueryFailedError) {
       const typeormException = exception as QueryFailedError;
       if (typeormException.driverError.sqlState == 23000) {
+        console.log(typeormException.driverError.sqlMessage);
         response.status(HttpStatus.BAD_REQUEST).json({
           isCustom: false,
           statusCode: 400,

@@ -6,15 +6,15 @@ import { CreateWarehouseDto } from '../api/dto/create-warehouse.dto';
 import { IUser } from 'src/shared/interface/user.interface';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/services/user.service';
+import { SupplierService } from 'src/supplier/service/supplier.service';
 
 @Injectable()
 export class WarehouseWebService {
   constructor(
     @InjectRepository(Warehouse)
     private warehouseRepository: Repository<Warehouse>,
-
     private userService: UserService,
-    private dataSource: DataSource,
+    private supplierService: SupplierService,
   ) {}
 
   // async getAllInventories(id: number) {
@@ -31,6 +31,10 @@ export class WarehouseWebService {
     body.owner = user;
     const warehouse = this.warehouseRepository.create(body);
     await this.warehouseRepository.save(warehouse);
-    return { id: warehouse.id };
+    return { data: { id: warehouse.id } };
+  }
+
+  async getAllSuppliers({ pagination, criteria }) {
+    return await this.supplierService.findAll(pagination, criteria);
   }
 }

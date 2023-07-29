@@ -20,6 +20,33 @@ module.exports = {
         completedAccount: true,
       },
     ]);
+    const toBeCreatedCategories = [
+      {
+        category: 'مضادات الحموضة',
+      },
+      {
+        category: 'مسكنات الألم',
+      },
+      {
+        category: 'منظمات الدورة الدموية',
+      },
+      {
+        category: 'مضادات حيوية',
+      },
+      {
+        category: 'مضادات جراثيم',
+      },
+      {
+        category: 'مضادات الفيروسات',
+      },
+      {
+        category: 'مخفضات حرارة',
+      },
+      {
+        category: 'مكملات غذائية',
+      },
+    ];
+    await queryInterface.bulkInsert('category', toBeCreatedCategories);
   },
 
   async down(queryInterface, Sequelize) {

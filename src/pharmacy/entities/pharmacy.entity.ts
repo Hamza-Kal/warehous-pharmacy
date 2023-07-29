@@ -4,8 +4,14 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
+import { PharmacyOrders } from 'src/order/entities/order.entities';
+import {
+  PharmacyMedicine,
+  PharmacyMedicinePrice,
+} from 'src/medicine/entities/medicine-role.entities';
 
 @Entity()
 export class Pharmacy {
@@ -33,7 +39,31 @@ export class Pharmacy {
   })
   phoneNumber: string;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, (user) => user.pharmacy, { cascade: true })
   @JoinColumn()
   user: User;
+
+  @OneToMany(
+    () => PharmacyOrders,
+    (pharmacyOrders) => pharmacyOrders.pharmacy,
+    { onDelete: 'CASCADE' },
+  )
+  pharmacyOrder: PharmacyOrders[];
+
+  @OneToMany(
+    () => PharmacyMedicine,
+    (pharmacyMedicines) => pharmacyMedicines.pharmacy,
+    { onDelete: 'CASCADE' },
+  )
+  pharmacyMedicines: PharmacyMedicine[];
+
+  @OneToMany(
+    () => PharmacyMedicinePrice,
+    (medicinePrice) => medicinePrice.pharmacy,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
+  @JoinColumn()
+  medicinePrice: PharmacyMedicinePrice[];
 }

@@ -29,11 +29,6 @@ export class RegisterDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsNumberString()
-  phoneNumber: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
   @IsString()
   @MaxLength(16)
   fullName: string;
@@ -57,11 +52,6 @@ export class InventroyRegister {
 
   @ApiProperty()
   @IsNotEmpty()
-  @IsNumberString()
-  phoneNumber: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
   @IsString()
   @MaxLength(16)
   fullName: string;
@@ -74,7 +64,7 @@ export class InventroyRegister {
   @MaxLength(255)
   location: string;
 
-  @IsPhoneNumber()
+  @IsNumberString()
   inventoryPhoneNumber: string;
 
   assignedRole: Role;

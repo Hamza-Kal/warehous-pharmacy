@@ -12,9 +12,9 @@ import {
   WarehouseMedicine,
 } from './entities/medicine-role.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
-import { MedicineWebService } from './services/medicine.service';
 import { MedicineController } from './api/controller/medicine-dashboard-supplier.controller';
 import { MedicineError } from './services/medicine-error.service';
+import { MedicineSupplierService } from './services/medicine-supplier.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -28,7 +28,7 @@ import { MedicineError } from './services/medicine-error.service';
     ]),
   ],
   controllers: [MedicineController],
-  providers: [MedicineWebService, MedicineError],
+  providers: [MedicineSupplierService, MedicineError],
   exports: [],
 })
 export class MedicineModule {}

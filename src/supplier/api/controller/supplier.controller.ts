@@ -9,6 +9,7 @@ import { IUser } from 'src/shared/interface/user.interface';
 import { SupplierDashboardService } from 'src/supplier/service/supplier-dashboard.service';
 import { paginationParser } from 'src/shared/pagination/pagination';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
+import { CreateSupplierDto } from '../dto/create-supplier.dto';
 
 @AuthenticatedController({
   controller: 'supplier',
@@ -21,7 +22,7 @@ export class SupplierController {
     role: [Role.GUEST],
     completedAccount: false,
   })
-  async completeInfo(@Body() body: CreatePharmacyDto, @CurrUser() user: IUser) {
+  async completeInfo(@Body() body: CreateSupplierDto, @CurrUser() user: IUser) {
     return this.supplierService.createSupplier(user, body);
   }
 }

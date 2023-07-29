@@ -36,8 +36,7 @@ export class WarehouseController {
     url: '/inventories',
   })
   async getAllInventories(@CurrUser() user: IUser) {
-    const { id } = user;
-    return await this.warehouseService.getAllInventories(id);
+    return await this.warehouseService.getAllInventories(user);
   }
 
   @AuthorizedApi({

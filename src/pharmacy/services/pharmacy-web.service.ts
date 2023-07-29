@@ -34,7 +34,9 @@ export class PharmacyWebService {
     const pharmacy = this.pharmacyRepository.create(body);
     await this.pharmacyRepository.save(pharmacy);
     return {
-      id: pharmacy.id,
+      data: {
+        id: pharmacy.id,
+      },
     };
   }
 }

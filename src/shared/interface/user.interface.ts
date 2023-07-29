@@ -8,8 +8,8 @@ export interface IUser {
   email: string;
   id: number;
   role: Role;
-  supplierId?: Supplier | number;
-  warehouseId?: Warehouse | number;
-  pharmacyId?: Pharmacy | number;
-  inventoyId?: Inventory | number;
+  supplierId?: number | Supplier;
+  warehouseId?: number | Warehouse;
+  pharmacyId?: number | Pharmacy;
+  inventoyId?: number | Inventory;
 }

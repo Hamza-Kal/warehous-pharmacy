@@ -28,7 +28,6 @@ export class InventoryAuthService {
       { name, phoneNumber: inventoryPhoneNumber, location, manager: user },
       warehouse,
     );
-    console.log('inventory', inventory);
     return { data: { id: inventory.id } };
   }
 }

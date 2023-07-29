@@ -1,20 +1,21 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import {
   Category,
   Medicine,
   MedicineDetails,
 } from '../entities/medicine.entities';
 import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CreateMedicine } from '../api/dto/create-medicine.dto';
-import { MedicineError } from './medicine-error.service';
-import { CreateMedicineBrew } from '../api/dto/create-medicine-brew.dto';
-import { IUser } from 'src/shared/interface/user.interface';
 import { SupplierMedicine } from '../entities/medicine-role.entities';
+import { MedicineError } from './medicine-error.service';
+import { CreateMedicine } from '../api/dto/create-medicine.dto';
+import { IUser } from 'src/shared/interface/user.interface';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
+import { CreateMedicineBrew } from '../api/dto/create-medicine-brew.dto';
+import { GetAllMedicinesSupplier } from '../api/response/get-all-medicine-supplier.dto';
 
 @Injectable()
-export class MedicineWebService {
+export class MedicineSupplierService {
   constructor(
     @InjectRepository(Medicine)
     private medicineRepository: Repository<Medicine>,
@@ -28,12 +29,7 @@ export class MedicineWebService {
   ) {}
 
   async create(user: IUser, body: CreateMedicine) {
-    console.log(user);
     const { name, description, categoryId } = body;
-    console.log('body', body);
-    // const category = await this.categoryRepository.findOne({
-    //   where: { id: categoryId },
-    // });
     if (!categoryId)
       throw new HttpException(
         this.medicineError.notFoundCategory(),
@@ -55,7 +51,7 @@ export class MedicineWebService {
   async getSupplierMedicines({ criteria, pagination }, user: IUser) {
     const { skip, limit } = pagination;
     const { supplierId } = user;
-    return this.medicineRepository.find({
+    const medicines = await this.medicineRepository.find({
       where: {
         ...criteria,
         supplier: {
@@ -68,6 +64,11 @@ export class MedicineWebService {
       skip,
       take: limit,
     });
+    return {
+      data: medicines.map((medicine) =>
+        new GetAllMedicinesSupplier({ medicine }).toObject(),
+      ),
+    };
   }
 
   async createMeicineBrew(user: IUser, body: CreateMedicineBrew) {
@@ -83,7 +84,12 @@ export class MedicineWebService {
       );
     }
     const medicine = await this.medicineRepository.findOne({
-      where: { id: medicineId, supplier: { id: supplierId as number } },
+      where: {
+        id: medicineId,
+        supplier: {
+          id: supplierId as number,
+        },
+      },
     });
     if (!medicine)
       throw new HttpException(
@@ -102,9 +108,7 @@ export class MedicineWebService {
     supplierMedicine.price = price;
     supplierMedicine.quantity = quantity;
     supplierMedicine.supplier = supplierId as Supplier;
-    console.log(supplierMedicine);
     await this.supplierMedicineRepository.save(supplierMedicine);
-    console.log('medicine Brew');
     return {
       data: {
         id: medicineBrew.id,

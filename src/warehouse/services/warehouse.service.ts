@@ -4,6 +4,8 @@ import { Warehouse } from '../entities/warehouse.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
+import { IUser } from 'src/shared/interface/user.interface';
+import { GetAllInventories } from '../api/dto/response/get-all-inventories.dto';
 
 @Injectable()
 export class WarehouseService {
@@ -25,14 +27,33 @@ export class WarehouseService {
       },
     });
   }
-  async getAllInventories(warehouseOwnerId: number) {
-    return await this.warehouseRepository.find({
+  async getAllInventories(user: IUser) {
+    const { inventories } = await this.warehouseRepository.findOne({
       where: {
-        owner: { id: warehouseOwnerId },
+        id: user.warehouseId as number,
+      },
+      relations: {
+        inventories: {
+          manager: true,
+        },
       },
       select: {
-        inventories: { name: true, location: true, phoneNumber: true },
+        inventories: {
+          name: true,
+          location: true,
+          phoneNumber: true,
+          id: true,
+          manager: {
+            fullName: true,
+          },
+        },
       },
     });
+    return {
+      totalRecords: inventories.length,
+      data: inventories.map((inventory) =>
+        new GetAllInventories({ inventory }).toObject(),
+      ),
+    };
   }
 }

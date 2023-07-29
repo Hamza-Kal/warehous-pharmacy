@@ -57,7 +57,7 @@ export class UserService {
     });
     if (!user) throw new HttpException('user not found', HttpStatus.NOT_FOUND);
     user.role = user.assignedRole;
-    this.userRepository.save(user);
+    await this.userRepository.save(user);
     return;
   }
 

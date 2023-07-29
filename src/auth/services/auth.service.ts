@@ -47,7 +47,6 @@ export class AuthService {
       warehouse,
       supplier,
     } = user;
-    console.log(supplier);
     const payload: {
       id: number;
       role: Role;

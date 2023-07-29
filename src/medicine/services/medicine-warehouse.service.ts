@@ -8,6 +8,7 @@ import {
 } from '../entities/medicine.entities';
 import { Repository } from 'typeorm';
 import { MedicineError } from './medicine-error.service';
+import { WarehouseGetSupplierMedicines } from '../api/response/get-medicines-supplier-for-warehouse.dto';
 
 @Injectable()
 export class WarehouseMedicineService {
@@ -21,9 +22,8 @@ export class WarehouseMedicineService {
     private medicineError: MedicineError,
   ) {}
 
-  async findAll({ criteria, pagination }, user: IUser) {
+  async findAll({ criteria, pagination }, supplierId: number) {
     const { skip, limit } = pagination;
-    const { supplierId } = user;
     const medicines = await this.medicineRepository.find({
       where: {
         ...criteria,
@@ -37,10 +37,11 @@ export class WarehouseMedicineService {
       skip,
       take: limit,
     });
+
     return {
-      //   data: medicines.map((medicine) =>
-      //     // new GetAllMedicinesSupplier({ medicine }).toObject(),
-      //   ),
+      data: medicines.map((medicine) =>
+        new WarehouseGetSupplierMedicines({ medicine }).toObject(),
+      ),
     };
   }
 

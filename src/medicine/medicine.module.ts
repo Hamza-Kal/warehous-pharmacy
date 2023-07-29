@@ -17,6 +17,8 @@ import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { MedicineController } from './api/controller/medicine-dashboard-supplier.controller';
 import { MedicineError } from './services/medicine-error.service';
 import { MedicineSupplierService } from './services/medicine-supplier.service';
+import { WarehouseMedicineService } from './services/medicine-warehouse.service';
+import { MedicineWarehouseController } from './api/controller/medicine-warehouse.controller';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -31,8 +33,8 @@ import { MedicineSupplierService } from './services/medicine-supplier.service';
       Category,
     ]),
   ],
-  controllers: [MedicineController],
-  providers: [MedicineSupplierService, MedicineError],
+  controllers: [MedicineController, MedicineWarehouseController],
+  providers: [MedicineSupplierService, WarehouseMedicineService, MedicineError],
   exports: [],
 })
 export class MedicineModule {}

@@ -12,7 +12,9 @@ import { CreateMedicine } from '../api/dto/create-medicine.dto';
 import { IUser } from 'src/shared/interface/user.interface';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { CreateMedicineBrew } from '../api/dto/create-medicine-brew.dto';
-import { GetAllMedicinesSupplier } from '../api/response/get-all-medicine-supplier.dto';
+import { GetByIdMedicineSupplier } from '../api/response/get-by-id-medicine-supplier.dto';
+import { IParams } from 'src/shared/interface/params.interface';
+import { GetAllMedicinesSupplier } from '../api/response/get-all-medicine-supplier.dto copy';
 
 @Injectable()
 export class MedicineSupplierService {
@@ -70,6 +72,27 @@ export class MedicineSupplierService {
         new GetAllMedicinesSupplier({ medicine }).toObject(),
       ),
     };
+  }
+
+  async findOne(id: number, user: IUser) {
+    console.log(id);
+    const medicine = await this.medicineRepository.findOne({
+      where: { id, supplier: { id: user.supplierId as number } },
+      relations: { category: true },
+      select: {
+        category: { category: true },
+        name: true,
+        id: true,
+        price: true,
+      },
+    });
+    if (!medicine) {
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.BAD_GATEWAY,
+      );
+    }
+    return { data: new GetByIdMedicineSupplier({ medicine }).toObject() };
   }
 
   async createMeicineBrew(user: IUser, body: CreateMedicineBrew) {

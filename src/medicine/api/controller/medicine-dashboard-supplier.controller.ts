@@ -1,4 +1,4 @@
-import { Body, Query } from '@nestjs/common';
+import { Body, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { AuthenticatedController } from 'src/shared/decorators/authenticated.controller.decorator';
 import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
 import { Api } from 'src/shared/enums/API';
@@ -10,9 +10,10 @@ import { paginationParser } from 'src/shared/pagination/pagination';
 import { IUser } from 'src/shared/interface/user.interface';
 import { CreateMedicineBrew } from '../dto/create-medicine-brew.dto';
 import { MedicineSupplierService } from 'src/medicine/services/medicine-supplier.service';
+import { IParams } from 'src/shared/interface/params.interface';
 
 @AuthenticatedController({
-  controller: '/supplier/medicine',
+  controller: '/medicine/supplier',
 })
 export class MedicineController {
   constructor(private medicineService: MedicineSupplierService) {}
@@ -36,13 +37,20 @@ export class MedicineController {
 
   @AuthorizedApi({
     api: Api.GET,
+    url: '/:id',
+    role: [Role.SUPPLIER],
+  })
+  async getOne(@CurrUser() user: IUser, @Param() param: IParams) {
+    console.log(param);
+    return this.medicineService.findOne(param.id, user);
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
     url: '/',
     role: [Role.SUPPLIER],
   })
-  async getSupplierMedicines(
-    @Query() query: Pagination,
-    @CurrUser() user: IUser,
-  ) {
+  async getAll(@Query() query: Pagination, @CurrUser() user: IUser) {
     const parsingResult = paginationParser(query);
     return this.medicineService.findAll(parsingResult, user);
   }

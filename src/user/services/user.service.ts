@@ -51,7 +51,7 @@ export class UserService {
 
   async acceptAccount({ id }: IParams) {
     const user = await this.userRepository.findOneBy({
-      id,
+      id: +id,
       role: Role.GUEST,
       completedAccount: true,
     });

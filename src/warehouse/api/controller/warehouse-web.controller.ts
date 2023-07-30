@@ -37,7 +37,10 @@ export class WarehouseController {
     role: [Role.GUEST],
     completedAccount: false,
   })
-  completeInfo(@Body() body: CreateWarehouseDto, @CurrUser() user: IUser) {
+  async completeInfo(
+    @Body() body: CreateWarehouseDto,
+    @CurrUser() user: IUser,
+  ) {
     return this.warehouseWebService.createWarehouse(body, user);
   }
 
@@ -46,7 +49,7 @@ export class WarehouseController {
     url: '/get-suppliers',
     role: [Role.WAREHOUSE],
   })
-  getSuppliers(@Query() query: Pagination) {
+  async getSuppliers(@Query() query: Pagination) {
     const parsingResult = paginationParser(query);
     return this.warehouseWebService.getAllSuppliers(parsingResult);
   }

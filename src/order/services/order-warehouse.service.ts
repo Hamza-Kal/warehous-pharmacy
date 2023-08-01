@@ -35,7 +35,6 @@ export class WarehouseOrderService {
     const medicineIds = body.medicineOrder.map(
       ({ medicineId }) => medicineId as number,
     );
-
     // getting the medicines with the given ids and with this supplier
     const medicines = await this.medicineService.getMedicines(
       medicineIds,
@@ -64,7 +63,6 @@ export class WarehouseOrderService {
     warehouseOrder.warehouse = currUser.warehouseId as Warehouse;
     warehouseOrder.totalPrice = totalPrice;
     await this.warehouseOrderRepository.save(warehouseOrder);
-
     // creating the order details
     for (const detail of details) {
       const warehouseOrderDetails = new WarehouseOrderDetails();

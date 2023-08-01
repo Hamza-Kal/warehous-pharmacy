@@ -51,11 +51,15 @@ export class WarehouseMedicinePrice {
   })
   price: number;
 
-  @ManyToOne(() => Medicine, (medicine) => medicine.warehouseMedicinePrice)
+  @ManyToOne(() => Medicine, (medicine) => medicine.warehouseMedicinePrice, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   medicine: Medicine;
 
-  @ManyToOne(() => Warehouse, (warehouse) => warehouse.medicinePrice)
+  @ManyToOne(() => Warehouse, (warehouse) => warehouse.medicinePrice, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   warehouse: Warehouse;
 }
@@ -73,11 +77,15 @@ export class PharmacyMedicinePrice {
   })
   price: number;
 
-  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.medicinePrice)
+  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.medicinePrice, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   pharmacy: Pharmacy;
 
-  @ManyToOne(() => Medicine, (medicine) => medicine.pharmacyMedicinePrice)
+  @ManyToOne(() => Medicine, (medicine) => medicine.pharmacyMedicinePrice, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   medicine: Medicine;
 }
@@ -102,7 +110,9 @@ export class PharmacyMedicine {
   @JoinColumn()
   medicineDetails: MedicineDetails;
 
-  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyMedicines)
+  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyMedicines, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   pharmacy: Pharmacy;
 }

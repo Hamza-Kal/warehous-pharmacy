@@ -72,7 +72,9 @@ export class Medicine {
   })
   description: string;
 
-  @ManyToOne(() => Supplier, (supplier) => supplier.medicine)
+  @ManyToOne(() => Supplier, (supplier) => supplier.medicine, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   supplier: Supplier;
 
@@ -85,18 +87,12 @@ export class Medicine {
   @OneToMany(
     () => WarehouseMedicinePrice,
     (warehouseMedicinePrice) => warehouseMedicinePrice.medicine,
-    {
-      onDelete: 'CASCADE',
-    },
   )
   warehouseMedicinePrice: WarehouseMedicinePrice;
 
   @OneToMany(
     () => PharmacyMedicinePrice,
     (pharmacyMedicinePrice) => pharmacyMedicinePrice.medicine,
-    {
-      onDelete: 'CASCADE',
-    },
   )
   pharmacyMedicinePrice: PharmacyMedicinePrice;
 

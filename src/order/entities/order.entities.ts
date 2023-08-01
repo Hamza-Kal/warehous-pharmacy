@@ -25,7 +25,9 @@ export class WarehouseOrder {
   })
   id: number;
 
-  @ManyToOne(() => Warehouse, (warehouse) => warehouse.warehouseOrder)
+  @ManyToOne(() => Warehouse, (warehouse) => warehouse.warehouseOrder, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   warehouse: Warehouse;
 
@@ -41,7 +43,9 @@ export class WarehouseOrder {
   })
   totalPrice: number;
 
-  @ManyToOne(() => Supplier, (supplier) => supplier.warehouseOrder)
+  @ManyToOne(() => Supplier, (supplier) => supplier.warehouseOrder, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   supplier: Supplier;
 
@@ -59,7 +63,9 @@ export class WarehouseOrderDetails {
   })
   id: number;
 
-  @ManyToOne(() => WarehouseOrder, (warehouseOrder) => warehouseOrder.details)
+  @ManyToOne(() => WarehouseOrder, (warehouseOrder) => warehouseOrder.details, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   warehouseOrder: WarehouseOrder;
 

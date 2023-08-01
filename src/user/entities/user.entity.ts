@@ -9,10 +9,8 @@ import {
   AfterUpdate,
   BeforeInsert,
   BeforeRemove,
-  BeforeUpdate,
   Column,
   Entity,
-  JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';

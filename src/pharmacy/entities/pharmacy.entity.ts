@@ -45,16 +45,12 @@ export class Pharmacy {
   @OneToMany(
     () => PharmacyMedicine,
     (pharmacyMedicines) => pharmacyMedicines.pharmacy,
-    { onDelete: 'CASCADE' },
   )
   pharmacyMedicines: PharmacyMedicine[];
 
   @OneToMany(
     () => PharmacyMedicinePrice,
     (medicinePrice) => medicinePrice.pharmacy,
-    {
-      onDelete: 'CASCADE',
-    },
   )
   @JoinColumn()
   medicinePrice: PharmacyMedicinePrice[];

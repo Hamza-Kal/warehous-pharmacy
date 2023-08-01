@@ -40,13 +40,9 @@ export class Supplier {
   @JoinColumn()
   user: User;
 
-  @OneToMany(() => Medicine, (medicine) => medicine.supplier, {
-    onDelete: 'CASCADE',
-  })
+  @OneToMany(() => Medicine, (medicine) => medicine.supplier)
   medicine: Medicine[];
 
-  @OneToMany(() => WarehouseOrder, (order) => order.supplier, {
-    onDelete: 'CASCADE',
-  })
+  @OneToMany(() => WarehouseOrder, (order) => order.supplier)
   warehouseOrder: WarehouseOrder[];
 }

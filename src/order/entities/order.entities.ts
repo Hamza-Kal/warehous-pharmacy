@@ -1,6 +1,14 @@
+import { Medicine } from 'src/medicine/entities/medicine.entities';
 import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
+import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 export enum OrderStatus {
   Pending = 'Pending',
@@ -10,7 +18,7 @@ export enum OrderStatus {
 }
 
 @Entity()
-export class WarehouseOrders {
+export class WarehouseOrder {
   @PrimaryGeneratedColumn({
     type: 'int',
   })
@@ -25,6 +33,38 @@ export class WarehouseOrders {
     default: OrderStatus.Pending,
   })
   status: OrderStatus;
+
+  @Column({
+    type: 'number',
+  })
+  totalPrice: number;
+
+  @ManyToOne(() => Supplier, (supplier) => supplier.warehouseOrder)
+  supplier: Supplier;
+
+  @OneToMany(
+    () => WarehouseOrderDetails,
+    (warehouseOrderDetails) => warehouseOrderDetails.warehouseOrder,
+  )
+  details: WarehouseOrderDetails[];
+}
+
+export class WarehouseOrderDetails {
+  @ManyToOne(() => WarehouseOrder, (warehouseOrder) => warehouseOrder.details)
+  warehouseOrder: WarehouseOrder;
+
+  @ManyToOne(() => Medicine, (medicine) => medicine.orderDetails)
+  medicine: Medicine;
+
+  @Column({
+    type: 'number',
+  })
+  quantity: number;
+
+  @Column({
+    type: 'number',
+  })
+  price: number;
 }
 
 @Entity()

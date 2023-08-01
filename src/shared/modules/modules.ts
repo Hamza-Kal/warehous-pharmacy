@@ -26,7 +26,8 @@ import {
 } from 'src/medicine/entities/medicine-role.entities';
 import {
   PharmacyOrders,
-  WarehouseOrders,
+  WarehouseOrder,
+  WarehouseOrderDetails,
 } from 'src/order/entities/order.entities';
 
 export const Modules = [
@@ -53,7 +54,8 @@ export const entities = [
   WarehouseMedicine,
   PharmacyMedicinePrice,
   WarehouseMedicinePrice,
-  WarehouseOrders,
   Category,
   PharmacyOrders,
+  WarehouseOrder,
+  WarehouseOrderDetails,
 ];

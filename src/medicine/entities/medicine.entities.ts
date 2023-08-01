@@ -17,6 +17,7 @@ import {
   WarehouseMedicinePrice,
 } from './medicine-role.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
+import { WarehouseOrderDetails } from 'src/order/entities/order.entities';
 
 // ####################  Category  ####################
 @Entity()
@@ -92,6 +93,13 @@ export class Medicine {
     },
   )
   pharmacyMedicinePrice: PharmacyMedicinePrice;
+
+  @OneToMany(
+    () => WarehouseOrderDetails,
+    (warehouseOrderDetails) => warehouseOrderDetails.medicine,
+    { onDelete: 'CASCADE' },
+  )
+  orderDetails: Medicine[];
 }
 
 // ####################  MedicineDetails  ####################

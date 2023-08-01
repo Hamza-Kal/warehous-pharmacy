@@ -27,8 +27,10 @@ export class MedicineService {
   ) {}
 
   async checkMedicine(medicineIds: number[], supplierId: number) {
-    const medicines = await this.supplierMedicineRepository.find({
-      where: { id: In(medicineIds) },
+    const medicinesCount = await this.supplierMedicineRepository.count({
+      where: { id: In(medicineIds), supplier: { id: supplierId } },
     });
+
+    return medicinesCount;
   }
 }

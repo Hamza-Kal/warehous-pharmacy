@@ -6,31 +6,50 @@ import {
   MedicineDetails,
 } from '../entities/medicine.entities';
 import { In, Repository } from 'typeorm';
-import { SupplierMedicine } from '../entities/medicine-role.entities';
 import { MedicineError } from './medicine-error.service';
-import { CreateMedicine } from '../api/dto/create-medicine.dto';
-import { IUser } from 'src/shared/interface/user.interface';
-import { Supplier } from 'src/supplier/entities/supplier.entity';
-import { CreateMedicineBrew } from '../api/dto/create-medicine-brew.dto';
-import { GetByIdMedicineSupplier } from '../api/response/get-by-id-medicine-supplier.dto';
-import { IParams } from 'src/shared/interface/params.interface';
-import { GetAllMedicinesSupplier } from '../api/response/get-all-medicine-supplier.dto copy';
 
 @Injectable()
 export class MedicineService {
   constructor(
-    @InjectRepository(SupplierMedicine)
-    private supplierMedicineRepository: Repository<SupplierMedicine>,
+    @InjectRepository(Medicine)
+    private medicineRepository: Repository<Medicine>,
     @InjectRepository(MedicineDetails)
     private medicineDetails: Repository<MedicineDetails>,
     private medicineError: MedicineError,
   ) {}
 
-  async checkMedicine(medicineIds: number[], supplierId: number) {
-    const medicinesCount = await this.supplierMedicineRepository.count({
+  async getMedicines(
+    medicineIds: number[],
+    supplierId: number,
+  ): Promise<Medicine[]> {
+    const queries = [];
+
+    // counting how many medicines fullfill this condition
+    // here supplier id is being searched to make sure that the medicines only come from one source
+    const count = await this.medicineRepository.count({
       where: { id: In(medicineIds), supplier: { id: supplierId } },
     });
 
-    return medicinesCount;
+    // searching for the medicines in medicines table
+    for (const medicineId of medicineIds) {
+      queries.push(
+        this.medicineRepository.findOne({
+          where: { id: medicineId, supplier: { id: supplierId } },
+          select: { id: true, price: true },
+        }),
+      );
+    }
+
+    const medicines = await Promise.all(queries);
+
+    // making sure the mediecines we found are match with the one we are given
+    if (count - medicineIds.length || count - medicines.length) {
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return medicines;
   }
 }

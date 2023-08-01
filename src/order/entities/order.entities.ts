@@ -5,6 +5,7 @@ import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -25,6 +26,7 @@ export class WarehouseOrder {
   id: number;
 
   @ManyToOne(() => Warehouse, (warehouse) => warehouse.warehouseOrder)
+  @JoinColumn()
   warehouse: Warehouse;
 
   @Column({
@@ -35,11 +37,12 @@ export class WarehouseOrder {
   status: OrderStatus;
 
   @Column({
-    type: 'number',
+    type: 'int',
   })
   totalPrice: number;
 
   @ManyToOne(() => Supplier, (supplier) => supplier.warehouseOrder)
+  @JoinColumn()
   supplier: Supplier;
 
   @OneToMany(
@@ -49,35 +52,30 @@ export class WarehouseOrder {
   details: WarehouseOrderDetails[];
 }
 
-export class WarehouseOrderDetails {
-  @ManyToOne(() => WarehouseOrder, (warehouseOrder) => warehouseOrder.details)
-  warehouseOrder: WarehouseOrder;
-
-  @ManyToOne(() => Medicine, (medicine) => medicine.orderDetails)
-  medicine: Medicine;
-
-  @Column({
-    type: 'number',
-  })
-  quantity: number;
-
-  @Column({
-    type: 'number',
-  })
-  price: number;
-}
-
 @Entity()
-export class PharmacyOrders {
+export class WarehouseOrderDetails {
   @PrimaryGeneratedColumn({
     type: 'int',
   })
   id: number;
 
-  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyOrder, {
-    onDelete: 'CASCADE',
+  @ManyToOne(() => WarehouseOrder, (warehouseOrder) => warehouseOrder.details)
+  @JoinColumn()
+  warehouseOrder: WarehouseOrder;
+
+  @ManyToOne(() => Medicine, (medicine) => medicine.warehoueOrderDetails)
+  @JoinColumn()
+  medicine: Medicine;
+
+  @Column({
+    type: 'int',
   })
-  pharmacy: Pharmacy;
+  quantity: number;
+
+  @Column({
+    type: 'int',
+  })
+  price: number;
 }
 
 // @Entity()
@@ -87,6 +85,21 @@ export class PharmacyOrders {
 //   })
 //   id: number;
 
+//   @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyOrder, {
+//     onDelete: 'CASCADE',
+//   })
+// @JoinColumn()
+//   pharmacy: Pharmacy;
+// }
+
+// @Entity()
+// export class PharmacyOrders {
+//   @PrimaryGeneratedColumn({
+//     type: 'int',
+//   })
+//   id: number;
+
 //   @ManyToOne(() => PharmacyOrders)
+// @JoinColumn()
 //   phrmacyOrder: PharmacyOrders;
 // }

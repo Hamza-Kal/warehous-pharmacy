@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
-import { WarehouseOrders } from 'src/order/entities/order.entities';
+import { WarehouseOrder } from 'src/order/entities/order.entities';
 import { WarehouseMedicinePrice } from 'src/medicine/entities/medicine-role.entities';
 
 @Entity()
@@ -48,11 +48,11 @@ export class Warehouse {
   inventories: Inventory[];
 
   @OneToMany(
-    () => WarehouseOrders,
+    () => WarehouseOrder,
     (warehouseOrders) => warehouseOrders.warehouse,
     { onDelete: 'CASCADE' },
   )
-  warehouseOrder: WarehouseOrders[];
+  warehouseOrder: WarehouseOrder[];
 
   @OneToMany(
     () => WarehouseMedicinePrice,

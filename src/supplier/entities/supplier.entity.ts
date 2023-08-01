@@ -7,9 +7,8 @@ import {
   OneToMany,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
-import { SupplierMedicine } from 'src/medicine/entities/medicine-role.entities';
 import { Medicine } from 'src/medicine/entities/medicine.entities';
-import { WarehouseOrders } from 'src/order/entities/order.entities';
+import { WarehouseOrder } from 'src/order/entities/order.entities';
 
 @Entity()
 export class Supplier {
@@ -41,22 +40,13 @@ export class Supplier {
   @JoinColumn()
   user: User;
 
-  @OneToMany(
-    () => SupplierMedicine,
-    (supplierMedicine) => supplierMedicine.supplier,
-    {
-      onDelete: 'CASCADE',
-    },
-  )
-  supplierMedicine: SupplierMedicine[];
-
   @OneToMany(() => Medicine, (medicine) => medicine.supplier, {
     onDelete: 'CASCADE',
   })
   medicine: Medicine[];
 
-  @OneToMany(() => WarehouseOrders, (order) => order.supplier, {
+  @OneToMany(() => WarehouseOrder, (order) => order.supplier, {
     onDelete: 'CASCADE',
   })
-  warehouseOrder: WarehouseOrders[];
+  warehouseOrder: WarehouseOrder[];
 }

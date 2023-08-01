@@ -12,7 +12,6 @@ import {
   InventoryMedicine,
   PharmacyMedicine,
   PharmacyMedicinePrice,
-  SupplierMedicine,
   WarehouseMedicine,
   WarehouseMedicinePrice,
 } from './medicine-role.entities';
@@ -46,6 +45,7 @@ export class Medicine {
   id?: number;
 
   @ManyToOne(() => Category, (category) => category.medicines)
+  @JoinColumn()
   category: Category;
 
   @Column({
@@ -61,19 +61,25 @@ export class Medicine {
   price: number;
 
   @Column({
+    type: 'int',
+    default: 0,
+  })
+  quantity?: number;
+
+  @Column({
     type: 'varchar',
     length: 255,
   })
   description: string;
 
   @ManyToOne(() => Supplier, (supplier) => supplier.medicine)
+  @JoinColumn()
   supplier: Supplier;
 
   @OneToMany(
     () => MedicineDetails,
     (medicineDetails) => medicineDetails.medicine,
   )
-  @JoinColumn()
   medicineDetails: MedicineDetails[];
 
   @OneToMany(
@@ -99,7 +105,7 @@ export class Medicine {
     (warehouseOrderDetails) => warehouseOrderDetails.medicine,
     { onDelete: 'CASCADE' },
   )
-  orderDetails: Medicine[];
+  warehoueOrderDetails: WarehouseOrderDetails[];
 }
 
 // ####################  MedicineDetails  ####################
@@ -123,6 +129,12 @@ export class MedicineDetails {
   })
   endDate: Date;
 
+  @Column({
+    type: 'int',
+    default: 0,
+  })
+  quantity: number;
+
   @ManyToOne(() => Medicine, (medicine) => medicine.medicineDetails)
   @JoinColumn()
   medicine: Medicine;
@@ -142,9 +154,4 @@ export class MedicineDetails {
     (inventoryMedicine) => inventoryMedicine.medicineDetails,
   )
   inventoryMedicine: InventoryMedicine;
-  @OneToOne(
-    () => SupplierMedicine,
-    (supplierMedicine) => supplierMedicine.medicineDetails,
-  )
-  supplierMedicine: SupplierMedicine;
 }

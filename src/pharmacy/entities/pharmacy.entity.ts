@@ -7,7 +7,6 @@ import {
   OneToMany,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
-import { PharmacyOrders } from 'src/order/entities/order.entities';
 import {
   PharmacyMedicine,
   PharmacyMedicinePrice,
@@ -42,13 +41,6 @@ export class Pharmacy {
   @OneToOne(() => User, (user) => user.pharmacy, { cascade: true })
   @JoinColumn()
   user: User;
-
-  @OneToMany(
-    () => PharmacyOrders,
-    (pharmacyOrders) => pharmacyOrders.pharmacy,
-    { onDelete: 'CASCADE' },
-  )
-  pharmacyOrder: PharmacyOrders[];
 
   @OneToMany(
     () => PharmacyMedicine,

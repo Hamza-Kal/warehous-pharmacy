@@ -82,31 +82,6 @@ export class PharmacyMedicinePrice {
   medicine: Medicine;
 }
 
-// ####################  SupplierMedicine  ####################
-@Entity()
-export class SupplierMedicine {
-  @PrimaryGeneratedColumn({
-    type: 'int',
-  })
-  id: number;
-
-  @Column({
-    type: 'int',
-  })
-  quantity: number;
-
-  @OneToOne(
-    () => MedicineDetails,
-    (medicineDetails) => medicineDetails.warehouseMedicine,
-  )
-  @JoinColumn()
-  medicineDetails: MedicineDetails;
-
-  @ManyToOne(() => Supplier, (supplier) => supplier.supplierMedicine)
-  @JoinColumn()
-  supplier: Supplier;
-}
-
 // ####################  PharmacyMedicine  ####################
 @Entity()
 export class PharmacyMedicine {

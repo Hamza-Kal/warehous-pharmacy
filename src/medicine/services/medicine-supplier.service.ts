@@ -6,7 +6,7 @@ import {
   MedicineDetails,
 } from '../entities/medicine.entities';
 import { Repository } from 'typeorm';
-import { SupplierMedicine } from '../entities/medicine-role.entities';
+
 import { MedicineError } from './medicine-error.service';
 import { CreateMedicine } from '../api/dto/create-medicine.dto';
 import { IUser } from 'src/shared/interface/user.interface';
@@ -23,8 +23,6 @@ export class MedicineSupplierService {
     private medicineRepository: Repository<Medicine>,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
-    @InjectRepository(SupplierMedicine)
-    private supplierMedicineRepository: Repository<SupplierMedicine>,
     @InjectRepository(MedicineDetails)
     private medicineDetails: Repository<MedicineDetails>,
     private medicineError: MedicineError,
@@ -84,6 +82,7 @@ export class MedicineSupplierService {
         name: true,
         id: true,
         price: true,
+        quantity: true,
       },
     });
     if (!medicine) {
@@ -124,14 +123,17 @@ export class MedicineSupplierService {
       startDate: productionDate,
       endDate: expireDate,
       medicine,
+      quantity,
     });
-
     await this.medicineDetails.save(medicineBrew);
-    const supplierMedicine = new SupplierMedicine();
-    supplierMedicine.medicineDetails = medicineBrew;
-    supplierMedicine.quantity = quantity;
-    supplierMedicine.supplier = supplierId as Supplier;
-    await this.supplierMedicineRepository.save(supplierMedicine);
+    await this.medicineRepository.update(
+      {
+        id: medicineId,
+      },
+      {
+        quantity: medicine.quantity + quantity,
+      },
+    );
     return {
       data: {
         id: medicineBrew.id,

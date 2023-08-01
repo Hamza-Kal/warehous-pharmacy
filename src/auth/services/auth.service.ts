@@ -37,7 +37,7 @@ export class AuthService {
     };
   }
 
-  async login(user: any) {
+  login(user: any) {
     const {
       role,
       id,

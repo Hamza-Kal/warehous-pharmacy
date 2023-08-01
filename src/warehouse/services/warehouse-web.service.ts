@@ -34,7 +34,8 @@ export class WarehouseWebService {
     return { data: { id: warehouse.id } };
   }
 
-  async getAllSuppliers({ pagination, criteria }) {
-    return await this.supplierService.findAll(pagination, criteria);
+  async getAllSuppliers() {
+    // { pagination, criteria }
+    return await this.supplierService.findAll({});
   }
 }

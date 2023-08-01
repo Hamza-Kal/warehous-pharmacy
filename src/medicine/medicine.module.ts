@@ -9,7 +9,6 @@ import {
   InventoryMedicine,
   PharmacyMedicine,
   PharmacyMedicinePrice,
-  SupplierMedicine,
   WarehouseMedicine,
   WarehouseMedicinePrice,
 } from './entities/medicine-role.entities';
@@ -20,6 +19,7 @@ import { MedicineSupplierService } from './services/medicine-supplier.service';
 import { WarehouseMedicineService } from './services/medicine-warehouse.service';
 import { MedicineWarehouseController } from './api/controller/medicine-warehouse.controller';
 import { MedicineService } from './services/medicine.service';
+import { WarehouseOrderDetails } from 'src/order/entities/order.entities';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -30,13 +30,17 @@ import { MedicineService } from './services/medicine.service';
       PharmacyMedicinePrice,
       WarehouseMedicinePrice,
       WarehouseMedicine,
-      SupplierMedicine,
-      MedicineService,
+      WarehouseOrderDetails,
       Category,
     ]),
   ],
   controllers: [MedicineController, MedicineWarehouseController],
-  providers: [MedicineSupplierService, WarehouseMedicineService, MedicineError],
-  exports: [MedicineService],
+  providers: [
+    MedicineSupplierService,
+    WarehouseMedicineService,
+    MedicineError,
+    MedicineService,
+  ],
+  exports: [MedicineService, MedicineError],
 })
 export class MedicineModule {}

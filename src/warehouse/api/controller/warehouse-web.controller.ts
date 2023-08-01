@@ -46,8 +46,9 @@ export class WarehouseController {
     url: '/get-suppliers',
     role: [Role.WAREHOUSE],
   })
-  getSuppliers(@Query() query: Pagination) {
-    const parsingResult = paginationParser(query);
-    return this.warehouseWebService.getAllSuppliers(parsingResult);
+  getSuppliers() {
+    //@Query() query: Pagination
+    // const parsingResult = paginationParser(query);
+    return this.warehouseWebService.getAllSuppliers(); //parsingResult
   }
 }

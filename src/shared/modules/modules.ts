@@ -20,15 +20,14 @@ import {
   InventoryMedicine,
   PharmacyMedicine,
   PharmacyMedicinePrice,
-  SupplierMedicine,
   WarehouseMedicine,
   WarehouseMedicinePrice,
 } from 'src/medicine/entities/medicine-role.entities';
 import {
-  PharmacyOrders,
   WarehouseOrder,
   WarehouseOrderDetails,
 } from 'src/order/entities/order.entities';
+import { OrderModule } from 'src/order/order.module';
 
 export const Modules = [
   WarehouseModule,
@@ -38,6 +37,7 @@ export const Modules = [
   PharmacyModule,
   SupplierModule,
   MedicineModule,
+  OrderModule,
 ];
 
 export const entities = [
@@ -49,13 +49,11 @@ export const entities = [
   Medicine,
   MedicineDetails,
   PharmacyMedicine,
-  SupplierMedicine,
   InventoryMedicine,
   WarehouseMedicine,
   PharmacyMedicinePrice,
   WarehouseMedicinePrice,
   Category,
-  PharmacyOrders,
   WarehouseOrder,
   WarehouseOrderDetails,
 ];

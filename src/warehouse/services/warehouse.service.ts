@@ -6,6 +6,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { IUser } from 'src/shared/interface/user.interface';
 import { GetAllInventories } from '../api/dto/response/get-all-inventories.dto';
+import { Role } from 'src/shared/enums/roles';
 
 @Injectable()
 export class WarehouseService {
@@ -31,6 +32,11 @@ export class WarehouseService {
     const { inventories } = await this.warehouseRepository.findOne({
       where: {
         id: user.warehouseId as number,
+        inventories: {
+          manager: {
+            role: Role.INVENTORY,
+          },
+        },
       },
       relations: {
         inventories: {

@@ -27,7 +27,7 @@ export class GetAllInventories {
       managerName: this.fullName,
       name: this.name,
       phoneNumber: this.phoneNumber,
-      location: this.phoneNumber,
+      location: this.location,
     };
   }
 }

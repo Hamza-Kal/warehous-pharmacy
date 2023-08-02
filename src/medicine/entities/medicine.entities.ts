@@ -12,11 +12,11 @@ import {
   InventoryMedicine,
   PharmacyMedicine,
   PharmacyMedicinePrice,
-  SupplierMedicine,
   WarehouseMedicine,
   WarehouseMedicinePrice,
 } from './medicine-role.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
+import { WarehouseOrderDetails } from 'src/order/entities/order.entities';
 
 // ####################  Category  ####################
 @Entity()
@@ -45,6 +45,7 @@ export class Medicine {
   id?: number;
 
   @ManyToOne(() => Category, (category) => category.medicines)
+  @JoinColumn()
   category: Category;
 
   @Column({
@@ -60,38 +61,47 @@ export class Medicine {
   price: number;
 
   @Column({
+    type: 'int',
+    default: 0,
+  })
+  quantity?: number;
+
+  @Column({
     type: 'varchar',
     length: 255,
   })
   description: string;
 
-  @ManyToOne(() => Supplier, (supplier) => supplier.medicine)
+  @ManyToOne(() => Supplier, (supplier) => supplier.medicine, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
   supplier: Supplier;
 
   @OneToMany(
     () => MedicineDetails,
     (medicineDetails) => medicineDetails.medicine,
   )
-  @JoinColumn()
   medicineDetails: MedicineDetails[];
 
   @OneToMany(
     () => WarehouseMedicinePrice,
     (warehouseMedicinePrice) => warehouseMedicinePrice.medicine,
-    {
-      onDelete: 'CASCADE',
-    },
   )
   warehouseMedicinePrice: WarehouseMedicinePrice;
 
   @OneToMany(
     () => PharmacyMedicinePrice,
     (pharmacyMedicinePrice) => pharmacyMedicinePrice.medicine,
-    {
-      onDelete: 'CASCADE',
-    },
   )
   pharmacyMedicinePrice: PharmacyMedicinePrice;
+
+  @OneToMany(
+    () => WarehouseOrderDetails,
+    (warehouseOrderDetails) => warehouseOrderDetails.medicine,
+    { onDelete: 'CASCADE' },
+  )
+  warehoueOrderDetails: WarehouseOrderDetails[];
 }
 
 // ####################  MedicineDetails  ####################
@@ -115,6 +125,12 @@ export class MedicineDetails {
   })
   endDate: Date;
 
+  @Column({
+    type: 'int',
+    default: 0,
+  })
+  quantity: number;
+
   @ManyToOne(() => Medicine, (medicine) => medicine.medicineDetails)
   @JoinColumn()
   medicine: Medicine;
@@ -134,9 +150,4 @@ export class MedicineDetails {
     (inventoryMedicine) => inventoryMedicine.medicineDetails,
   )
   inventoryMedicine: InventoryMedicine;
-  @OneToOne(
-    () => SupplierMedicine,
-    (supplierMedicine) => supplierMedicine.medicineDetails,
-  )
-  supplierMedicine: SupplierMedicine;
 }

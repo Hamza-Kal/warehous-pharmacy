@@ -38,7 +38,9 @@ export class Inventory {
   @JoinColumn()
   manager: User;
 
-  @ManyToOne(() => Warehouse, (warehouse) => warehouse.inventories)
+  @ManyToOne(() => Warehouse, (warehouse) => warehouse.inventories, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   warehouse: Warehouse;
 }

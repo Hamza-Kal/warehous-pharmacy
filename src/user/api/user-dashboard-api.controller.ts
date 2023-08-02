@@ -29,8 +29,8 @@ export class UserDashboardController {
     role: [Role.ADMIN],
     url: 'accept/:id',
   })
-  async acceptAccount(@Param('id', new ParseIntPipe()) params: IParams) {
-    return this.userService.acceptAccount(params);
+  async acceptAccount(@Param() params: IParams) {
+    return this.userService.acceptAccount({ id: +params.id });
   }
 
   // need pagination

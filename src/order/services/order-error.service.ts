@@ -13,11 +13,20 @@ export class OrderError {
     message: 'Medicine is not enough for the order',
   };
 
+  notFoundDistributionError = {
+    code: errorsCode.notFoundDistribution,
+    message: 'not found distribution for the order',
+  };
+
   notEnoughMedicine() {
     return this.notEnoughMedicineError;
   }
 
   notFoundOrder() {
     return this.notFoundOrderError;
+  }
+
+  notFoundDistribution() {
+    return this.notFoundDistributionError;
   }
 }

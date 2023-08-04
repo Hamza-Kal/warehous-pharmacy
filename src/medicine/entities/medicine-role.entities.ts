@@ -131,6 +131,11 @@ export class WarehouseMedicineDetails {
   })
   quantity: number;
 
+  @Column({
+    type: 'int',
+  })
+  supplierPrice: number;
+
   @ManyToOne(() => WarehouseMedicine, (medicine) => medicine.medicineDetails)
   @JoinColumn()
   medicine: WarehouseMedicine;
@@ -215,7 +220,7 @@ export class PharmacyMedicine {
   @Column({
     type: 'int',
   })
-  price: number;
+  warehousePrice: number;
 
   // ******************** Role ********************
   @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.medicines)

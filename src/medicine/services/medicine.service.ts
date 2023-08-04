@@ -11,7 +11,14 @@ import { MoveMedicineDto } from '../api/dto/update-Brew.dto';
 import {
   SupplierMedicine,
   SupplierMedicineDetails,
+  WarehouseMedicine,
 } from '../entities/medicine-role.entities';
+import {
+  CreateMedicine,
+  CreateWarehouseMedicine,
+} from '../api/dto/create-medicine.dto';
+import { CreateWarehouseDto } from 'src/warehouse/api/dto/create-warehouse.dto';
+import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 
 @Injectable()
 export class MedicineService {
@@ -22,6 +29,8 @@ export class MedicineService {
     private medicineDetailsRepository: Repository<MedicineDetails>,
     @InjectRepository(SupplierMedicine)
     private supplierMedicineRepository: Repository<SupplierMedicine>,
+    @InjectRepository(WarehouseMedicine)
+    private warehouseMedicineRepository: Repository<WarehouseMedicine>,
     @InjectRepository(SupplierMedicineDetails)
     private supplierMedicineDetailsRepository: Repository<SupplierMedicineDetails>,
     private medicineError: MedicineError,
@@ -75,6 +84,27 @@ export class MedicineService {
     }
 
     return medicines;
+  }
+
+  async findWarehouseByMedicine(id: number) {
+    return await this.warehouseMedicineRepository.findOne({
+      where: {
+        medicine: {
+          id,
+        },
+      },
+    });
+  }
+
+  async createWarehouseMedicine(dto: CreateWarehouseMedicine) {
+    const medicine = this.warehouseMedicineRepository.create({
+      warehouse: dto.warehouse as Warehouse,
+      medicine: dto.medicine as Medicine,
+      quantity: dto.quantity,
+    });
+
+    await this.warehouseMedicineRepository.save(medicine);
+    return medicine;
   }
 
   async moveMedicine(dto: MoveMedicineDto) {

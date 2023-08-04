@@ -116,6 +116,11 @@ export class DistributionWarehouseOrder {
     nullable: false,
   })
   quantity: number;
+  @Column({
+    type: 'int',
+    nullable: false,
+  })
+  price: number;
 
   @ManyToOne(
     () => MedicineDetails,

@@ -1,5 +1,6 @@
 import { IsNumber, IsString, Max, MaxLength, Min } from 'class-validator';
-import { Category } from 'src/medicine/entities/medicine.entities';
+import { Category, Medicine } from 'src/medicine/entities/medicine.entities';
+import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 
 export class CreateMedicine {
   @IsString()
@@ -16,4 +17,13 @@ export class CreateMedicine {
   @Min(1)
   @Max(100000000)
   price: number;
+}
+export class CreateWarehouseMedicine {
+  medicine: Medicine | number;
+
+  quantity: number;
+
+  price: number;
+
+  warehouse: Warehouse | number;
 }

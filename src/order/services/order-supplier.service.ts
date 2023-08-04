@@ -10,6 +10,11 @@ import {
 import { IParams } from 'src/shared/interface/params.interface';
 import { OrderError } from './order-error.service';
 import { MedicineService } from 'src/medicine/services/medicine.service';
+import {
+  WarehouseMedicine,
+  WarehouseMedicineDetails,
+} from 'src/medicine/entities/medicine-role.entities';
+import { Supplier } from 'src/supplier/entities/supplier.entity';
 
 @Injectable()
 export class SupplierOrderService {
@@ -29,6 +34,7 @@ export class SupplierOrderService {
   //?     "details": [
   //?         {
   //?             "quantity": 99,
+  //?             "price": 247500,
   //?             "medicine": {
   //?                 "id": 15,
   //?                 "name": "vitamen c",
@@ -75,6 +81,7 @@ export class SupplierOrderService {
       })
       .select([
         'details.quantity',
+        'details.price',
         'medicine.id',
         'warehouse_order.id',
         'medicine.name',
@@ -99,7 +106,7 @@ export class SupplierOrderService {
     //! the medicine of the order must be unique
     //! i should comment this
     //* object example is above this funcion
-    for (const { quantity, medicine } of orders[0].details) {
+    for (const { quantity, medicine, price } of orders[0].details) {
       let wholeQuantity = quantity;
       //? If the supplier didn't create the brew in the first place then it will go here
       if (!medicine.medicineDetails.length) {
@@ -124,6 +131,7 @@ export class SupplierOrderService {
         toPending.push({
           quantity: movedQuantity,
           id,
+          price,
         });
         //* this elements are removed from SupplierMedicineDetails
         removeMedicineDetails.push({
@@ -154,6 +162,7 @@ export class SupplierOrderService {
         order: orders[0],
         quantity: medicine.quantity,
         medicineDetails: medicine.id,
+        price: medicine.price,
       });
       await this.warehouseOrderRepository.update(
         {
@@ -179,20 +188,57 @@ export class SupplierOrderService {
   }
 
   async deliveredOrder({ id }: IParams, user: IUser) {
-    const order = await this.warehouseOrderRepository.update(
-      {
+    const order = await this.warehouseOrderRepository.findOne({
+      where: {
         id,
+        supplier: {
+          id: user.supplierId as number,
+        },
+        status: OrderStatus.Accepted,
       },
-      {
-        status: OrderStatus.Delivered,
-      },
-    );
+    });
 
-    if (order) {
+    if (!order) {
       throw new HttpException(
         this.orderError.notFoundOrder(),
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    order.status = OrderStatus.Delivered;
+
+    const distribution = await this.warehouseDistributionRepository.find({
+      where: { order: { id } },
+      relations: {
+        medicineDetails: {
+          medicine: true,
+        },
+      },
+      select: {
+        quantity: true,
+        price: true,
+        medicineDetails: {
+          id: true,
+          medicine: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (!distribution.length) {
+      throw new HttpException(
+        this.orderError.notFoundDistributionError,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    await this.warehouseOrderRepository.save(order);
+
+    // TODO create multiple medicines and multiple medicines brew
+
+    return;
+
+    const medicineDetails = new WarehouseMedicineDetails();
   }
 }

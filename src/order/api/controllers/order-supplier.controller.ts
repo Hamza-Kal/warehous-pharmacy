@@ -24,4 +24,13 @@ export class OrderSupplierController {
   async acceptOrder(@Param() param: IParams, @CurrUser() user: IUser) {
     return this.orderService.acceptOrder({ id: +param.id }, user);
   }
+
+  @AuthorizedApi({
+    api: Api.PATCH,
+    url: 'deliver/:id',
+    role: [Role.SUPPLIER],
+  })
+  async deliverOrder(@Param() param: IParams, @CurrUser() user: IUser) {
+    return this.orderService.deliveredOrder({ id: +param.id }, user);
+  }
 }

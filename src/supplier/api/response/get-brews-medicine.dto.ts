@@ -1,4 +1,5 @@
 import { th } from '@faker-js/faker';
+import { SupplierMedicineDetails } from 'src/medicine/entities/medicine-role.entities';
 import { MedicineDetails } from 'src/medicine/entities/medicine.entities';
 
 export class GetBrewsMedicineDto {
@@ -6,9 +7,9 @@ export class GetBrewsMedicineDto {
   startDate: Date;
   endDate: Date;
   quantity: number;
-  constructor({ brew }: { brew: MedicineDetails }) {
-    this.startDate = brew.startDate;
-    this.endDate = brew.endDate;
+  constructor({ brew }: { brew: SupplierMedicineDetails }) {
+    this.startDate = brew.medicineDetails.startDate;
+    this.endDate = brew.medicineDetails.endDate;
     this.quantity = brew.quantity;
   }
 

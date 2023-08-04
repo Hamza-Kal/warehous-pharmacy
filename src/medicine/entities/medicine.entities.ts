@@ -62,17 +62,6 @@ export class Medicine {
   name: string;
 
   @Column({
-    type: 'int',
-  })
-  price: number;
-
-  @Column({
-    type: 'int',
-    default: 0,
-  })
-  quantity?: number;
-
-  @Column({
     type: 'varchar',
     length: 255,
   })
@@ -106,7 +95,7 @@ export class Medicine {
     () => SupplierMedicine,
     (supplierMedicine) => supplierMedicine.medicine,
   )
-  SupplierMedicine: SupplierMedicine;
+  supplierMedicine: SupplierMedicine;
 
   @OneToOne(
     () => WarehouseMedicine,

@@ -15,7 +15,10 @@ import { CreateMedicineBrew } from '../api/dto/create-medicine-brew.dto';
 import { GetByIdMedicineSupplier } from '../api/response/get-by-id-medicine-supplier.dto';
 import { IParams } from 'src/shared/interface/params.interface';
 import { GetAllMedicinesSupplier } from '../api/response/get-all-medicine-supplier.dto copy';
-import { SupplierMedicine } from '../entities/medicine-role.entities';
+import {
+  SupplierMedicine,
+  SupplierMedicineDetails,
+} from '../entities/medicine-role.entities';
 
 @Injectable()
 export class MedicineSupplierService {
@@ -28,6 +31,8 @@ export class MedicineSupplierService {
     private categoryRepository: Repository<Category>,
     @InjectRepository(MedicineDetails)
     private medicineDetails: Repository<MedicineDetails>,
+    @InjectRepository(SupplierMedicineDetails)
+    private supplierMedicineDetails: Repository<SupplierMedicineDetails>,
     private medicineError: MedicineError,
   ) {}
 
@@ -45,19 +50,18 @@ export class MedicineSupplierService {
     medicine.name = name;
     medicine.category = categoryId;
     medicine.supplier = user.supplierId as Supplier;
-    medicine.price = price;
 
     //* creating for supplier medicine table
     const supplierMedicine = new SupplierMedicine();
     supplierMedicine.medicine = medicine;
     supplierMedicine.price = price;
-    medicine.supplier = user.supplierId as Supplier;
+    supplierMedicine.supplier = user.supplierId as Supplier;
 
     await this.medicineRepository.save(medicine);
     await this.supplierMedicineRepository.save(supplierMedicine);
     return {
       data: {
-        id: medicine.id,
+        id: supplierMedicine.id,
       },
     };
   }
@@ -65,7 +69,7 @@ export class MedicineSupplierService {
   async findAll({ criteria, pagination }, user: IUser) {
     const { skip, limit } = pagination;
     const { supplierId } = user;
-    const totalCount = await this.medicineRepository.count({
+    const totalRecords = await this.supplierMedicineRepository.count({
       where: {
         ...criteria,
         supplier: {
@@ -73,7 +77,7 @@ export class MedicineSupplierService {
         },
       },
     });
-    const medicines = await this.medicineRepository.find({
+    const medicines = await this.supplierMedicineRepository.find({
       where: {
         ...criteria,
         supplier: {
@@ -81,27 +85,32 @@ export class MedicineSupplierService {
         },
       },
       relations: {
-        category: true,
+        medicine: {
+          category: true,
+        },
       },
       skip,
       take: limit,
     });
     return {
-      totalCount,
+      totalRecords,
       data: medicines.map((medicine) =>
-        new GetAllMedicinesSupplier({ medicine }).toObject(),
+        new GetAllMedicinesSupplier({ supplierMedicine: medicine }).toObject(),
       ),
     };
   }
 
   async findOne(id: number, user: IUser) {
-    console.log(id);
-    const medicine = await this.medicineRepository.findOne({
+    const medicine = await this.supplierMedicineRepository.findOne({
       where: { id, supplier: { id: user.supplierId as number } },
-      relations: { category: true },
+      relations: {
+        medicine: {
+          category: true,
+        },
+      },
       select: {
-        category: { category: true },
-        name: true,
+        medicine: { name: true, category: { category: true } },
+
         id: true,
         price: true,
         quantity: true,
@@ -113,7 +122,11 @@ export class MedicineSupplierService {
         HttpStatus.BAD_GATEWAY,
       );
     }
-    return { data: new GetByIdMedicineSupplier({ medicine }).toObject() };
+    return {
+      data: new GetByIdMedicineSupplier({
+        supplierMedicine: medicine,
+      }).toObject(),
+    };
   }
 
   async createMeicineBrew(user: IUser, body: CreateMedicineBrew) {
@@ -130,35 +143,55 @@ export class MedicineSupplierService {
     }
     const medicine = await this.medicineRepository.findOne({
       where: {
+        supplierMedicine: {
+          id: medicineId,
+        },
+        supplier: {
+          id: supplierId as number,
+        },
+      },
+    });
+
+    const supplierMedicine = await this.supplierMedicineRepository.findOne({
+      where: {
         id: medicineId,
         supplier: {
           id: supplierId as number,
         },
       },
     });
-    if (!medicine)
+    console.log(supplierMedicine);
+    if (!medicine || !supplierMedicine)
       throw new HttpException(
         this.medicineError.notFoundMedicine(),
         HttpStatus.NOT_FOUND,
       );
+
     const medicineBrew = this.medicineDetails.create({
       startDate: productionDate,
       endDate: expireDate,
       medicine,
-      quantity,
     });
     await this.medicineDetails.save(medicineBrew);
-    await this.medicineRepository.update(
+
+    const medicineSupplierBrew = this.supplierMedicineDetails.create({
+      medicine: supplierMedicine,
+      quantity,
+      medicineDetails: medicineBrew,
+    });
+    await this.supplierMedicineDetails.save(medicineSupplierBrew);
+    console.log('safdasfwefsherere');
+    await this.supplierMedicineRepository.update(
       {
         id: medicineId,
       },
       {
-        quantity: medicine.quantity + quantity,
+        quantity: supplierMedicine.quantity + quantity,
       },
     );
     return {
       data: {
-        id: medicineBrew.id,
+        id: medicineSupplierBrew.id,
       },
     };
   }

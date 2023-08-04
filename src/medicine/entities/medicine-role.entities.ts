@@ -43,7 +43,7 @@ export class SupplierMedicine {
 
   // ******************** Medicine ********************
 
-  @OneToOne(() => Medicine, (medicine) => medicine.SupplierMedicine)
+  @OneToOne(() => Medicine, (medicine) => medicine.supplierMedicine)
   @JoinColumn()
   medicine: Medicine;
 
@@ -112,12 +112,11 @@ export class WarehouseMedicine {
 
   // ******************** details ********************
 
-  @OneToOne(
+  @OneToMany(
     () => WarehouseMedicineDetails,
     (medicineDetails) => medicineDetails.medicine,
   )
-  @JoinColumn()
-  medicineDetails: WarehouseMedicineDetails;
+  medicineDetails: WarehouseMedicineDetails[];
 }
 
 @Entity()
@@ -169,12 +168,12 @@ export class InventoryMedicine {
 
   // ******************** details ********************
 
-  @OneToOne(
+  @OneToMany(
     () => InventoryMedicineDetails,
     (medicineDetails) => medicineDetails.medicine,
   )
   @JoinColumn()
-  medicineDetails: InventoryMedicineDetails;
+  medicineDetails: InventoryMedicineDetails[];
 }
 
 @Entity()
@@ -229,12 +228,12 @@ export class PharmacyMedicine {
   medicine: Medicine;
 
   // ******************** Details ********************
-  @OneToOne(
+  @OneToMany(
     () => PharmacyMedicineDetails,
     (medicineDetails) => medicineDetails.medicine,
   )
   @JoinColumn()
-  medicineDetails: PharmacyMedicineDetails;
+  medicineDetails: PharmacyMedicineDetails[];
 }
 
 @Entity()

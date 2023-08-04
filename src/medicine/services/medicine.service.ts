@@ -8,6 +8,10 @@ import {
 import { In, Repository } from 'typeorm';
 import { MedicineError } from './medicine-error.service';
 import { MoveMedicineDto } from '../api/dto/update-Brew.dto';
+import {
+  SupplierMedicine,
+  SupplierMedicineDetails,
+} from '../entities/medicine-role.entities';
 
 @Injectable()
 export class MedicineService {
@@ -16,27 +20,46 @@ export class MedicineService {
     private medicineRepository: Repository<Medicine>,
     @InjectRepository(MedicineDetails)
     private medicineDetailsRepository: Repository<MedicineDetails>,
+    @InjectRepository(SupplierMedicine)
+    private supplierMedicineRepository: Repository<SupplierMedicine>,
+    @InjectRepository(SupplierMedicineDetails)
+    private supplierMedicineDetailsRepository: Repository<SupplierMedicineDetails>,
     private medicineError: MedicineError,
   ) {}
 
   async getMedicines(
     medicineIds: number[],
     supplierId: number,
-  ): Promise<Medicine[]> {
+  ): Promise<SupplierMedicine[]> {
     const queries = [];
 
     // counting how many medicines fullfill this condition
     // here supplier id is being searched to make sure that the medicines only come from one source
-    const count = await this.medicineRepository.count({
-      where: { id: In(medicineIds), supplier: { id: supplierId } },
+    const count = await this.supplierMedicineRepository.count({
+      where: {
+        id: In(medicineIds),
+        supplier: { id: supplierId },
+      },
     });
 
     // searching for the medicines in medicines table
     for (const medicineId of medicineIds) {
       queries.push(
-        this.medicineRepository.findOne({
-          where: { id: medicineId, supplier: { id: supplierId } },
-          select: { id: true, price: true },
+        this.supplierMedicineRepository.findOne({
+          where: {
+            id: medicineId,
+            supplier: { id: supplierId },
+          },
+          relations: {
+            medicine: true,
+          },
+          select: {
+            id: true,
+            price: true,
+            medicine: {
+              id: true,
+            },
+          },
         }),
       );
     }
@@ -55,36 +78,47 @@ export class MedicineService {
   }
 
   async moveMedicine(dto: MoveMedicineDto) {
-    const medicineDetails = await this.medicineDetailsRepository.findOneBy({
-      id: dto.detailsId,
-    });
+    const medicineDetails =
+      await this.supplierMedicineDetailsRepository.findOneBy({
+        id: dto.detailsId,
+      });
 
-    const medicine = await this.medicineRepository.findOneBy({
+    const medicine = await this.supplierMedicineRepository.findOneBy({
       id: dto.medicineId,
     });
 
-    if (!medicineDetails || medicine) {
+    if (!medicineDetails || !medicine) {
       throw new HttpException(
         this.medicineError.notFoundMedicine(),
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    medicine.quantity -= dto.medicineId;
+    medicine.quantity -= dto.quantity;
     medicineDetails.quantity -= dto.quantity;
 
-    await this.medicineDetailsRepository.save(medicineDetails);
-    await this.medicineRepository.save(medicine);
+    await this.supplierMedicineDetailsRepository.save(medicineDetails);
+    await this.supplierMedicineRepository.save(medicine);
   }
 
   async getBrewsForSupplier(supplierId: number, medicineId: number) {
-    const brews = await this.medicineDetailsRepository.find({
+    const brews = await this.supplierMedicineDetailsRepository.find({
       where: {
         medicine: {
           id: medicineId,
           supplier: {
             id: supplierId,
           },
+        },
+      },
+      relations: {
+        medicineDetails: true,
+      },
+      select: {
+        medicineDetails: {
+          id: true,
+          startDate: true,
+          endDate: true,
         },
       },
     });

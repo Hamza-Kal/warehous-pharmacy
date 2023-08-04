@@ -23,17 +23,48 @@ export class SupplierOrderService {
     private dataSource: DataSource,
   ) {}
 
+  //? orders[0] example
+  //?   {
+  //?     "id": 20,
+  //?     "details": [
+  //?         {
+  //?             "quantity": 99,
+  //?             "medicine": {
+  //?                 "id": 15,
+  //?                 "name": "vitamen c",
+  //?                 "supplierMedicine": {
+  //?                     "id": 23
+  //?                 },
+  //?                 "medicineDetails": [
+  //?                     {
+  //?                         "id": 32,
+  //?                         "endDate": "2023-05-02",
+  //?                         "supplierMedicine": {
+  //?                             id: 8,
+  //?                             "quantity": 2401
+  //?                         }
+  //?                     }
+  //?                 ]
+  //?             }
+  //?         }
+  //?     ]
+  //? }
   async acceptOrder({ id }: IParams, user: IUser) {
     const date = new Date();
     const orders = await this.warehouseOrderRepository
       .createQueryBuilder('warehouse_order')
       .leftJoinAndSelect('warehouse_order.details', 'details')
       .leftJoinAndSelect('details.medicine', 'medicine')
+      .leftJoinAndSelect('medicine.supplierMedicine', 'supplierMedicine')
       .leftJoinAndSelect(
         'medicine.medicineDetails',
         'medicineDetails',
-        'medicineDetails.endDate > :date',
+        'medicineDetails.endDate <= :date',
         { date },
+      )
+      .leftJoinAndSelect(
+        'medicineDetails.supplierMedicine',
+        'supplierMedicineDetails',
       )
       .where('warehouse_order.id = :id', { id })
       .andWhere('warehouse_order.status = :status', {
@@ -49,12 +80,14 @@ export class SupplierOrderService {
         'medicine.name',
         'medicineDetails.id',
         'medicineDetails.endDate',
-        'medicineDetails.quantity',
+        'supplierMedicine.id',
+        'supplierMedicineDetails.quantity',
+        'supplierMedicineDetails.id',
       ])
       .orderBy('medicineDetails.endDate', 'ASC')
       .getMany();
 
-    if (!orders) {
+    if (!orders.length) {
       throw new HttpException(
         this.orderError.notFoundOrder(),
         HttpStatus.NOT_FOUND,
@@ -64,23 +97,38 @@ export class SupplierOrderService {
     const toPending = [];
     const removeMedicineDetails = [];
     //! the medicine of the order must be unique
+    //! i should comment this
+    //* object example is above this funcion
     for (const { quantity, medicine } of orders[0].details) {
       let wholeQuantity = quantity;
+      //? If the supplier didn't create the brew in the first place then it will go here
       if (!medicine.medicineDetails.length) {
         throw new HttpException(
           this.orderError.notEnoughMedicine(),
           HttpStatus.BAD_REQUEST,
         );
       }
-      for (const { quantity, id } of medicine.medicineDetails) {
+      for (const { supplierMedicine, id } of medicine.medicineDetails) {
+        //? If the supplier deleted this brew then it will be null here
+        if (!supplierMedicine) {
+          throw new HttpException(
+            this.orderError.notEnoughMedicine(),
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+        const { quantity } = supplierMedicine;
         if (!wholeQuantity) break;
         const movedQuantity = Math.min(quantity, wholeQuantity);
+        //* this array is stored in DistributedWarehouseOrder
+        //* id must be the id of the medicineDetailsId
         toPending.push({
           quantity: movedQuantity,
           id,
         });
+        //* this elements are removed from SupplierMedicineDetails
         removeMedicineDetails.push({
-          id,
+          medicineId: medicine.supplierMedicine.id,
+          detailsId: supplierMedicine.id,
           quantity: movedQuantity,
         });
         wholeQuantity -= movedQuantity;

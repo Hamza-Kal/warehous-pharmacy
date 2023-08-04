@@ -1,3 +1,4 @@
+import { SupplierMedicine } from 'src/medicine/entities/medicine-role.entities';
 import { Medicine } from 'src/medicine/entities/medicine.entities';
 
 export class WarehouseGetSupplierMedicines {
@@ -5,11 +6,11 @@ export class WarehouseGetSupplierMedicines {
   category: string;
   price: number;
   id: number;
-  constructor({ medicine }: { medicine: Medicine }) {
-    this.id = medicine.id;
-    this.name = medicine.name;
-    this.category = medicine.category.category;
-    this.price = medicine.price;
+  constructor({ supplierMedicine }: { supplierMedicine: SupplierMedicine }) {
+    this.id = supplierMedicine.id;
+    this.name = supplierMedicine.medicine.name;
+    this.category = supplierMedicine.medicine.category.category;
+    this.price = supplierMedicine.price;
   }
 
   toObject(): {

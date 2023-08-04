@@ -7,7 +7,9 @@ import {
 } from './entities/order.entities';
 import { MedicineModule } from 'src/medicine/medicine.module';
 import { SupplierModule } from 'src/supplier/supplier.module';
-import { OrderWarehouesController } from './api/controllers/order-warehouse.service';
+import { OrderWarehouesController } from './api/controllers/order-warehouse.controller';
+import { OrderSupplierController } from './api/controllers/order-supplier.controller';
+import { SupplierOrderService } from './services/order-supplier.service';
 
 @Module({
   imports: [
@@ -15,7 +17,7 @@ import { OrderWarehouesController } from './api/controllers/order-warehouse.serv
     MedicineModule,
     SupplierModule,
   ],
-  controllers: [OrderWarehouesController],
-  providers: [WarehouseOrderService],
+  controllers: [OrderWarehouesController, OrderSupplierController],
+  providers: [WarehouseOrderService, SupplierOrderService],
 })
 export class OrderModule {}

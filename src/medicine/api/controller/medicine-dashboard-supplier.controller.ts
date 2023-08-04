@@ -41,7 +41,6 @@ export class MedicineController {
     role: [Role.SUPPLIER],
   })
   async getOne(@CurrUser() user: IUser, @Param() param: IParams) {
-    console.log(param);
     return this.medicineService.findOne(param.id, user);
   }
 

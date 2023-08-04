@@ -28,7 +28,7 @@ export class WarehouseMedicine {
   @Column({
     type: 'int',
   })
-  price: number;
+  supplierPrice: number;
 
   @OneToOne(
     () => MedicineDetails,

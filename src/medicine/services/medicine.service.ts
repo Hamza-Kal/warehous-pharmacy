@@ -14,7 +14,7 @@ export class MedicineService {
     @InjectRepository(Medicine)
     private medicineRepository: Repository<Medicine>,
     @InjectRepository(MedicineDetails)
-    private medicineDetails: Repository<MedicineDetails>,
+    private medicineDetailsRepository: Repository<MedicineDetails>,
     private medicineError: MedicineError,
   ) {}
 
@@ -51,5 +51,19 @@ export class MedicineService {
     }
 
     return medicines;
+  }
+
+  async getBrewsForSupplier(supplierId: number, medicineId: number) {
+    const brews = await this.medicineDetailsRepository.find({
+      where: {
+        medicine: {
+          id: medicineId,
+          supplier: {
+            id: supplierId,
+          },
+        },
+      },
+    });
+    return brews;
   }
 }

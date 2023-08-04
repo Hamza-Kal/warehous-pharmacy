@@ -7,6 +7,7 @@ import {
 } from '../entities/medicine.entities';
 import { In, Repository } from 'typeorm';
 import { MedicineError } from './medicine-error.service';
+import { MoveMedicineDto } from '../api/dto/update-Brew.dto';
 
 @Injectable()
 export class MedicineService {
@@ -51,6 +52,29 @@ export class MedicineService {
     }
 
     return medicines;
+  }
+
+  async moveMedicine(dto: MoveMedicineDto) {
+    const medicineDetails = await this.medicineDetailsRepository.findOneBy({
+      id: dto.detailsId,
+    });
+
+    const medicine = await this.medicineRepository.findOneBy({
+      id: dto.medicineId,
+    });
+
+    if (!medicineDetails || medicine) {
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    medicine.quantity -= dto.medicineId;
+    medicineDetails.quantity -= dto.quantity;
+
+    await this.medicineDetailsRepository.save(medicineDetails);
+    await this.medicineRepository.save(medicine);
   }
 
   async getBrewsForSupplier(supplierId: number, medicineId: number) {

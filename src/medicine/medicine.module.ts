@@ -7,10 +7,13 @@ import {
 } from './entities/medicine.entities';
 import {
   InventoryMedicine,
+  InventoryMedicineDetails,
   PharmacyMedicine,
-  PharmacyMedicinePrice,
+  PharmacyMedicineDetails,
+  SupplierMedicine,
+  SupplierMedicineDetails,
   WarehouseMedicine,
-  WarehouseMedicinePrice,
+  WarehouseMedicineDetails,
 } from './entities/medicine-role.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { MedicineController } from './api/controller/medicine-dashboard-supplier.controller';
@@ -25,11 +28,14 @@ import { WarehouseOrderDetails } from 'src/order/entities/order.entities';
     TypeOrmModule.forFeature([
       Medicine,
       MedicineDetails,
+      SupplierMedicine,
+      SupplierMedicineDetails,
       InventoryMedicine,
       PharmacyMedicine,
-      PharmacyMedicinePrice,
-      WarehouseMedicinePrice,
       WarehouseMedicine,
+      InventoryMedicineDetails,
+      PharmacyMedicineDetails,
+      WarehouseMedicineDetails,
       WarehouseOrderDetails,
       Category,
     ]),

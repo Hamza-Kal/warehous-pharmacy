@@ -7,10 +7,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
-import {
-  PharmacyMedicine,
-  PharmacyMedicinePrice,
-} from 'src/medicine/entities/medicine-role.entities';
+import { PharmacyMedicine } from 'src/medicine/entities/medicine-role.entities';
 
 @Entity()
 export class Pharmacy {
@@ -46,12 +43,5 @@ export class Pharmacy {
     () => PharmacyMedicine,
     (pharmacyMedicines) => pharmacyMedicines.pharmacy,
   )
-  pharmacyMedicines: PharmacyMedicine[];
-
-  @OneToMany(
-    () => PharmacyMedicinePrice,
-    (medicinePrice) => medicinePrice.pharmacy,
-  )
-  @JoinColumn()
-  medicinePrice: PharmacyMedicinePrice[];
+  medicines: PharmacyMedicine[];
 }

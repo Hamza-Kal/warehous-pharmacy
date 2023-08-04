@@ -1,3 +1,4 @@
+import { InventoryMedicine } from 'src/medicine/entities/medicine-role.entities';
 import { User } from 'src/user/entities/user.entity';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 import {
@@ -5,6 +6,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -38,9 +40,19 @@ export class Inventory {
   @JoinColumn()
   manager: User;
 
+  // ******************** Warehouse ********************
+
   @ManyToOne(() => Warehouse, (warehouse) => warehouse.inventories, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
   warehouse: Warehouse;
+
+  // ******************** Medicines ********************
+
+  @OneToMany(
+    () => InventoryMedicine,
+    (inventoryMedicine) => inventoryMedicine.inventory,
+  )
+  medicines: InventoryMedicine[];
 }

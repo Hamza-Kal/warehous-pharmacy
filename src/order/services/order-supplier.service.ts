@@ -1,75 +1,150 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, LessThan, MoreThan, Repository } from 'typeorm';
+import { DataSource, LessThan, Repository } from 'typeorm';
 import { IUser } from 'src/shared/interface/user.interface';
-import { User } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/services/user.service';
-import { SupplierService } from 'src/supplier/service/supplier.service';
 import {
+  DistributionWarehouseOrder,
   OrderStatus,
   WarehouseOrder,
-  WarehouseOrderDetails,
 } from '../entities/order.entities';
-import { CreateWarehouseOrderDto } from '../api/dto/create-warehouse-order.dto';
-import { MedicineService } from 'src/medicine/services/medicine.service';
-import { MedicineError } from 'src/medicine/services/medicine-error.service';
-import { Supplier } from 'src/supplier/entities/supplier.entity';
-import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
-import { Medicine } from 'src/medicine/entities/medicine.entities';
-import { AccepOrderDto } from '../api/dto/accept-warehouse-order.dto';
 import { IParams } from 'src/shared/interface/params.interface';
+import { OrderError } from './order-error.service';
+import { MedicineService } from 'src/medicine/services/medicine.service';
 
 @Injectable()
 export class SupplierOrderService {
   constructor(
     @InjectRepository(WarehouseOrder)
     private warehouseOrderRepository: Repository<WarehouseOrder>,
-    @InjectRepository(WarehouseOrderDetails)
-    private warehouseOrderDetailsRepository: Repository<WarehouseOrderDetails>,
-    private supplierService: SupplierService,
-    private readonly medicineService: MedicineService,
-    private readonly medicineError: MedicineError,
+    @InjectRepository(DistributionWarehouseOrder)
+    private warehouseDistributionRepository: Repository<DistributionWarehouseOrder>,
+    private medicineService: MedicineService,
+    private readonly orderError: OrderError,
+    private dataSource: DataSource,
   ) {}
 
   async acceptOrder({ id }: IParams, user: IUser) {
     const date = new Date();
-    const order = await this.warehouseOrderRepository.findOne({
-      where: {
-        id,
-        supplier: { id: user.supplierId as number },
+    const orders = await this.warehouseOrderRepository
+      .createQueryBuilder('warehouse_order')
+      .leftJoinAndSelect('warehouse_order.details', 'details')
+      .leftJoinAndSelect('details.medicine', 'medicine')
+      .leftJoinAndSelect(
+        'medicine.medicineDetails',
+        'medicineDetails',
+        'medicineDetails.endDate > :date',
+        { date },
+      )
+      .where('warehouse_order.id = :id', { id })
+      .andWhere('warehouse_order.status = :status', {
         status: OrderStatus.Pending,
-        details: {
-          medicine: {
-            medicineDetails: {
-              endDate: LessThan(date),
-            },
-          },
-        },
-      },
-      relations: {
-        details: {
-          medicine: {
-            medicineDetails: true,
-          },
-        },
-      },
-      select: {
-        details: {
-          quantity: true,
-          price: true,
-          medicine: {
-            id: true,
-            quantity: true,
-            medicineDetails: {
-              endDate: true,
-            },
-          },
-        },
-      },
-    });
+      })
+      .andWhere('warehouse_order.supplierId = :supplierId', {
+        supplierId: user.supplierId,
+      })
+      .select([
+        'details.quantity',
+        'medicine.id',
+        'warehouse_order.id',
+        'medicine.name',
+        'medicineDetails.id',
+        'medicineDetails.endDate',
+        'medicineDetails.quantity',
+      ])
+      .orderBy('medicineDetails.endDate', 'ASC')
+      .getMany();
 
-    // for (const { quantity, medicine } of order.details) {
-    // }
-    return order;
+    if (!orders) {
+      throw new HttpException(
+        this.orderError.notFoundOrder(),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const toPending = [];
+    const removeMedicineDetails = [];
+    //! the medicine of the order must be unique
+    for (const { quantity, medicine } of orders[0].details) {
+      let wholeQuantity = quantity;
+      if (!medicine.medicineDetails.length) {
+        throw new HttpException(
+          this.orderError.notEnoughMedicine(),
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      for (const { quantity, id } of medicine.medicineDetails) {
+        if (!wholeQuantity) break;
+        const movedQuantity = Math.min(quantity, wholeQuantity);
+        toPending.push({
+          quantity: movedQuantity,
+          id,
+        });
+        removeMedicineDetails.push({
+          id,
+          quantity: movedQuantity,
+        });
+        wholeQuantity -= movedQuantity;
+      }
+
+      //? maybe updated to status rejected
+      if (wholeQuantity) {
+        throw new HttpException(
+          this.orderError.notEnoughMedicine(),
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
+    //remove the medicines from the supplier medicines table
+    for (const medicine of removeMedicineDetails) {
+      await this.medicineService.moveMedicine(medicine);
+    }
+
+    // move the medicines to the pending table
+    for (const medicine of toPending) {
+      const distribution = this.warehouseDistributionRepository.create({
+        order: orders[0],
+        quantity: medicine.quantity,
+        medicineDetails: medicine.id,
+      });
+      await this.warehouseOrderRepository.update(
+        {
+          id,
+        },
+        {
+          status: OrderStatus.Accepted,
+        },
+      );
+      await this.warehouseDistributionRepository.save(distribution);
+    }
+
+    // accept the order
+    await this.warehouseOrderRepository.update(
+      {
+        id,
+      },
+      {
+        status: OrderStatus.Accepted,
+      },
+    );
+    return;
+  }
+
+  async deliveredOrder({ id }: IParams, user: IUser) {
+    const order = await this.warehouseOrderRepository.update(
+      {
+        id,
+      },
+      {
+        status: OrderStatus.Delivered,
+      },
+    );
+
+    if (order) {
+      throw new HttpException(
+        this.orderError.notFoundOrder(),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

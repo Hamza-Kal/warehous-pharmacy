@@ -15,12 +15,15 @@ import { CreateMedicineBrew } from '../api/dto/create-medicine-brew.dto';
 import { GetByIdMedicineSupplier } from '../api/response/get-by-id-medicine-supplier.dto';
 import { IParams } from 'src/shared/interface/params.interface';
 import { GetAllMedicinesSupplier } from '../api/response/get-all-medicine-supplier.dto copy';
+import { SupplierMedicine } from '../entities/medicine-role.entities';
 
 @Injectable()
 export class MedicineSupplierService {
   constructor(
     @InjectRepository(Medicine)
     private medicineRepository: Repository<Medicine>,
+    @InjectRepository(SupplierMedicine)
+    private supplierMedicineRepository: Repository<SupplierMedicine>,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
     @InjectRepository(MedicineDetails)
@@ -35,13 +38,23 @@ export class MedicineSupplierService {
         this.medicineError.notFoundCategory(),
         HttpStatus.NOT_FOUND,
       );
+
+    //* creating for medicine table
     const medicine = new Medicine();
     medicine.description = description;
     medicine.name = name;
     medicine.category = categoryId;
     medicine.supplier = user.supplierId as Supplier;
     medicine.price = price;
+
+    //* creating for supplier medicine table
+    const supplierMedicine = new SupplierMedicine();
+    supplierMedicine.medicine = medicine;
+    supplierMedicine.price = price;
+    medicine.supplier = user.supplierId as Supplier;
+
     await this.medicineRepository.save(medicine);
+    await this.supplierMedicineRepository.save(supplierMedicine);
     return {
       data: {
         id: medicine.id,
@@ -52,6 +65,14 @@ export class MedicineSupplierService {
   async findAll({ criteria, pagination }, user: IUser) {
     const { skip, limit } = pagination;
     const { supplierId } = user;
+    const totalCount = await this.medicineRepository.count({
+      where: {
+        ...criteria,
+        supplier: {
+          id: supplierId,
+        },
+      },
+    });
     const medicines = await this.medicineRepository.find({
       where: {
         ...criteria,
@@ -66,6 +87,7 @@ export class MedicineSupplierService {
       take: limit,
     });
     return {
+      totalCount,
       data: medicines.map((medicine) =>
         new GetAllMedicinesSupplier({ medicine }).toObject(),
       ),

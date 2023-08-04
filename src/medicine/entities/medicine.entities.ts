@@ -10,13 +10,19 @@ import {
 import { User } from 'src/user/entities/user.entity';
 import {
   InventoryMedicine,
+  InventoryMedicineDetails,
   PharmacyMedicine,
-  PharmacyMedicinePrice,
+  PharmacyMedicineDetails,
+  SupplierMedicine,
+  SupplierMedicineDetails,
   WarehouseMedicine,
-  WarehouseMedicinePrice,
+  WarehouseMedicineDetails,
 } from './medicine-role.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
-import { WarehouseOrderDetails } from 'src/order/entities/order.entities';
+import {
+  DistributionWarehouseOrder,
+  WarehouseOrderDetails,
+} from 'src/order/entities/order.entities';
 
 // ####################  Category  ####################
 @Entity()
@@ -78,30 +84,47 @@ export class Medicine {
   @JoinColumn()
   supplier: Supplier;
 
+  //******************** Details ********************
+
   @OneToMany(
     () => MedicineDetails,
     (medicineDetails) => medicineDetails.medicine,
   )
   medicineDetails: MedicineDetails[];
 
-  @OneToMany(
-    () => WarehouseMedicinePrice,
-    (warehouseMedicinePrice) => warehouseMedicinePrice.medicine,
-  )
-  warehouseMedicinePrice: WarehouseMedicinePrice;
-
-  @OneToMany(
-    () => PharmacyMedicinePrice,
-    (pharmacyMedicinePrice) => pharmacyMedicinePrice.medicine,
-  )
-  pharmacyMedicinePrice: PharmacyMedicinePrice;
+  //******************** Order ********************
 
   @OneToMany(
     () => WarehouseOrderDetails,
     (warehouseOrderDetails) => warehouseOrderDetails.medicine,
-    { onDelete: 'CASCADE' },
   )
-  warehoueOrderDetails: WarehouseOrderDetails[];
+  warehouseOrderDetails: WarehouseOrderDetails[];
+
+  //******************** Roles ********************
+
+  @OneToOne(
+    () => SupplierMedicine,
+    (supplierMedicine) => supplierMedicine.medicine,
+  )
+  SupplierMedicine: SupplierMedicine;
+
+  @OneToOne(
+    () => WarehouseMedicine,
+    (warehouseMedicine) => warehouseMedicine.medicine,
+  )
+  warehouseMedicine: WarehouseMedicine;
+
+  @OneToOne(
+    () => InventoryMedicine,
+    (inventoryMedicine) => inventoryMedicine.medicine,
+  )
+  inventoryMedicine: InventoryMedicine;
+
+  @OneToOne(
+    () => PharmacyMedicine,
+    (pharmacyMedicine) => pharmacyMedicine.medicine,
+  )
+  pharmacyMedicine: PharmacyMedicine;
 }
 
 // ####################  MedicineDetails  ####################
@@ -125,29 +148,41 @@ export class MedicineDetails {
   })
   endDate: Date;
 
-  @Column({
-    type: 'int',
-    default: 0,
-  })
-  quantity: number;
-
   @ManyToOne(() => Medicine, (medicine) => medicine.medicineDetails)
   @JoinColumn()
   medicine: Medicine;
 
+  // ******************** Details ********************
+
   @OneToOne(
-    () => WarehouseMedicine,
+    () => SupplierMedicineDetails,
+    (supplierMedicine) => supplierMedicine.medicineDetails,
+  )
+  supplierMedicine: SupplierMedicineDetails;
+
+  @OneToOne(
+    () => WarehouseMedicineDetails,
     (warehouseMedicine) => warehouseMedicine.medicineDetails,
   )
-  warehouseMedicine: WarehouseMedicine;
+  warehouseMedicine: WarehouseMedicineDetails;
+
   @OneToOne(
-    () => PharmacyMedicine,
-    (pharmacyMedicine) => pharmacyMedicine.medicineDetails,
-  )
-  pharmacyMedicine: PharmacyMedicine;
-  @OneToOne(
-    () => InventoryMedicine,
+    () => InventoryMedicineDetails,
     (inventoryMedicine) => inventoryMedicine.medicineDetails,
   )
-  inventoryMedicine: InventoryMedicine;
+  inventoryMedicine: InventoryMedicineDetails;
+
+  @OneToOne(
+    () => PharmacyMedicineDetails,
+    (pharmacyMedicine) => pharmacyMedicine.medicineDetails,
+  )
+  pharmacyMedicine: PharmacyMedicineDetails;
+
+  //***********************************
+
+  @OneToMany(
+    () => DistributionWarehouseOrder,
+    (distribution) => distribution.medicineDetails,
+  )
+  distribution: DistributionWarehouseOrder[];
 }

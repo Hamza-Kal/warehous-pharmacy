@@ -1,4 +1,7 @@
-import { Medicine } from 'src/medicine/entities/medicine.entities';
+import {
+  Medicine,
+  MedicineDetails,
+} from 'src/medicine/entities/medicine.entities';
 import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
@@ -14,6 +17,7 @@ import {
 export enum OrderStatus {
   Pending = 'Pending',
   //TODO  complete all the status
+  Accepted = 'Accepted',
   Delivered = 'Delivered',
   Rejected = 'Rejected',
 }
@@ -54,6 +58,12 @@ export class WarehouseOrder {
     (warehouseOrderDetails) => warehouseOrderDetails.warehouseOrder,
   )
   details: WarehouseOrderDetails[];
+
+  @OneToMany(
+    () => DistributionWarehouseOrder,
+    (distributionWarehouseOrder) => distributionWarehouseOrder.order,
+  )
+  distribution: DistributionWarehouseOrder[];
 }
 
 @Entity()
@@ -69,7 +79,7 @@ export class WarehouseOrderDetails {
   @JoinColumn()
   warehouseOrder: WarehouseOrder;
 
-  @ManyToOne(() => Medicine, (medicine) => medicine.warehoueOrderDetails)
+  @ManyToOne(() => Medicine, (medicine) => medicine.warehouseOrderDetails)
   @JoinColumn()
   medicine: Medicine;
 
@@ -82,6 +92,41 @@ export class WarehouseOrderDetails {
     type: 'int',
   })
   price: number;
+}
+
+@Entity()
+export class DistributionWarehouseOrder {
+  @PrimaryGeneratedColumn({
+    type: 'int',
+  })
+  id: number;
+  @ManyToOne(
+    () => WarehouseOrder,
+    (warehouseOrder) => warehouseOrder.distribution,
+    {
+      onDelete: 'CASCADE',
+      nullable: true,
+    },
+  )
+  @JoinColumn()
+  order: WarehouseOrder;
+
+  @Column({
+    type: 'int',
+    nullable: false,
+  })
+  quantity: number;
+
+  @ManyToOne(
+    () => MedicineDetails,
+    (medicineDetails) => medicineDetails.distribution,
+    {
+      onDelete: 'CASCADE',
+      nullable: true,
+    },
+  )
+  @JoinColumn()
+  medicineDetails: MedicineDetails;
 }
 
 // @Entity()

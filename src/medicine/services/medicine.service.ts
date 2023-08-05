@@ -12,10 +12,12 @@ import {
   SupplierMedicine,
   SupplierMedicineDetails,
   WarehouseMedicine,
+  WarehouseMedicineDetails,
 } from '../entities/medicine-role.entities';
 import {
   CreateMedicine,
   CreateWarehouseMedicine,
+  CreateWarehouseMedicineDetails,
 } from '../api/dto/create-medicine.dto';
 import { CreateWarehouseDto } from 'src/warehouse/api/dto/create-warehouse.dto';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
@@ -31,6 +33,8 @@ export class MedicineService {
     private supplierMedicineRepository: Repository<SupplierMedicine>,
     @InjectRepository(WarehouseMedicine)
     private warehouseMedicineRepository: Repository<WarehouseMedicine>,
+    @InjectRepository(WarehouseMedicineDetails)
+    private warehouseMedicineDetailsRepository: Repository<WarehouseMedicineDetails>,
     @InjectRepository(SupplierMedicineDetails)
     private supplierMedicineDetailsRepository: Repository<SupplierMedicineDetails>,
     private medicineError: MedicineError,
@@ -86,7 +90,7 @@ export class MedicineService {
     return medicines;
   }
 
-  async findWarehouseByMedicine(id: number) {
+  async findWarehouseMedicineByMedicine(id: number) {
     return await this.warehouseMedicineRepository.findOne({
       where: {
         medicine: {
@@ -97,14 +101,61 @@ export class MedicineService {
   }
 
   async createWarehouseMedicine(dto: CreateWarehouseMedicine) {
-    const medicine = this.warehouseMedicineRepository.create({
+    let medicine = this.warehouseMedicineRepository.create({
       warehouse: dto.warehouse as Warehouse,
       medicine: dto.medicine as Medicine,
-      quantity: dto.quantity,
     });
 
-    await this.warehouseMedicineRepository.save(medicine);
+    medicine = await this.warehouseMedicineRepository.save(medicine);
     return medicine;
+  }
+
+  async updateQuantity(id: number, quantity: number) {
+    await this.warehouseMedicineRepository.update(
+      {
+        id,
+      },
+      {
+        quantity,
+      },
+    );
+  }
+
+  async findWarehouseMedicineDetailsByMedicineDetails(id: number) {
+    return await this.warehouseMedicineDetailsRepository.findOne({
+      where: {
+        medicineDetails: {
+          id,
+        },
+      },
+    });
+  }
+
+  async createWarehouseMedicineDetails(dto: CreateWarehouseMedicineDetails) {
+    let medicineDetails = this.warehouseMedicineDetailsRepository.create({
+      medicine: dto.medicine as WarehouseMedicine,
+      medicineDetails: dto.medicineDetails as MedicineDetails,
+    });
+
+    medicineDetails = await this.warehouseMedicineDetailsRepository.save(
+      medicineDetails,
+    );
+    return medicineDetails;
+  }
+  async updateQuantityDetails(
+    id: number,
+    quantity: number,
+    supplierLastPrice?: number,
+  ) {
+    await this.warehouseMedicineDetailsRepository.update(
+      {
+        id,
+      },
+      {
+        quantity,
+        supplierLastPrice,
+      },
+    );
   }
 
   async moveMedicine(dto: MoveMedicineDto) {

@@ -48,7 +48,7 @@ export class Medicine {
   @PrimaryGeneratedColumn({
     type: 'int',
   })
-  id?: number;
+  id: number;
 
   @ManyToOne(() => Category, (category) => category.medicines)
   @JoinColumn()

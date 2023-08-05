@@ -1,5 +1,10 @@
 import { IsNumber, IsString, Max, MaxLength, Min } from 'class-validator';
-import { Category, Medicine } from 'src/medicine/entities/medicine.entities';
+import { WarehouseMedicine } from 'src/medicine/entities/medicine-role.entities';
+import {
+  Category,
+  Medicine,
+  MedicineDetails,
+} from 'src/medicine/entities/medicine.entities';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 
 export class CreateMedicine {
@@ -21,9 +26,11 @@ export class CreateMedicine {
 export class CreateWarehouseMedicine {
   medicine: Medicine | number;
 
-  quantity: number;
-
-  price: number;
-
   warehouse: Warehouse | number;
+}
+
+export class CreateWarehouseMedicineDetails {
+  medicine: WarehouseMedicine | number;
+
+  medicineDetails: MedicineDetails | number;
 }

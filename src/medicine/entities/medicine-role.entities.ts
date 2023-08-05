@@ -91,12 +91,13 @@ export class WarehouseMedicine {
     type: 'int',
     default: 0,
   })
-  quantity: number;
+  quantity?: number;
 
   @Column({
     type: 'int',
+    default: 0,
   })
-  price: number;
+  price?: number;
 
   // ******************** Role ********************
 
@@ -128,13 +129,15 @@ export class WarehouseMedicineDetails {
 
   @Column({
     type: 'int',
+    default: 0,
   })
   quantity: number;
 
   @Column({
     type: 'int',
+    default: 0,
   })
-  supplierPrice: number;
+  supplierLastPrice: number;
 
   @ManyToOne(() => WarehouseMedicine, (medicine) => medicine.medicineDetails)
   @JoinColumn()

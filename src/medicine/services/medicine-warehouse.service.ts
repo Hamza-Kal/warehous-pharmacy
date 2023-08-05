@@ -6,11 +6,15 @@ import {
   Medicine,
   MedicineDetails,
 } from '../entities/medicine.entities';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { MedicineError } from './medicine-error.service';
 import { WarehouseGetSupplierMedicines } from '../api/response/get-medicines-supplier-for-warehouse.dto';
-import { SupplierMedicine } from '../entities/medicine-role.entities';
+import {
+  SupplierMedicine,
+  WarehouseMedicine,
+} from '../entities/medicine-role.entities';
 import { GetByIdMedicineSupplier } from '../api/response/get-by-id-medicine-supplier.dto';
+import { WarehouseGetMedicines } from '../api/response/warehouse-get-medicines.dto';
 
 @Injectable()
 export class WarehouseMedicineService {
@@ -19,6 +23,8 @@ export class WarehouseMedicineService {
     private medicineRepository: Repository<Medicine>,
     @InjectRepository(SupplierMedicine)
     private supplierMedicineRepository: Repository<SupplierMedicine>,
+    @InjectRepository(WarehouseMedicine)
+    private warehouseMedicineRepository: Repository<WarehouseMedicine>,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
     @InjectRepository(MedicineDetails)
@@ -26,7 +32,7 @@ export class WarehouseMedicineService {
     private medicineError: MedicineError,
   ) {}
 
-  async findAll({ criteria, pagination }, supplierId: number) {
+  async findAllSuppliers({ criteria, pagination }, supplierId: number) {
     const { skip, limit } = pagination;
     const medicines = await this.supplierMedicineRepository.find({
       where: {
@@ -52,10 +58,45 @@ export class WarehouseMedicineService {
       ),
     };
   }
+  async findAll({ criteria, pagination }, user: IUser) {
+    const { skip, limit } = pagination;
+    const totalRecords = await this.warehouseMedicineRepository.count({
+      where: {
+        ...criteria,
+        warehouse: {
+          id: user.warehouseId,
+        },
+      },
+    });
+    const medicines = await this.warehouseMedicineRepository.find({
+      where: {
+        ...criteria,
+        warehouse: {
+          id: user.warehouseId,
+        },
+      },
+      relations: {
+        medicine: {
+          category: true,
+        },
+      },
+      skip,
+      take: limit,
+    });
 
-  async findOne(id: number, user: IUser) {
+    return {
+      totalRecords,
+      data: medicines.map((medicine) =>
+        new WarehouseGetMedicines({
+          warehouseMedicine: medicine,
+        }).toObject(),
+      ),
+    };
+  }
+
+  async findOneSupplierMedicine(id: number) {
     const medicine = await this.supplierMedicineRepository.findOne({
-      where: { id, supplier: { id: user.supplierId as number } },
+      where: { id, quantity: Not(0) },
       relations: {
         medicine: {
           category: true,

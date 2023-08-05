@@ -15,8 +15,6 @@ import { Inventory } from 'src/inventory/entities/inventory.entity';
 
 // ####################  WarehouseMedicine  ####################
 
-// TODO refactor this warehouse medicine and warehouse medicine price
-
 @Entity()
 export class SupplierMedicine {
   @PrimaryGeneratedColumn({

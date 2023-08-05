@@ -1,4 +1,4 @@
-import { Param, Query } from '@nestjs/common';
+import { Body, Param, Query } from '@nestjs/common';
 import { WarehouseMedicineService } from 'src/medicine/services/medicine-warehouse.service';
 import { AuthenticatedController } from 'src/shared/decorators/authenticated.controller.decorator';
 import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
@@ -9,6 +9,7 @@ import { IParams } from 'src/shared/interface/params.interface';
 import { IUser } from 'src/shared/interface/user.interface';
 import { paginationParser } from 'src/shared/pagination/pagination';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
+import { UpdatePriceDto } from '../dto/warehouseDto/update-medicine-price.dto';
 
 @AuthenticatedController({
   controller: 'medicine/warehouse',
@@ -49,5 +50,17 @@ export class MedicineWarehouseController {
       { criteria, pagination },
       user,
     );
+  }
+  @AuthorizedApi({
+    api: Api.PATCH,
+    url: '/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async updatePrice(
+    @CurrUser() user: IUser,
+    @Body() body: UpdatePriceDto,
+    @Param() param: IParams,
+  ) {
+    return await this.warehouseMedicineService.update(+param.id, body, user);
   }
 }

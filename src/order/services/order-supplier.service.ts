@@ -15,6 +15,7 @@ import {
   WarehouseMedicineDetails,
 } from 'src/medicine/entities/medicine-role.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
+import { or } from 'sequelize';
 
 @Injectable()
 export class SupplierOrderService {
@@ -305,5 +306,37 @@ export class SupplierOrderService {
     await this.warehouseOrderRepository.save(order);
 
     return;
+  }
+
+  async rejectOrder({ id }: IParams, user: IUser) {
+    const order = await this.warehouseOrderRepository.findOne({
+      where: [
+        {
+          id: id,
+          supplier: {
+            id: user.supplierId as number,
+          },
+          status: OrderStatus.Accepted,
+        },
+        {
+          id: id,
+          supplier: {
+            id: user.supplierId as number,
+          },
+          status: OrderStatus.Pending,
+        },
+      ],
+    });
+
+    console.log('ordrerer', order);
+
+    if (!order) {
+      throw new HttpException(
+        this.orderError.notFoundOrder(),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    order.status = OrderStatus.Rejected;
+    await this.warehouseOrderRepository.save(order);
   }
 }

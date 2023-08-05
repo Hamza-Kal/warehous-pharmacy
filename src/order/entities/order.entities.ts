@@ -16,7 +16,6 @@ import {
 
 export enum OrderStatus {
   Pending = 'Pending',
-  //TODO  complete all the status
   Accepted = 'Accepted',
   Delivered = 'Delivered',
   Rejected = 'Rejected',

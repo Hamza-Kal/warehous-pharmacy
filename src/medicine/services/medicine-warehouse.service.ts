@@ -15,6 +15,8 @@ import {
 } from '../entities/medicine-role.entities';
 import { GetByIdMedicineSupplier } from '../api/response/get-by-id-medicine-supplier.dto';
 import { WarehouseGetMedicines } from '../api/response/warehouse-get-medicines.dto';
+import { UpdatePriceDto } from '../api/dto/warehouseDto/update-medicine-price.dto';
+import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 
 @Injectable()
 export class WarehouseMedicineService {
@@ -124,5 +126,19 @@ export class WarehouseMedicineService {
         supplierMedicine: medicine,
       }).toObject(),
     };
+  }
+
+  async update(id: number, body: UpdatePriceDto, user: IUser) {
+    await this.warehouseMedicineRepository.update(
+      {
+        id,
+        warehouse: {
+          id: user.warehouseId as number,
+        },
+      },
+      {
+        price: body.price,
+      },
+    );
   }
 }

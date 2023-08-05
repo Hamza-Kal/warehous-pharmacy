@@ -23,6 +23,8 @@ import { WarehouseMedicineService } from './services/medicine-warehouse.service'
 import { MedicineWarehouseController } from './api/controller/medicine-warehouse.controller';
 import { MedicineService } from './services/medicine.service';
 import { WarehouseOrderDetails } from 'src/order/entities/order.entities';
+import { InventoryModule } from 'src/inventory/inventory.module';
+import { Inventory } from 'src/inventory/entities/inventory.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -38,6 +40,7 @@ import { WarehouseOrderDetails } from 'src/order/entities/order.entities';
       WarehouseMedicineDetails,
       WarehouseOrderDetails,
       Category,
+      Inventory,
     ]),
   ],
   controllers: [MedicineController, MedicineWarehouseController],

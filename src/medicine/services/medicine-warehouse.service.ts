@@ -12,11 +12,16 @@ import { WarehouseGetSupplierMedicines } from '../api/response/get-medicines-sup
 import {
   SupplierMedicine,
   WarehouseMedicine,
+  WarehouseMedicineDetails,
 } from '../entities/medicine-role.entities';
 import { GetByIdMedicineSupplier } from '../api/response/get-by-id-medicine-supplier.dto';
 import { WarehouseGetMedicines } from '../api/response/warehouse-get-medicines.dto';
 import { UpdatePriceDto } from '../api/dto/warehouseDto/update-medicine-price.dto';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
+import { Inventory } from 'src/inventory/entities/inventory.entity';
+import { TransferToInventoryDto } from 'src/warehouse/api/dto/transfer-to-inventory';
+import { NotFoundException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class WarehouseMedicineService {
@@ -34,6 +39,10 @@ export class WarehouseMedicineService {
     private medicineError: MedicineError,
     @InjectRepository(WarehouseMedicine)
     private warehouseMedicine: Repository<WarehouseMedicine>,
+    @InjectRepository(Inventory)
+    private inventoryRepository: Repository<Inventory>,
+    @InjectRepository(WarehouseMedicineDetails)
+    private warehouseMedicineDetailsRepository: Repository<WarehouseMedicineDetails>,
   ) {}
 
   async findAllSuppliers({ criteria, pagination }, supplierId: number) {
@@ -152,5 +161,58 @@ export class WarehouseMedicineService {
         },
       },
     });
+  }
+
+  async transferToInventory(body: TransferToInventoryDto, owner: IUser) {
+    const { warehouseId } = owner;
+    const { inventoryId, batches } = body;
+
+    // check if inventory exists
+    const inventory = await this.inventoryRepository.findOne({
+      where: {
+        id: inventoryId,
+        warehouse: {
+          id: warehouseId as number,
+        },
+      },
+    });
+    if (!inventory) throw new NotFoundException('inventory not found');
+    if (!batches.length) throw new BadRequestException('no batches provided');
+    // make sure that all bathces are for one medicine and this medicine exists
+    // on my warehouse
+
+    let medicineWarehouseId = -1;
+    for (const batch of batches) {
+      const { batchId } = batch;
+      const warehouseMedicineBatch =
+        await this.warehouseMedicineDetailsRepository.findOne({
+          where: {
+            id: batchId,
+          },
+        });
+      if (!warehouseMedicineBatch) {
+        throw new NotFoundException('batch provided does not exist');
+      }
+      if (medicineWarehouseId === -1)
+        medicineWarehouseId = warehouseMedicineBatch.medicine.id;
+      else if (medicineWarehouseId != warehouseMedicineBatch.medicine.id) {
+        throw new BadRequestException(
+          'there is no such batch for this medicine',
+        );
+      }
+    }
+    const myWarehouseMedicine = await this.warehouseMedicineRepository.findOne({
+      where: {
+        id: medicineWarehouseId,
+        warehouse: {
+          id: warehouseId as number,
+        },
+      },
+    });
+    if (!myWarehouseMedicine) {
+      throw new BadRequestException(
+        'the provided batches belong to medicine that the warehouse does not accquire',
+      );
+    }
   }
 }

@@ -67,16 +67,4 @@ export class WarehouseController {
     // const parsingResult = paginationParser(query);
     return this.warehouseWebService.getSupplierById(+param.id); //parsingResult
   }
-
-  @AuthorizedApi({
-    api: Api.PUT,
-    url: '/transfer-to-intentory',
-    role: [Role.WAREHOUSE],
-  })
-  transterToInventory(
-    @Body() body: TransferToInventoryDto,
-    @CurrUser() user: IUser,
-  ) {
-    return this.warehouseWebService.transferToInventory(body, user);
-  }
 }

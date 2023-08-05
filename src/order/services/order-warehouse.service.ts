@@ -44,7 +44,7 @@ export class WarehouseOrderService {
     const details: {
       price: number;
       quantity: number;
-      medicine: Medicine;
+      medicine: Medicine | number;
     }[] = [];
     let totalPrice = 0;
     // calculating totalPrice and creating the warehouse_order_details rows
@@ -52,7 +52,7 @@ export class WarehouseOrderService {
       details.push({
         price: medicines[i].price * medicineOrder[i].quantity,
         quantity: medicineOrder[i].quantity,
-        medicine: medicineOrder[i].medicineId as Medicine,
+        medicine: medicines[i].medicine.id,
       });
       totalPrice += medicines[i].price * medicineOrder[i].quantity;
     }
@@ -66,7 +66,7 @@ export class WarehouseOrderService {
     // creating the order details
     for (const detail of details) {
       const warehouseOrderDetails = new WarehouseOrderDetails();
-      warehouseOrderDetails.medicine = detail.medicine;
+      warehouseOrderDetails.medicine = detail.medicine as Medicine;
       warehouseOrderDetails.price = detail.price;
       warehouseOrderDetails.quantity = detail.quantity;
       warehouseOrderDetails.warehouseOrder = warehouseOrder;

@@ -18,12 +18,16 @@ import {
 } from 'src/medicine/entities/medicine.entities';
 import {
   InventoryMedicine,
+  InventoryMedicineDetails,
   PharmacyMedicine,
-  PharmacyMedicinePrice,
+  PharmacyMedicineDetails,
+  SupplierMedicine,
+  SupplierMedicineDetails,
   WarehouseMedicine,
-  WarehouseMedicinePrice,
+  WarehouseMedicineDetails,
 } from 'src/medicine/entities/medicine-role.entities';
 import {
+  DistributionWarehouseOrder,
   WarehouseOrder,
   WarehouseOrderDetails,
 } from 'src/order/entities/order.entities';
@@ -48,12 +52,16 @@ export const entities = [
   Supplier,
   Medicine,
   MedicineDetails,
-  PharmacyMedicine,
   InventoryMedicine,
+  SupplierMedicine,
   WarehouseMedicine,
-  PharmacyMedicinePrice,
-  WarehouseMedicinePrice,
+  PharmacyMedicine,
+  InventoryMedicineDetails,
+  PharmacyMedicineDetails,
+  SupplierMedicineDetails,
+  WarehouseMedicineDetails,
   Category,
   WarehouseOrder,
   WarehouseOrderDetails,
+  DistributionWarehouseOrder,
 ];

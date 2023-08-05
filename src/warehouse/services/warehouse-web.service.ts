@@ -38,4 +38,8 @@ export class WarehouseWebService {
     // { pagination, criteria }
     return await this.supplierService.findAll({});
   }
+
+  async getSupplierById(id: number) {
+    return await this.supplierService.findOne(id);
+  }
 }

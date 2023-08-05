@@ -9,7 +9,7 @@ import {
 import { User } from 'src/user/entities/user.entity';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { WarehouseOrder } from 'src/order/entities/order.entities';
-import { WarehouseMedicinePrice } from 'src/medicine/entities/medicine-role.entities';
+import { WarehouseMedicine } from 'src/medicine/entities/medicine-role.entities';
 
 @Entity()
 export class Warehouse {
@@ -41,19 +41,22 @@ export class Warehouse {
   @JoinColumn()
   owner: User;
 
+  // ******************** Inventory ********************
+
   @OneToMany(() => Inventory, (inventory) => inventory.warehouse)
   @JoinColumn()
   inventories: Inventory[];
+
+  // ******************** Medicines ********************
+
+  @OneToMany(() => WarehouseMedicine, (medicines) => medicines.warehouse)
+  medicines: WarehouseMedicine[];
+
+  // ******************** Order ********************
 
   @OneToMany(
     () => WarehouseOrder,
     (warehouseOrders) => warehouseOrders.warehouse,
   )
   warehouseOrder: WarehouseOrder[];
-
-  @OneToMany(
-    () => WarehouseMedicinePrice,
-    (medicinePrice) => medicinePrice.warehouse,
-  )
-  medicinePrice: WarehouseMedicinePrice[];
 }

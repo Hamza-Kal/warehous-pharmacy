@@ -1,4 +1,4 @@
-import { Body, Query } from '@nestjs/common';
+import { Body, Param, Query } from '@nestjs/common';
 import { CreateWarehouseDto } from '../dto/create-warehouse.dto';
 import { UpdateWareHouseDto } from '../dto/update-warehouse.dto';
 import { WarehouseWebService } from '../../services/warehouse-web.service';
@@ -13,6 +13,7 @@ import { IUser } from 'src/shared/interface/user.interface';
 import { WarehouseService } from 'src/warehouse/services/warehouse.service';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { paginationParser } from 'src/shared/pagination/pagination';
+import { IParams } from 'src/shared/interface/params.interface';
 @AuthenticatedController({
   controller: 'warehouse',
 })
@@ -53,5 +54,16 @@ export class WarehouseController {
     //@Query() query: Pagination
     // const parsingResult = paginationParser(query);
     return this.warehouseWebService.getAllSuppliers(); //parsingResult
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/get-suppliers/:id',
+    role: [Role.WAREHOUSE],
+  })
+  getOneSupplier(@Param() param: IParams) {
+    //@Query() query: Pagination
+    // const parsingResult = paginationParser(query);
+    return this.warehouseWebService.getSupplierById(+param.id); //parsingResult
   }
 }

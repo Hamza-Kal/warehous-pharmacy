@@ -32,6 +32,8 @@ export class WarehouseMedicineService {
     @InjectRepository(MedicineDetails)
     private medicineDetails: Repository<MedicineDetails>,
     private medicineError: MedicineError,
+    @InjectRepository(WarehouseMedicine)
+    private warehouseMedicine: Repository<WarehouseMedicine>,
   ) {}
 
   async findAllSuppliers({ criteria, pagination }, supplierId: number) {
@@ -140,5 +142,15 @@ export class WarehouseMedicineService {
         price: body.price,
       },
     );
+  }
+  async findSingleMedicineWarehouse(medicineId: number, warehouseId: number) {
+    return this.warehouseMedicine.findOne({
+      where: {
+        id: medicineId,
+        warehouse: {
+          id: warehouseId,
+        },
+      },
+    });
   }
 }

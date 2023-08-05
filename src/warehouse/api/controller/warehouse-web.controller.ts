@@ -14,6 +14,7 @@ import { WarehouseService } from 'src/warehouse/services/warehouse.service';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { paginationParser } from 'src/shared/pagination/pagination';
 import { IParams } from 'src/shared/interface/params.interface';
+import { TransferToInventoryDto } from '../dto/transfer-to-inventory';
 @AuthenticatedController({
   controller: 'warehouse',
 })
@@ -65,5 +66,17 @@ export class WarehouseController {
     //@Query() query: Pagination
     // const parsingResult = paginationParser(query);
     return this.warehouseWebService.getSupplierById(+param.id); //parsingResult
+  }
+
+  @AuthorizedApi({
+    api: Api.PUT,
+    url: '/transfer-to-intentory',
+    role: [Role.WAREHOUSE],
+  })
+  transterToInventory(
+    @Body() body: TransferToInventoryDto,
+    @CurrUser() user: IUser,
+  ) {
+    return this.warehouseWebService.transferToInventory(body, user);
   }
 }

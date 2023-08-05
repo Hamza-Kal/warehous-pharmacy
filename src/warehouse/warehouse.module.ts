@@ -10,7 +10,7 @@ import { User } from 'src/user/entities/user.entity';
 import { InventoryModule } from 'src/inventory/inventory.module';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { SupplierModule } from 'src/supplier/supplier.module';
-import { Supplier } from 'src/supplier/entities/supplier.entity';
+import { MedicineModule } from 'src/medicine/medicine.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Warehouse, User, Inventory]),
@@ -19,6 +19,7 @@ import { Supplier } from 'src/supplier/entities/supplier.entity';
     UserModule,
     InventoryModule,
     SupplierModule,
+    MedicineModule,
   ],
   controllers: [WarehouseController],
   providers: [WarehouseWebService, WarehouseService],

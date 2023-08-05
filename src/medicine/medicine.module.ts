@@ -47,6 +47,6 @@ import { WarehouseOrderDetails } from 'src/order/entities/order.entities';
     MedicineError,
     MedicineService,
   ],
-  exports: [MedicineService, MedicineError],
+  exports: [MedicineService, MedicineError, WarehouseMedicineService],
 })
 export class MedicineModule {}

@@ -52,18 +52,6 @@ export class MedicineWarehouseController {
       user,
     );
   }
-  @AuthorizedApi({
-    api: Api.PATCH,
-    url: '/:id',
-    role: [Role.WAREHOUSE],
-  })
-  async updatePrice(
-    @CurrUser() user: IUser,
-    @Body() body: UpdatePriceDto,
-    @Param() param: IParams,
-  ) {
-    return await this.warehouseMedicineService.update(+param.id, body, user);
-  }
 
   @AuthorizedApi({
     api: Api.PATCH,
@@ -75,5 +63,18 @@ export class MedicineWarehouseController {
     @CurrUser() user: IUser,
   ) {
     return this.warehouseMedicineService.transferToInventory(body, user);
+  }
+
+  @AuthorizedApi({
+    api: Api.PATCH,
+    url: '/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async updatePrice(
+    @CurrUser() user: IUser,
+    @Body() body: UpdatePriceDto,
+    @Param() param: IParams,
+  ) {
+    return await this.warehouseMedicineService.update(+param.id, body, user);
   }
 }

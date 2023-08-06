@@ -1,5 +1,12 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsNumber, ValidateNested } from 'class-validator';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsNumber,
+  Min,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
 
 export class TransferToInventoryDto {
   @IsNumber()
@@ -7,6 +14,8 @@ export class TransferToInventoryDto {
 
   @ValidateNested({ each: true })
   @Type(() => Batch)
+  @IsArray()
+  @ArrayNotEmpty()
   batches: Batch[];
 }
 

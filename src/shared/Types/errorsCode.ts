@@ -5,4 +5,5 @@ export const errorsCode = {
   notEnoughMedicine: 70002,
   notFoundDistribution: 80000,
   notFoundInventory: 90000,
+  notFoundReturnOrder: 100000,
 };

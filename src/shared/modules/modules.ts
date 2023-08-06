@@ -32,6 +32,10 @@ import {
   WarehouseOrderDetails,
 } from 'src/order/entities/order.entities';
 import { OrderModule } from 'src/order/order.module';
+import {
+  WarehouseReturnOrder,
+  WarehouseReturnOrderDetails,
+} from 'src/return order/entities/returnOrder.entities';
 
 export const Modules = [
   WarehouseModule,
@@ -64,4 +68,6 @@ export const entities = [
   WarehouseOrder,
   WarehouseOrderDetails,
   DistributionWarehouseOrder,
+  WarehouseReturnOrder,
+  WarehouseReturnOrderDetails,
 ];

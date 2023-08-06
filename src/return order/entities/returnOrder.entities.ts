@@ -56,6 +56,10 @@ export class WarehouseReturnOrder {
   @JoinColumn()
   supplier: Supplier;
 
+  @ManyToOne(() => Medicine, (medicine) => medicine.warehouseReturnOrder)
+  @JoinColumn()
+  medicine: Medicine;
+
   @OneToMany(
     () => WarehouseReturnOrderDetails,
     (warehouseReturnOrderDetails) =>

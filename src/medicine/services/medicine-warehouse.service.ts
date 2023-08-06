@@ -175,7 +175,6 @@ export class WarehouseMedicineService {
   }
 
   // TODO check for duplicate batch id in dto
-  // TODO! refactor this service
   async transferToInventory(body: TransferToInventoryDto, owner: IUser) {
     const { warehouseId } = owner;
     const { inventoryId, batches } = body;
@@ -225,7 +224,10 @@ export class WarehouseMedicineService {
 
     const inventoryMedicines = [];
     let wholeQuantity = 0;
-    const inventoryMedicinesDetails = [];
+    const inventoryMedicinesDetails: {
+      quantity: number;
+      medicineDetails: number;
+    }[] = [];
     const medicineId = warehouseMedicineDetails[0].medicine.id;
     for (const medicineDetail of warehouseMedicineDetails) {
       if (medicineDetail.medicine.id !== medicineId) {
@@ -245,7 +247,7 @@ export class WarehouseMedicineService {
       wholeQuantity += movedQuantity;
       inventoryMedicinesDetails.push({
         quantity: movedQuantity,
-        medicineDetails: medicineDetail.medicineDetails,
+        medicineDetails: medicineDetail.medicineDetails.id,
       });
     }
 
@@ -259,21 +261,22 @@ export class WarehouseMedicineService {
     );
     for (const inventoryMedicineDetail of inventoryMedicinesDetails) {
       // { quantity: 99, medicineDetails: MedicineDetails { id: 32 } }
-      let medicine = await this.inventoryMedicineDetailsRepository.findOne({
-        where: {
-          medicineDetails: { id: inventoryMedicineDetail.medicineDetails.id },
-        },
-      });
-      if (!medicine) {
-        medicine = this.inventoryMedicineDetailsRepository.create({
-          medicineDetails: { id: inventoryMedicineDetail.medicineDetails.id },
-          medicine: {
-            id: inventoryMedicine.id,
-          },
+      await this.deliverService.deliverMedicineDetails(
+        RepositoryEnum.InventoryMedicineDetails,
+        {
+          medicineId: inventoryMedicine.id,
           quantity: inventoryMedicineDetail.quantity,
-        });
-      }
-      await this.inventoryMedicineDetailsRepository.save(medicine);
+        },
+      );
+
+      await this.deliverService.removeMedicineDetails(
+        RepositoryEnum.WarehouseMedicineDetails,
+        {
+          medicineDetails: inventoryMedicineDetail.medicineDetails,
+          medicineId: medicineId,
+          quantity: inventoryMedicineDetail.quantity,
+        },
+      );
     }
 
     return;

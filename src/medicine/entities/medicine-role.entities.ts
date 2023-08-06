@@ -222,7 +222,7 @@ export class PharmacyMedicine {
   @Column({
     type: 'int',
   })
-  warehousePrice: number;
+  warehouseLastPrice: number;
 
   // ******************** Role ********************
   @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.medicines)

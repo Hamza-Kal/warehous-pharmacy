@@ -316,13 +316,6 @@ export class SupplierOrderService {
           supplier: {
             id: user.supplierId as number,
           },
-          status: OrderStatus.Accepted,
-        },
-        {
-          id: id,
-          supplier: {
-            id: user.supplierId as number,
-          },
           status: OrderStatus.Pending,
         },
       ],

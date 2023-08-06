@@ -7,6 +7,7 @@ import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -27,6 +28,9 @@ export class WarehouseOrder {
     type: 'int',
   })
   id: number;
+
+  @CreateDateColumn()
+  created_at: Date;
 
   @ManyToOne(() => Warehouse, (warehouse) => warehouse.warehouseOrder, {
     onDelete: 'CASCADE',

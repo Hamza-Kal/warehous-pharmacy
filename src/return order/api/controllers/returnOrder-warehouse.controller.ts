@@ -5,25 +5,28 @@ import { Api } from 'src/shared/enums/API';
 import { Role } from 'src/shared/enums/roles';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { IUser } from 'src/shared/interface/user.interface';
-import { WarehouseOrderService } from 'src/order/services/order-warehouse.service';
-import { CreateWarehouseOrderDto } from '../dto/create-warehouse-order.dto';
+import { CreateWarehouseReturnOrderDto } from '../dto/create-warehouse-returnOrder.dto';
 import { query } from 'express';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { paginationParser } from 'src/shared/pagination/pagination';
 import { IParams } from 'src/shared/interface/params.interface';
+import { WarehouseReturnOrderService } from 'src/return order/services/returnOrder-warehouse.service';
 
 @AuthenticatedController({
-  controller: '/order/warehouse',
+  controller: '/returnOrder/warehouse',
 })
-export class OrderWarehouesController {
-  constructor(private orderService: WarehouseOrderService) {}
+export class ReturnOrderWarehouesController {
+  constructor(private returnOrderService: WarehouseReturnOrderService) {}
   @AuthorizedApi({
     api: Api.POST,
     url: '',
     role: [Role.WAREHOUSE],
   })
-  async create(@Body() body: CreateWarehouseOrderDto, @CurrUser() user: IUser) {
-    return await this.orderService.create(body, user);
+  async create(
+    @Body() body: CreateWarehouseReturnOrderDto,
+    @CurrUser() user: IUser,
+  ) {
+    return await this.returnOrderService.create(body, user);
   }
 
   @AuthorizedApi({
@@ -32,7 +35,7 @@ export class OrderWarehouesController {
     role: [Role.WAREHOUSE],
   })
   async findOne(@Param() param: IParams, @CurrUser() user: IUser) {
-    return await this.orderService.findOne({ id: +param.id }, user);
+    return await this.returnOrderService.findOne({ id: +param.id }, user);
   }
 
   @AuthorizedApi({
@@ -42,6 +45,9 @@ export class OrderWarehouesController {
   })
   async findAll(@Query() query: Pagination, @CurrUser() user: IUser) {
     const { pagination, criteria } = paginationParser(query);
-    return await this.orderService.findAll({ pagination, criteria }, user);
+    return await this.returnOrderService.findAll(
+      { pagination, criteria },
+      user,
+    );
   }
 }

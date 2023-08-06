@@ -6,10 +6,12 @@ import {
   Medicine,
   MedicineDetails,
 } from '../entities/medicine.entities';
-import { Not, Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { MedicineError } from './medicine-error.service';
 import { WarehouseGetSupplierMedicines } from '../api/response/get-medicines-supplier-for-warehouse.dto';
 import {
+  InventoryMedicine,
+  InventoryMedicineDetails,
   SupplierMedicine,
   WarehouseMedicine,
   WarehouseMedicineDetails,
@@ -22,6 +24,11 @@ import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { TransferToInventoryDto } from 'src/warehouse/api/dto/transfer-to-inventory';
 import { NotFoundException } from '@nestjs/common';
 import { BadRequestException } from '@nestjs/common';
+import { MedicineService } from './medicine.service';
+import {
+  DeliverService,
+  RepositoryEnum,
+} from 'src/deliver/service/deliver.service';
 
 @Injectable()
 export class WarehouseMedicineService {
@@ -39,10 +46,14 @@ export class WarehouseMedicineService {
     private medicineError: MedicineError,
     @InjectRepository(WarehouseMedicine)
     private warehouseMedicine: Repository<WarehouseMedicine>,
-    @InjectRepository(Inventory)
-    private inventoryRepository: Repository<Inventory>,
+    @InjectRepository(InventoryMedicine)
+    private inventoryMedicineRepository: Repository<InventoryMedicine>,
     @InjectRepository(WarehouseMedicineDetails)
     private warehouseMedicineDetailsRepository: Repository<WarehouseMedicineDetails>,
+    @InjectRepository(InventoryMedicineDetails)
+    private inventoryMedicineDetailsRepository: Repository<InventoryMedicineDetails>,
+    private readonly medicineService: MedicineService,
+    private deliverService: DeliverService,
   ) {}
 
   async findAllSuppliers({ criteria, pagination }, supplierId: number) {
@@ -163,56 +174,108 @@ export class WarehouseMedicineService {
     });
   }
 
+  // TODO check for duplicate batch id in dto
+  // TODO! refactor this service
   async transferToInventory(body: TransferToInventoryDto, owner: IUser) {
     const { warehouseId } = owner;
     const { inventoryId, batches } = body;
 
-    // check if inventory exists
-    const inventory = await this.inventoryRepository.findOne({
-      where: {
-        id: inventoryId,
-        warehouse: {
-          id: warehouseId as number,
-        },
-      },
-    });
-    if (!inventory) throw new NotFoundException('inventory not found');
-    if (!batches.length) throw new BadRequestException('no batches provided');
-    // make sure that all bathces are for one medicine and this medicine exists
-    // on my warehouse
-
-    let medicineWarehouseId = -1;
+    const batchQuantity = new Map<number, number>();
+    const batchIds = [];
     for (const batch of batches) {
-      const { batchId } = batch;
-      const warehouseMedicineBatch =
-        await this.warehouseMedicineDetailsRepository.findOne({
-          where: {
-            id: batchId,
+      batchIds.push(batch.batchId);
+      batchQuantity.set(batch.batchId, batch.quantity);
+    }
+
+    const warehouseMedicineDetails =
+      await this.warehouseMedicineDetailsRepository.find({
+        where: {
+          id: In(batchIds),
+          medicine: {
+            warehouse: {
+              id: owner.warehouseId as number,
+            },
           },
-        });
-      if (!warehouseMedicineBatch) {
-        throw new NotFoundException('batch provided does not exist');
-      }
-      if (medicineWarehouseId === -1)
-        medicineWarehouseId = warehouseMedicineBatch.medicine.id;
-      else if (medicineWarehouseId != warehouseMedicineBatch.medicine.id) {
-        throw new BadRequestException(
-          'there is no such batch for this medicine',
+        },
+        relations: {
+          medicine: {
+            // getting the original medicine table
+            medicine: true,
+          },
+          medicineDetails: true,
+        },
+        select: {
+          medicine: {
+            id: true,
+            medicine: { id: true },
+          },
+          id: true,
+          quantity: true,
+          medicineDetails: {
+            id: true,
+          },
+        },
+      });
+
+    if (warehouseMedicineDetails.length !== batchIds.length)
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.NOT_FOUND,
+      );
+
+    const inventoryMedicines = [];
+    let wholeQuantity = 0;
+    const inventoryMedicinesDetails = [];
+    const medicineId = warehouseMedicineDetails[0].medicine.id;
+    for (const medicineDetail of warehouseMedicineDetails) {
+      if (medicineDetail.medicine.id !== medicineId) {
+        throw new HttpException(
+          this.medicineError.notFoundMedicine(),
+          HttpStatus.NOT_FOUND,
         );
       }
+
+      const movedQuantity = batchQuantity.get(medicineDetail.id);
+      if (medicineDetail.quantity < movedQuantity) {
+        throw new HttpException(
+          this.medicineError.notEnoughMedicine(),
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      wholeQuantity += movedQuantity;
+      inventoryMedicinesDetails.push({
+        quantity: movedQuantity,
+        medicineDetails: medicineDetail.medicineDetails,
+      });
     }
-    const myWarehouseMedicine = await this.warehouseMedicineRepository.findOne({
-      where: {
-        id: medicineWarehouseId,
-        warehouse: {
-          id: warehouseId as number,
-        },
+
+    const inventoryMedicine = await this.deliverService.deliverMedicine(
+      RepositoryEnum.InventoryMedicine,
+      inventoryId,
+      {
+        quantity: wholeQuantity,
+        medicineId: warehouseMedicineDetails[0].medicine.medicine.id,
       },
-    });
-    if (!myWarehouseMedicine) {
-      throw new BadRequestException(
-        'the provided batches belong to medicine that the warehouse does not accquire',
-      );
+    );
+    for (const inventoryMedicineDetail of inventoryMedicinesDetails) {
+      // { quantity: 99, medicineDetails: MedicineDetails { id: 32 } }
+      let medicine = await this.inventoryMedicineDetailsRepository.findOne({
+        where: {
+          medicineDetails: { id: inventoryMedicineDetail.medicineDetails.id },
+        },
+      });
+      if (!medicine) {
+        medicine = this.inventoryMedicineDetailsRepository.create({
+          medicineDetails: { id: inventoryMedicineDetail.medicineDetails.id },
+          medicine: {
+            id: inventoryMedicine.id,
+          },
+          quantity: inventoryMedicineDetail.quantity,
+        });
+      }
+      await this.inventoryMedicineDetailsRepository.save(medicine);
     }
+
+    return;
   }
 }

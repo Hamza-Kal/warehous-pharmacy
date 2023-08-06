@@ -205,4 +205,46 @@ export class MedicineService {
     });
     return brews;
   }
+
+  //! do not touch this function
+  // async addMedicine(
+  //   medicineId: number,
+  //   repository: Repository<IMedicine>,
+  //   {
+  //     medicine,
+  //     quantity,
+  //     roleKey,
+  //     id,
+  //   }: {
+  //     medicine: Medicine;
+  //     quantity: number;
+  //     roleKey: roleKeys;
+  //     id: any;
+  //   },
+  // ) {
+  //   let medicines = await repository.findOne({
+  //     where: {
+  //       medicine: {
+  //         id: medicineId,
+  //       },
+  //     },
+  //   });
+  //   if (!medicine) {
+  //     medicines = repository.create({
+  //       medicine,
+  //       // `${mystring}`: mystring,
+  //       inventory: id,
+  //       quantity,
+  //     });
+  //     // medicine[roleKey] = id;
+  //   } else {
+  //     medicine.quantity += quantity;
+  //   }
+
+  //   await repository.save(medicine);
+  // }
 }
+
+// export enum roleKeys {
+//   inventory = 'inventoryId',
+// }

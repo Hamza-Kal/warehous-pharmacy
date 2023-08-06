@@ -10,6 +10,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { WarehouseOrder } from 'src/order/entities/order.entities';
 import { WarehouseMedicine } from 'src/medicine/entities/medicine-role.entities';
+import { WarehouseReturnOrder } from 'src/return order/entities/returnOrder.entities';
 
 @Entity()
 export class Warehouse {
@@ -59,4 +60,10 @@ export class Warehouse {
     (warehouseOrders) => warehouseOrders.warehouse,
   )
   warehouseOrder: WarehouseOrder[];
+
+  @OneToMany(
+    () => WarehouseReturnOrder,
+    (warehouseOrders) => warehouseOrders.warehouse,
+  )
+  returnOrder: WarehouseReturnOrder[];
 }

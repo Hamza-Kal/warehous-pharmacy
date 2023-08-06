@@ -23,6 +23,7 @@ import {
   DistributionWarehouseOrder,
   WarehouseOrderDetails,
 } from 'src/order/entities/order.entities';
+import { WarehouseReturnOrderDetails } from 'src/return order/entities/returnOrder.entities';
 
 // ####################  Category  ####################
 @Entity()
@@ -167,11 +168,17 @@ export class MedicineDetails {
   )
   pharmacyMedicine: PharmacyMedicineDetails;
 
-  //***********************************
+  //*********************************** Distribution ***********************************
 
   @OneToMany(
     () => DistributionWarehouseOrder,
     (distribution) => distribution.medicineDetails,
   )
   distribution: DistributionWarehouseOrder[];
+
+  @OneToMany(
+    () => WarehouseReturnOrderDetails,
+    (warehouseDistribution) => warehouseDistribution.medicineDetails,
+  )
+  warehouseReturnOrderDetails: WarehouseReturnOrderDetails[];
 }

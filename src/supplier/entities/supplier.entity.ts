@@ -10,6 +10,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Medicine } from 'src/medicine/entities/medicine.entities';
 import { WarehouseOrder } from 'src/order/entities/order.entities';
 import { SupplierMedicine } from 'src/medicine/entities/medicine-role.entities';
+import { WarehouseReturnOrder } from 'src/return order/entities/returnOrder.entities';
 
 @Entity()
 export class Supplier {
@@ -51,4 +52,7 @@ export class Supplier {
 
   @OneToMany(() => WarehouseOrder, (order) => order.supplier)
   warehouseOrder: WarehouseOrder[];
+
+  @OneToMany(() => WarehouseReturnOrder, (returnOrder) => returnOrder.supplier)
+  warehouseReturnOrder: WarehouseReturnOrder[];
 }

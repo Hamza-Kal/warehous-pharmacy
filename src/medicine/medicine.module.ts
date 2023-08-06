@@ -25,6 +25,8 @@ import { MedicineService } from './services/medicine.service';
 import { WarehouseOrderDetails } from 'src/order/entities/order.entities';
 import { InventoryModule } from 'src/inventory/inventory.module';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
+import { OrderModule } from 'src/order/order.module';
+import { DeliverModule } from 'src/deliver/deliver.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -42,6 +44,7 @@ import { Inventory } from 'src/inventory/entities/inventory.entity';
       Category,
       Inventory,
     ]),
+    DeliverModule,
   ],
   controllers: [MedicineController, MedicineWarehouseController],
   providers: [

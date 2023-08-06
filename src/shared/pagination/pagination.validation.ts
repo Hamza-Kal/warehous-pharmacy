@@ -7,6 +7,10 @@ export class Pagination {
   @IsNumberString()
   page: number;
 
+  skip: number;
+
+  criteria: any;
+
   // @IsBooleanString()
   // needPagination: boolean;
 }

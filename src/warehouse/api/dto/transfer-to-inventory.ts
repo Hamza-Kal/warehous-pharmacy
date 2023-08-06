@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
+  IsNotEmpty,
   IsNumber,
   Min,
   MinLength,
@@ -21,8 +22,10 @@ export class TransferToInventoryDto {
 
 class Batch {
   @IsNumber()
+  @IsNotEmpty()
   batchId: number;
 
   @IsNumber()
+  @IsNotEmpty()
   quantity: number;
 }

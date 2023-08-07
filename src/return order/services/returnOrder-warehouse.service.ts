@@ -20,9 +20,13 @@ import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { IParams } from 'src/shared/interface/params.interface';
 import { ReturnOrderError } from './returnOrder-error.service';
 import { GetByIdWarehouseReturnOrder } from '../api/dto/response/get-by-id-warehouse-returnOrder.dto';
+import { WarehouseMedicineDetails } from 'src/medicine/entities/medicine-role.entities';
+import { In } from 'typeorm/find-options/operator/In';
+import { WarehouseOrderDetails } from 'src/order/entities/order.entities';
 
 @Injectable()
 export class WarehouseReturnOrderService {
+  medicineError: any;
   constructor(
     @InjectRepository(WarehouseReturnOrder)
     private warehouseReturnOrderRepository: Repository<WarehouseReturnOrder>,
@@ -32,56 +36,102 @@ export class WarehouseReturnOrderService {
     private supplierService: SupplierService,
     private readonly medicineService: MedicineService,
     private readonly returnOrderError: ReturnOrderError,
+    @InjectRepository(WarehouseMedicineDetails)
+    private warehouseMedicineDetailsRepository: Repository<WarehouseMedicineDetails>,
   ) {}
 
-  async create(body: CreateWarehouseReturnOrderDto, currUser: IUser) {
-    // brute force
-    const { supplierId, medicineReturnOrder } = body;
-    const medicineIds = body.medicineReturnOrder.map(
-      ({ medicineId }) => medicineId as number,
-    );
-    // getting the medicines with the given ids and with this supplier
-    const medicines = await this.medicineService.getMedicines(
-      medicineIds,
-      supplierId as number,
-    );
+  async create(body: CreateWarehouseReturnOrderDto, owner: IUser) {
+    const { warehouseId } = owner;
+    const { batches } = body;
 
-    const details: {
-      price: number;
-      quantity: number;
-      medicine: Medicine | number;
-    }[] = [];
-    let totalPrice = 0;
-    // calculating totalPrice and creating the warehouse_returnOrder_details rows
-    for (let i = 0; i < medicines.length; i++) {
-      details.push({
-        price: medicines[i].price * medicineReturnOrder[i].quantity,
-        quantity: medicineReturnOrder[i].quantity,
-        medicine: medicines[i].medicine.id,
+    const batchQuantity = new Map<number, number>();
+    const batchesIds = [];
+    for (const batch of batches) {
+      batchesIds.push(batch.batchId);
+      batchQuantity.set(batch.batchId, batch.quantity);
+    }
+
+    const warehouseMedicineDetails =
+      await this.warehouseMedicineDetailsRepository.find({
+        where: {
+          id: In(batchesIds),
+          medicine: {
+            warehouse: {
+              id: warehouseId as number,
+            },
+          },
+        },
+        relations: {
+          medicine: {
+            medicine: {
+              supplier: true,
+            },
+          },
+          medicineDetails: true,
+        },
+        select: {
+          medicine: {
+            id: true,
+            medicine: { id: true },
+          },
+          id: true,
+          quantity: true,
+          medicineDetails: {
+            id: true,
+          },
+        },
       });
-      totalPrice += medicines[i].price * medicineReturnOrder[i].quantity;
-    }
-
-    // creating the returnOrder
-    const warehouseReturnOrder = new WarehouseReturnOrder();
-    warehouseReturnOrder.supplier = supplierId as Supplier;
-    warehouseReturnOrder.warehouse = currUser.warehouseId as Warehouse;
-    warehouseReturnOrder.totalPrice = totalPrice;
-    await this.warehouseReturnOrderRepository.save(warehouseReturnOrder);
-    // creating the returnOrder details
-    for (const detail of details) {
-      const warehouseReturnOrderDetails = new WarehouseReturnOrderDetails();
-      // warehouseReturnOrderDetails.medicine = detail.medicine as Medicine;
-      warehouseReturnOrderDetails.price = detail.price;
-      warehouseReturnOrderDetails.quantity = detail.quantity;
-      warehouseReturnOrderDetails.warehouseReturnOrder = warehouseReturnOrder;
-      await this.warehouseReturnOrderDetailsRepository.save(
-        warehouseReturnOrderDetails,
+    if (warehouseMedicineDetails.length !== batchesIds.length)
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.NOT_FOUND,
       );
-    }
+    const supplier = warehouseMedicineDetails[0].medicine.medicine.supplier;
 
-    // returning the returnOrder id
-    return { data: { id: warehouseReturnOrder.id } };
+    const toAddwarehouseReturnOrdDetails = [];
+
+    // batches can be for a different medicines so we don't need to check
+    // to be the same medicine id for all batches
+    let totalOrderPrice = 0;
+    for (const warehouseMedicineDetail of warehouseMedicineDetails) {
+      const toBeReturnedQuantity = batchQuantity.get(
+        warehouseMedicineDetail.id,
+      );
+      if (toBeReturnedQuantity > warehouseMedicineDetail.quantity) {
+        throw new HttpException(
+          this.medicineError.notEnoughMedicine(),
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      const warehouseReturnOrderDetail =
+        this.warehouseReturnOrderDetailsRepository.create({
+          medicineDetails: warehouseMedicineDetail.medicineDetails,
+          quantity: toBeReturnedQuantity,
+          price:
+            toBeReturnedQuantity * warehouseMedicineDetail.supplierLastPrice,
+        });
+      totalOrderPrice += warehouseReturnOrderDetail.price;
+      await this.warehouseReturnOrderDetailsRepository.save(
+        warehouseMedicineDetail,
+      );
+      toAddwarehouseReturnOrdDetails.push(warehouseReturnOrderDetail);
+    }
+    const returnOrder = this.warehouseReturnOrderRepository.create({
+      medicine: warehouseMedicineDetails[0].medicine.medicine,
+      supplier,
+      created_at: new Date(),
+      warehouse: {
+        id: warehouseId as number,
+      },
+      details: toAddwarehouseReturnOrdDetails,
+      totalPrice: totalOrderPrice,
+    });
+    await this.warehouseReturnOrderRepository.save(returnOrder);
+    return {
+      data: {
+        id: returnOrder.id,
+      },
+    };
   }
 
   async findOne({ id }: IParams, user: IUser) {

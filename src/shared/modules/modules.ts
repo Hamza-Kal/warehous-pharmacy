@@ -36,6 +36,7 @@ import {
   WarehouseReturnOrder,
   WarehouseReturnOrderDetails,
 } from 'src/return order/entities/returnOrder.entities';
+import { ReturnOrderModule } from 'src/return order/returnOrder.module';
 
 export const Modules = [
   WarehouseModule,
@@ -46,6 +47,7 @@ export const Modules = [
   SupplierModule,
   MedicineModule,
   OrderModule,
+  ReturnOrderModule,
 ];
 
 export const entities = [

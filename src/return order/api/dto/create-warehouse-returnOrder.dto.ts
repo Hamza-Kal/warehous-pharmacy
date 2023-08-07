@@ -1,29 +1,26 @@
 import { Type } from 'class-transformer';
-import { IsNumber, Min, ValidateNested } from 'class-validator';
-import { Medicine } from 'src/medicine/entities/medicine.entities';
-import { IsNonPrimitiveArray } from 'src/shared/decorators/custome-decorators/is-non-primitive-array.decorator';
-import { Supplier } from 'src/supplier/entities/supplier.entity';
+import {
+  IsNumber,
+  ValidateNested,
+  IsArray,
+  ArrayNotEmpty,
+  IsNotEmpty,
+} from 'class-validator';
 
 export class CreateWarehouseReturnOrderDto {
-  @IsNumber()
-  supplierId: Supplier | number;
-
-  //TODO need to check the medicine Id are unique in the array
   @ValidateNested({ each: true })
-  @IsNonPrimitiveArray()
-  @Type(() => MedicineReturnOrderDto)
-  medicineReturnOrder: MedicineReturnOrderDto[];
-
-  totalPrice: number;
+  @Type(() => Batch)
+  @IsArray()
+  @ArrayNotEmpty()
+  batches: Batch[];
 }
 
-class MedicineReturnOrderDto {
+class Batch {
   @IsNumber()
-  @Min(1)
+  @IsNotEmpty()
+  batchId: number;
+
+  @IsNumber()
+  @IsNotEmpty()
   quantity: number;
-
-  @IsNumber()
-  medicineId: number | Medicine;
-
-  price: number;
 }

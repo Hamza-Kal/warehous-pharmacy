@@ -11,12 +11,17 @@ import { ReturnOrderWarehouesController } from './api/controllers/returnOrder-wa
 import { ReturnOrderSupplierController } from './api/controllers/returnOrder-supplier.controller';
 import { SupplierReturnOrderService } from './services/returnOrder-supplier.service';
 import { ReturnOrderError } from './services/returnOrder-error.service';
+import {
+  WarehouseMedicine,
+  WarehouseMedicineDetails,
+} from 'src/medicine/entities/medicine-role.entities';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       WarehouseReturnOrder,
       WarehouseReturnOrderDetails,
+      WarehouseMedicineDetails,
     ]),
     MedicineModule,
     SupplierModule,

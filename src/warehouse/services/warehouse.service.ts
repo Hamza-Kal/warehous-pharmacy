@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { Warehouse } from '../entities/warehouse.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { IUser } from 'src/shared/interface/user.interface';
-import { GetAllInventories } from '../api/dto/response/get-all-inventories.dto';
 import { Role } from 'src/shared/enums/roles';
+import { Pagination } from 'src/shared/pagination/pagination.validation';
+import { GetAllWarehouses } from 'src/warehouse/api/dto/response/get-all-warehouses.dto';
+import { GetAllInventories } from '../../inventory/dtos/response/get-all-inventories.dto';
+import { GetByIdWarehouse } from '../api/dto/response/get-by-id-warehouse.dto';
 
 @Injectable()
 export class WarehouseService {
@@ -28,6 +31,41 @@ export class WarehouseService {
       },
     });
   }
+  // async findOne(id: number) {
+  //   const supplier = await this.warehouseRepository.findOne({
+  //     where: { id },
+  //     select: ['id', 'location', 'name', 'phoneNumber'],
+  //     relations: {
+  //       owner: true,
+  //     },
+  //   });
+  //   return {
+  //     data: new GetByIdSupplier({ supplier }).toObject(),
+  //   };
+  // }
+  async findAll({
+    pagination,
+    criteria,
+  }: {
+    pagination?: Pagination;
+    criteria?: FindOptionsWhere<Warehouse> | FindOptionsWhere<Warehouse>[];
+  }) {
+    // const { skip, limit } = pagination;
+    const suppliers = await this.warehouseRepository.find({
+      where: {
+        ...criteria,
+      },
+      select: ['id', 'location', 'name', 'phoneNumber'],
+      // take: limit,
+      // skip,
+    });
+    return {
+      data: suppliers.map((warehouse) =>
+        new GetAllWarehouses({ warehouse }).toObject(),
+      ),
+    };
+  }
+
   async getAllInventories(user: IUser) {
     const { inventories } = await this.warehouseRepository.findOne({
       where: {
@@ -60,6 +98,19 @@ export class WarehouseService {
       data: inventories.map((inventory) =>
         new GetAllInventories({ inventory }).toObject(),
       ),
+    };
+  }
+
+  async findOne(id: number) {
+    const warehouse = await this.warehouseRepository.findOne({
+      where: { id },
+      select: ['id', 'location', 'name', 'phoneNumber'],
+      relations: {
+        owner: true,
+      },
+    });
+    return {
+      data: new GetByIdWarehouse({ warehouse }).toObject(),
     };
   }
 }

@@ -114,6 +114,9 @@ export class WarehouseMedicine {
   @OneToMany(
     () => WarehouseMedicineDetails,
     (medicineDetails) => medicineDetails.medicine,
+    {
+      onDelete: 'CASCADE',
+    },
   )
   medicineDetails: WarehouseMedicineDetails[];
 }

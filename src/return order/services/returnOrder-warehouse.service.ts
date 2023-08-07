@@ -1,9 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { IUser } from 'src/shared/interface/user.interface';
-import { User } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/services/user.service';
 import { SupplierService } from 'src/supplier/service/supplier.service';
 import {
   WarehouseReturnOrder,
@@ -11,10 +9,6 @@ import {
 } from '../entities/returnOrder.entities';
 import { CreateWarehouseReturnOrderDto } from '../api/dto/create-warehouse-returnOrder.dto';
 import { MedicineService } from 'src/medicine/services/medicine.service';
-import { MedicineError } from 'src/medicine/services/medicine-error.service';
-import { Supplier } from 'src/supplier/entities/supplier.entity';
-import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
-import { Medicine } from 'src/medicine/entities/medicine.entities';
 import { GetAllWarehouseReturnOrder } from '../api/dto/response/get-warehouse-returnOrder.dto';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { IParams } from 'src/shared/interface/params.interface';
@@ -22,11 +16,11 @@ import { ReturnOrderError } from './returnOrder-error.service';
 import { GetByIdWarehouseReturnOrder } from '../api/dto/response/get-by-id-warehouse-returnOrder.dto';
 import { WarehouseMedicineDetails } from 'src/medicine/entities/medicine-role.entities';
 import { In } from 'typeorm/find-options/operator/In';
-import { WarehouseOrderDetails } from 'src/order/entities/order.entities';
+import { SupplierError } from 'src/supplier/service/supplier-error.service';
+import { MedicineError } from 'src/medicine/services/medicine-error.service';
 
 @Injectable()
 export class WarehouseReturnOrderService {
-  medicineError: any;
   constructor(
     @InjectRepository(WarehouseReturnOrder)
     private warehouseReturnOrderRepository: Repository<WarehouseReturnOrder>,
@@ -34,8 +28,9 @@ export class WarehouseReturnOrderService {
     @InjectRepository(WarehouseReturnOrderDetails)
     private warehouseReturnOrderDetailsRepository: Repository<WarehouseReturnOrderDetails>,
     private supplierService: SupplierService,
-    private readonly medicineService: MedicineService,
+    private readonly medicineError: MedicineError,
     private readonly returnOrderError: ReturnOrderError,
+    private SupplierError: SupplierError,
     @InjectRepository(WarehouseMedicineDetails)
     private warehouseMedicineDetailsRepository: Repository<WarehouseMedicineDetails>,
   ) {}
@@ -70,6 +65,7 @@ export class WarehouseReturnOrderService {
           medicineDetails: true,
         },
         select: {
+          supplierLastPrice: true,
           medicine: {
             id: true,
             medicine: { id: true },
@@ -86,13 +82,13 @@ export class WarehouseReturnOrderService {
         this.medicineError.notFoundMedicine(),
         HttpStatus.NOT_FOUND,
       );
-    const supplier = warehouseMedicineDetails[0].medicine.medicine.supplier;
+    const supplierId =
+      warehouseMedicineDetails[0].medicine.medicine.supplier.id;
 
-    const toAddwarehouseReturnOrdDetails = [];
-
-    // batches can be for a different medicines so we don't need to check
-    // to be the same medicine id for all batches
     let totalOrderPrice = 0;
+    //* batches can be for a different medicines so we don't need to check
+    //* to be the same medicine id for all batches
+    //? validate the order
     for (const warehouseMedicineDetail of warehouseMedicineDetails) {
       const toBeReturnedQuantity = batchQuantity.get(
         warehouseMedicineDetail.id,
@@ -103,30 +99,48 @@ export class WarehouseReturnOrderService {
           HttpStatus.BAD_REQUEST,
         );
       }
-      const warehouseReturnOrderDetail =
-        this.warehouseReturnOrderDetailsRepository.create({
-          medicineDetails: warehouseMedicineDetail.medicineDetails,
-          quantity: toBeReturnedQuantity,
-          price:
-            toBeReturnedQuantity * warehouseMedicineDetail.supplierLastPrice,
-        });
-      totalOrderPrice += warehouseReturnOrderDetail.price;
-      await this.warehouseReturnOrderDetailsRepository.save(
-        warehouseMedicineDetail,
-      );
-      toAddwarehouseReturnOrdDetails.push(warehouseReturnOrderDetail);
+
+      if (
+        supplierId !== warehouseMedicineDetail.medicine.medicine.supplier.id
+      ) {
+        throw new HttpException(
+          this.SupplierError.notFoundSupplier(),
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      totalOrderPrice +=
+        warehouseMedicineDetail.supplierLastPrice * toBeReturnedQuantity;
     }
+
     const returnOrder = this.warehouseReturnOrderRepository.create({
       medicine: warehouseMedicineDetails[0].medicine.medicine,
-      supplier,
+      supplier: {
+        id: supplierId,
+      },
       created_at: new Date(),
       warehouse: {
         id: warehouseId as number,
       },
-      details: toAddwarehouseReturnOrdDetails,
       totalPrice: totalOrderPrice,
     });
     await this.warehouseReturnOrderRepository.save(returnOrder);
+
+    for (const warehouseMedicineDetail of warehouseMedicineDetails) {
+      const toBeReturnedQuantity = batchQuantity.get(
+        warehouseMedicineDetail.id,
+      );
+      const warehouseReturnOrderDetail =
+        this.warehouseReturnOrderDetailsRepository.create({
+          medicineDetails: warehouseMedicineDetail.medicineDetails,
+          quantity: toBeReturnedQuantity,
+          price: warehouseMedicineDetail.supplierLastPrice,
+          warehouseReturnOrder: returnOrder,
+        });
+      await this.warehouseReturnOrderDetailsRepository.save(
+        warehouseReturnOrderDetail,
+      );
+    }
     return {
       data: {
         id: returnOrder.id,

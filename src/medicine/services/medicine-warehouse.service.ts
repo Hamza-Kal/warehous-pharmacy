@@ -29,6 +29,7 @@ import {
   DeliverService,
   RepositoryEnum,
 } from 'src/deliver/service/deliver.service';
+import { IParams } from 'src/shared/interface/params.interface';
 
 @Injectable()
 export class WarehouseMedicineService {
@@ -115,6 +116,34 @@ export class WarehouseMedicineService {
           warehouseMedicine: medicine,
         }).toObject(),
       ),
+    };
+  }
+  async findOne({ id }: IParams, user: IUser) {
+    const medicines = await this.warehouseMedicineRepository.find({
+      where: {
+        warehouse: {
+          id: user.warehouseId as number,
+        },
+        medicineDetails: true,
+      },
+      relations: {
+        medicine: {
+          category: true,
+        },
+        medicineDetails: true,
+      },
+    });
+    if (!medicines.length) {
+      throw new HttpException(
+        this.medicineError.notEnoughMedicine(),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const medicine = medicines[0];
+    return {
+      data: new WarehouseGetMedicines({
+        warehouseMedicine: medicine,
+      }).toObject(),
     };
   }
 
@@ -264,6 +293,7 @@ export class WarehouseMedicineService {
       await this.deliverService.deliverMedicineDetails(
         RepositoryEnum.InventoryMedicineDetails,
         {
+          medicineDetails: inventoryMedicineDetail.medicineDetails,
           medicineId: inventoryMedicine.id,
           quantity: inventoryMedicineDetail.quantity,
         },

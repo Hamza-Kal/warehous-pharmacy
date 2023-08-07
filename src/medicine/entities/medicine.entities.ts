@@ -82,6 +82,9 @@ export class Medicine {
   @OneToMany(
     () => MedicineDetails,
     (medicineDetails) => medicineDetails.medicine,
+    {
+      cascade: true,
+    },
   )
   medicineDetails: MedicineDetails[];
 
@@ -90,6 +93,9 @@ export class Medicine {
   @OneToMany(
     () => WarehouseOrderDetails,
     (warehouseOrderDetails) => warehouseOrderDetails.medicine,
+    {
+      cascade: true,
+    },
   )
   warehouseOrderDetails: WarehouseOrderDetails[];
 
@@ -98,30 +104,45 @@ export class Medicine {
   @OneToOne(
     () => SupplierMedicine,
     (supplierMedicine) => supplierMedicine.medicine,
+    {
+      cascade: true,
+    },
   )
   supplierMedicine: SupplierMedicine;
 
   @OneToOne(
     () => WarehouseMedicine,
     (warehouseMedicine) => warehouseMedicine.medicine,
+    {
+      cascade: true,
+    },
   )
   warehouseMedicine: WarehouseMedicine;
 
   @OneToOne(
     () => InventoryMedicine,
     (inventoryMedicine) => inventoryMedicine.medicine,
+    {
+      cascade: true,
+    },
   )
   inventoryMedicine: InventoryMedicine;
 
   @OneToOne(
     () => PharmacyMedicine,
     (pharmacyMedicine) => pharmacyMedicine.medicine,
+    {
+      cascade: true,
+    },
   )
   pharmacyMedicine: PharmacyMedicine;
 
   @OneToMany(
     () => WarehouseReturnOrder,
     (warehouseReturnOrder) => warehouseReturnOrder.medicine,
+    {
+      cascade: true,
+    },
   )
   warehouseReturnOrder: WarehouseReturnOrder[];
 }
@@ -156,24 +177,36 @@ export class MedicineDetails {
   @OneToOne(
     () => SupplierMedicineDetails,
     (supplierMedicine) => supplierMedicine.medicineDetails,
+    {
+      cascade: true,
+    },
   )
   supplierMedicine: SupplierMedicineDetails;
 
   @OneToOne(
     () => WarehouseMedicineDetails,
     (warehouseMedicine) => warehouseMedicine.medicineDetails,
+    {
+      cascade: true,
+    },
   )
   warehouseMedicine: WarehouseMedicineDetails;
 
   @OneToOne(
     () => InventoryMedicineDetails,
     (inventoryMedicine) => inventoryMedicine.medicineDetails,
+    {
+      cascade: true,
+    },
   )
   inventoryMedicine: InventoryMedicineDetails;
 
   @OneToOne(
     () => PharmacyMedicineDetails,
     (pharmacyMedicine) => pharmacyMedicine.medicineDetails,
+    {
+      cascade: true,
+    },
   )
   pharmacyMedicine: PharmacyMedicineDetails;
 
@@ -182,12 +215,18 @@ export class MedicineDetails {
   @OneToMany(
     () => DistributionWarehouseOrder,
     (distribution) => distribution.medicineDetails,
+    {
+      cascade: true,
+    },
   )
   distribution: DistributionWarehouseOrder[];
 
   @OneToMany(
     () => WarehouseReturnOrderDetails,
     (warehouseDistribution) => warehouseDistribution.medicineDetails,
+    {
+      cascade: true,
+    },
   )
   warehouseReturnOrderDetails: WarehouseReturnOrderDetails[];
 }

@@ -36,19 +36,6 @@ export class GetByIdWarehouseReturnOrder {
       phoneNumber: returnOrder.supplier.phoneNumber,
       location: returnOrder.supplier.location,
     };
-    // const medicines: {
-    //   name: string;
-    //   price: number;
-    //   quantity: number;
-    // }[] = [];
-    // for (const detail of returnOrder.details) {
-    //   medicines.push({
-    //     name: detail.medicine.name,
-    //     price: detail.price / detail.quantity,
-    //     quantity: detail.quantity,
-    //   });
-    // }
-    // this.medicines = medicines;
   }
 
   toObject(): {

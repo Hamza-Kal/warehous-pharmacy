@@ -41,7 +41,7 @@ export class GetByIdWarehouseOrder {
     for (const detail of order.details) {
       medicines.push({
         name: detail.medicine.name,
-        price: detail.price / detail.quantity,
+        price: detail.price,
         quantity: detail.quantity,
       });
     }

@@ -1,4 +1,5 @@
 export const errorsCode = {
+  notFoundSupplier: 40001,
   notFoundMedicine: 50001,
   notFoundCategory: 60001,
   notFoundOrder: 70001,

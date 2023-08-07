@@ -16,6 +16,12 @@ import {
 } from 'src/medicine/entities/medicine-role.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { or } from 'sequelize';
+import { Pagination } from 'src/shared/pagination/pagination.validation';
+import { GetByCriteraOrder } from '../api/dto/response/get-by-criteria-order.dto';
+import {
+  DeliverService,
+  RepositoryEnum,
+} from 'src/deliver/service/deliver.service';
 
 @Injectable()
 export class SupplierOrderService {
@@ -26,8 +32,52 @@ export class SupplierOrderService {
     private warehouseDistributionRepository: Repository<DistributionWarehouseOrder>,
     private medicineService: MedicineService,
     private readonly orderError: OrderError,
+    private deliverService: DeliverService,
     private dataSource: DataSource,
   ) {}
+
+  async findAll(
+    { pagination, criteria }: { pagination: Pagination; criteria?: any },
+    user: IUser,
+  ) {
+    const { skip, limit } = pagination;
+    const { supplierId } = user;
+    const totalRecords = await this.warehouseOrderRepository.count({
+      where: {
+        ...criteria,
+        supplier: {
+          id: supplierId as number,
+        },
+      },
+    });
+    const orders = await this.warehouseOrderRepository.find({
+      where: {
+        ...criteria,
+        supplier: {
+          id: supplierId as number,
+        },
+      },
+      relations: {
+        supplier: true,
+        warehouse: true,
+      },
+      select: {
+        id: true,
+        status: true,
+        created_at: true,
+        warehouse: {
+          name: true,
+        },
+        totalPrice: true,
+      },
+      skip,
+      take: limit,
+    });
+    return {
+      totalRecords,
+      data: orders.map((order) => new GetByCriteraOrder({ order }).toObject()),
+    };
+  }
 
   //? orders[0] example
   //?   {
@@ -103,7 +153,11 @@ export class SupplierOrderService {
     }
 
     const toPending = [];
-    const removeMedicineDetails = [];
+    const removeMedicineDetails: {
+      medicineId: number;
+      detailsId: number;
+      quantity: number;
+    }[] = [];
     //! the medicine of the order must be unique
     //! i should comment this
     //* object example is above this funcion
@@ -136,8 +190,8 @@ export class SupplierOrderService {
         });
         //* this elements are removed from SupplierMedicineDetails
         removeMedicineDetails.push({
-          medicineId: medicine.supplierMedicine.id,
-          detailsId: supplierMedicine.id,
+          medicineId: medicine.id,
+          detailsId: id,
           quantity: movedQuantity,
         });
         wholeQuantity -= movedQuantity;
@@ -154,7 +208,20 @@ export class SupplierOrderService {
 
     //remove the medicines from the supplier medicines table
     for (const medicine of removeMedicineDetails) {
-      await this.medicineService.moveMedicine(medicine);
+      const supplierMedicine = await this.deliverService.removeMedicine(
+        RepositoryEnum.SupplierMedicine,
+        user.supplierId as number,
+        { medicineId: medicine.medicineId, quantity: medicine.quantity },
+      );
+
+      await this.deliverService.removeMedicineDetails(
+        RepositoryEnum.SupplierMedicineDetails,
+        {
+          medicineId: supplierMedicine.id,
+          quantity: medicine.quantity,
+          medicineDetails: medicine.detailsId,
+        },
+      );
     }
 
     // move the medicines to the pending table
@@ -299,7 +366,7 @@ export class SupplierOrderService {
       await this.medicineService.updateQuantityDetails(
         medicineDetails.id,
         medicineDetails.quantity + distribution.quantity,
-        distribution.price / distribution.quantity,
+        distribution.price,
       );
     }
 

@@ -1,4 +1,10 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   InventoryMedicine,
@@ -11,6 +17,7 @@ import {
   WarehouseMedicineDetails,
 } from 'src/medicine/entities/medicine-role.entities';
 import { Medicine } from 'src/medicine/entities/medicine.entities';
+import { MedicineError } from 'src/medicine/services/medicine-error.service';
 import { Repository } from 'typeorm';
 export enum RepositoryEnum {
   WarehouseMedicine = 'WarehouseMedicine',
@@ -41,6 +48,8 @@ export class DeliverService {
     private supplierMedicineDetailsRepository: Repository<SupplierMedicineDetails>,
     @InjectRepository(PharmacyMedicineDetails)
     private pharmacyMedicineDetailsRepository: Repository<PharmacyMedicineDetails>,
+    @Inject(forwardRef(() => MedicineError))
+    private readonly medicineError: MedicineError,
   ) {}
 
   async deliverMedicine(
@@ -51,9 +60,6 @@ export class DeliverService {
       quantity,
     }: { medicineId: number | Medicine; quantity: number },
   ) {
-    if ([RepositoryEnum.WarehouseMedicineDetails].includes(role)) {
-      return;
-    }
     let repo;
     let roleKey: {
       warehouse?: {
@@ -112,9 +118,15 @@ export class DeliverService {
     role: RepositoryEnum,
     {
       medicineId,
+      medicineDetails,
       quantity,
       price,
-    }: { medicineId: number | Medicine; quantity: number; price?: number },
+    }: {
+      medicineId: number | Medicine;
+      medicineDetails: number;
+      quantity: number;
+      price?: number;
+    },
   ) {
     if ([RepositoryEnum.WarehouseMedicineDetails].includes(role)) {
       return;
@@ -124,6 +136,9 @@ export class DeliverService {
       lastSupplierPrice?: number;
       lastWarehousePrice?: number;
       medicine: {
+        id: number;
+      };
+      medicineDetails: {
         id: number;
       };
     };
@@ -137,22 +152,26 @@ export class DeliverService {
       priceObject = { supplierLastPrice: price };
       roleKey = {
         medicine: { id: medicineId as number },
+        medicineDetails: { id: medicineDetails },
       };
     } else if (role === RepositoryEnum.InventoryMedicineDetails) {
       repo = this.inventoryMedicineDetailsRepository;
       roleKey = {
         medicine: { id: medicineId as number },
+        medicineDetails: { id: medicineDetails },
       };
     } else if (role === RepositoryEnum.PharmacyMedicineDetails) {
       repo = this.pharmacyMedicineDetailsRepository;
       priceObject = { warehouseLastPrice: price };
       roleKey = {
         medicine: { id: medicineId as number },
+        medicineDetails: { id: medicineDetails },
       };
     } else if (role === RepositoryEnum.SupplierMedicineDetails) {
       repo = this.supplierMedicineDetailsRepository;
       roleKey = {
         medicine: { id: medicineId as number },
+        medicineDetails: { id: medicineDetails },
       };
     } else {
       return;
@@ -177,6 +196,76 @@ export class DeliverService {
     return medicine;
   }
 
+  async removeMedicine(
+    role: RepositoryEnum,
+    roleId: number,
+    {
+      medicineId,
+      quantity,
+    }: { medicineId: number | Medicine; quantity: number },
+  ) {
+    let repo;
+    let roleKey: {
+      warehouse?: {
+        id: number;
+      };
+      inventory?: {
+        id: number;
+      };
+      supplier?: {
+        id: number;
+      };
+      pharmacy?: {
+        id: number;
+      };
+    };
+    if (role === RepositoryEnum.WarehouseMedicine) {
+      repo = this.warehouseMedicineRepository;
+      roleKey = { warehouse: { id: roleId } };
+    } else if (role === RepositoryEnum.InventoryMedicine) {
+      repo = this.inventoryMedicineRepository;
+      roleKey = { inventory: { id: roleId } };
+    } else if (role === RepositoryEnum.PharmacyMedicine) {
+      repo = this.pharmacyMedicineRepository;
+      roleKey = { pharmacy: { id: roleId } };
+    } else if (role === RepositoryEnum.SupplierMedicine) {
+      repo = this.supplierMedicineRepository;
+      roleKey = { supplier: { id: roleId } };
+    } else {
+      return;
+    }
+
+    console.log(roleKey);
+
+    const medicine = await repo.findOne({
+      where: {
+        medicine: {
+          id: medicineId as number,
+        },
+        ...roleKey,
+      },
+    });
+
+    if (!medicine) {
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (medicine.quantity < quantity) {
+      throw new HttpException(
+        this.medicineError.notEnoughMedicine(),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    medicine.quantity = medicine.quantity - quantity;
+
+    //?
+    await repo.save(medicine);
+    return medicine;
+  }
+
   async removeMedicineDetails(
     role: RepositoryEnum,
     {
@@ -197,7 +286,6 @@ export class DeliverService {
       },
       medicine: { id: medicineId as number },
     };
-    console.log(roleKey);
     if (role === RepositoryEnum.WarehouseMedicineDetails) {
       repo = this.warehouseMedicineDetailsRepository;
     } else if (role === RepositoryEnum.InventoryMedicineDetails) {
@@ -215,9 +303,13 @@ export class DeliverService {
         ...roleKey,
       },
     });
-    console.log(medicienDetailsRow);
+
+    console.log('medicineDeatil', medicienDetailsRow);
     if (medicienDetailsRow.quantity < quantity) {
-      return;
+      throw new HttpException(
+        this.medicineError.notEnoughMedicine(),
+        HttpStatus.BAD_REQUEST,
+      );
     }
     medicienDetailsRow.quantity -= quantity;
     await repo.save(medicienDetailsRow);

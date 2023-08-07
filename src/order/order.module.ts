@@ -12,6 +12,7 @@ import { OrderWarehouesController } from './api/controllers/order-warehouse.cont
 import { OrderSupplierController } from './api/controllers/order-supplier.controller';
 import { SupplierOrderService } from './services/order-supplier.service';
 import { OrderError } from './services/order-error.service';
+import { DeliverModule } from 'src/deliver/deliver.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { OrderError } from './services/order-error.service';
     ]),
     MedicineModule,
     SupplierModule,
+    DeliverModule,
   ],
   controllers: [OrderWarehouesController, OrderSupplierController],
   providers: [WarehouseOrderService, SupplierOrderService, OrderError],

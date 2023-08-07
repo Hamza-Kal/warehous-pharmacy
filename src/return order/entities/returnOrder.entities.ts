@@ -18,7 +18,6 @@ import {
 export enum ReturnOrderStatus {
   Pending = 'Pending',
   Accepted = 'Accepted',
-  Delivered = 'Delivered',
   Rejected = 'Rejected',
 }
 
@@ -64,6 +63,10 @@ export class WarehouseReturnOrder {
     () => WarehouseReturnOrderDetails,
     (warehouseReturnOrderDetails) =>
       warehouseReturnOrderDetails.warehouseReturnOrder,
+    {
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+    },
   )
   details: WarehouseReturnOrderDetails[];
 }

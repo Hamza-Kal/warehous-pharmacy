@@ -55,7 +55,7 @@ export class WarehouseOrderService {
     // calculating totalPrice and creating the warehouse_order_details rows
     for (let i = 0; i < medicines.length; i++) {
       details.push({
-        price: medicines[i].price * medicineOrder[i].quantity,
+        price: medicines[i].price,
         quantity: medicineOrder[i].quantity,
         medicine: medicines[i].medicine.id,
       });

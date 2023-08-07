@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WarehouseReturnOrderService } from './services/returnOrder-warehouse.service';
 import {
@@ -15,6 +15,7 @@ import {
   WarehouseMedicine,
   WarehouseMedicineDetails,
 } from 'src/medicine/entities/medicine-role.entities';
+import { DeliverModule } from 'src/deliver/deliver.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import {
     ]),
     MedicineModule,
     SupplierModule,
+    forwardRef(() => DeliverModule),
   ],
   controllers: [ReturnOrderWarehouesController, ReturnOrderSupplierController],
   providers: [

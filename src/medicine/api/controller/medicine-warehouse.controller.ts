@@ -36,10 +36,18 @@ export class MedicineWarehouseController {
     url: '/supplier/medicine/:id',
     role: [Role.WAREHOUSE],
   })
-  async findOne(@Param() param: IParams) {
+  async findOneSupplier(@Param() param: IParams) {
     return this.warehouseMedicineService.findOneSupplierMedicine(+param.id);
   }
 
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async findOne(@CurrUser() user: IUser, @Param() param: IParams) {
+    return await this.warehouseMedicineService.findOne({ id: +param.id }, user);
+  }
   @AuthorizedApi({
     api: Api.GET,
     url: '',

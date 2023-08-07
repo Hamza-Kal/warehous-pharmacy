@@ -6,11 +6,12 @@ import { Supplier } from './entities/supplier.entity';
 import { UserModule } from 'src/user/user.module';
 import { SupplierService } from './service/supplier.service';
 import { MedicineModule } from 'src/medicine/medicine.module';
+import { SupplierError } from './service/supplier-error.service';
 
 @Module({
   controllers: [SupplierController],
-  providers: [SupplierDashboardService, SupplierService],
+  providers: [SupplierDashboardService, SupplierService, SupplierError],
   imports: [TypeOrmModule.forFeature([Supplier]), UserModule, MedicineModule],
-  exports: [SupplierService],
+  exports: [SupplierService, SupplierError],
 })
 export class SupplierModule {}

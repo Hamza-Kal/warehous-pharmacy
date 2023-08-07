@@ -9,12 +9,24 @@ import { WarehouseOrderService } from 'src/order/services/order-warehouse.servic
 import { CreateWarehouseOrderDto } from '../dto/create-warehouse-order.dto';
 import { SupplierOrderService } from 'src/order/services/order-supplier.service';
 import { IParams } from 'src/shared/interface/params.interface';
+import { Pagination } from 'src/shared/pagination/pagination.validation';
+import { paginationParser } from 'src/shared/pagination/pagination';
 
 @AuthenticatedController({
   controller: '/order/supplier',
 })
 export class OrderSupplierController {
   constructor(private orderService: SupplierOrderService) {}
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '',
+    role: [Role.SUPPLIER],
+  })
+  async findAll(@Query() query: Pagination, @CurrUser() user: IUser) {
+    const { pagination, criteria } = paginationParser(query);
+    return await this.orderService.findAll({ pagination, criteria }, user);
+  }
 
   @AuthorizedApi({
     api: Api.PATCH,

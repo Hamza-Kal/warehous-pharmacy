@@ -55,6 +55,8 @@ export class WarehouseMedicineService {
     private inventoryMedicineDetailsRepository: Repository<InventoryMedicineDetails>,
     private readonly medicineService: MedicineService,
     private deliverService: DeliverService,
+    @InjectRepository(Inventory)
+    private inventoryRepository: Repository<Inventory>,
   ) {}
 
   async findAllSuppliers({ criteria, pagination }, supplierId: number) {
@@ -208,6 +210,18 @@ export class WarehouseMedicineService {
     const { warehouseId } = owner;
     const { inventoryId, batches } = body;
 
+    const inventory = await this.inventoryRepository.findOne({
+      where: {
+        id: inventoryId,
+      },
+    });
+
+    if (!inventory) {
+      throw new HttpException(
+        this.medicineError.notFoundInventory(),
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const batchQuantity = new Map<number, number>();
     const batchIds = [];
     for (const batch of batches) {
@@ -308,7 +322,6 @@ export class WarehouseMedicineService {
         },
       );
     }
-
     return;
   }
 }

@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Supplier } from '../entities/supplier.entity';
-import { Repository } from 'typeorm';
-import { GetAllSuppliers } from 'src/warehouse/api/dto/response/get-all-suppliers.dto';
+import { FindOptionsWhere, Repository } from 'typeorm';
+import { GetAllSuppliers } from 'src/supplier/api/response/get-all-suppliers.dto';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { IUser } from 'src/shared/interface/user.interface';
 import { MedicineService } from 'src/medicine/services/medicine.service';
 import { GetBrewsMedicineDto } from '../api/response/get-brews-medicine.dto';
-import { GetByIdSupplier } from 'src/warehouse/api/dto/response/get-by-id-supplier.dto';
+import { GetByIdSupplier } from 'src/supplier/api/response/get-by-id-supplier.dto';
 
 @Injectable()
 export class SupplierService {
@@ -21,7 +21,7 @@ export class SupplierService {
     criteria,
   }: {
     pagination?: Pagination;
-    criteria?: any;
+    criteria?: FindOptionsWhere<Supplier> | FindOptionsWhere<Supplier>[];
   }) {
     // const { skip, limit } = pagination;
     const suppliers = await this.supplierRepository.find({
@@ -43,8 +43,10 @@ export class SupplierService {
     const supplier = await this.supplierRepository.findOne({
       where: { id },
       select: ['id', 'location', 'name', 'phoneNumber'],
+      relations: {
+        user: true,
+      },
     });
-
     return {
       data: new GetByIdSupplier({ supplier }).toObject(),
     };

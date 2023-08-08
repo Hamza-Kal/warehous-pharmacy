@@ -63,7 +63,7 @@ export class MedicineWarehouseController {
 
   @AuthorizedApi({
     api: Api.PATCH,
-    url: '/transfer-to-intentory',
+    url: '/transfer-to-inventory',
     role: [Role.WAREHOUSE],
   })
   transterToInventory(

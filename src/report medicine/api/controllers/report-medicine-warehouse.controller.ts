@@ -6,14 +6,13 @@ import { Role } from 'src/shared/enums/roles';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { IUser } from 'src/shared/interface/user.interface';
 import { IParams } from 'src/shared/interface/params.interface';
+import { WarehouseReportMedicineService } from 'src/report medicine/services/report-medicine-warehouse.service';
 
 @AuthenticatedController({
   controller: '/reportMedicine/supplier',
 })
 export class ReportMedicineWarehouesController {
-  constructor(
-    private reportMedicineService: ReportMedicineWarehouesController,
-  ) {}
+  constructor(private reportMedicineService: WarehouseReportMedicineService) {}
 
   @AuthorizedApi({
     api: Api.PATCH,
@@ -21,7 +20,7 @@ export class ReportMedicineWarehouesController {
     role: [Role.WAREHOUSE],
   })
   async acceptReportMedicine(@Param() param: IParams, @CurrUser() user: IUser) {
-    return this.reportMedicineService.acceptReportMedicine(
+    return this.reportMedicineService.acceptReportOrder(
       { id: +param.id },
       user,
     );
@@ -33,6 +32,9 @@ export class ReportMedicineWarehouesController {
     role: [Role.WAREHOUSE],
   })
   async rejectReportMedicine(@Param() param: IParams, @CurrUser() user: IUser) {
-    // return this.reportMedicineService.rejectReportMedicine({ id: +param.id }, user);
+    return this.reportMedicineService.rejectReportMedicine(
+      { id: +param.id },
+      user,
+    );
   }
 }

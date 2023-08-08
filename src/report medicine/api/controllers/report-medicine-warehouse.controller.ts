@@ -9,7 +9,7 @@ import { IParams } from 'src/shared/interface/params.interface';
 import { WarehouseReportMedicineService } from 'src/report medicine/services/report-medicine-warehouse.service';
 
 @AuthenticatedController({
-  controller: '/reportMedicine/supplier',
+  controller: '/reportMedicine/warehouse',
 })
 export class ReportMedicineWarehouesController {
   constructor(private reportMedicineService: WarehouseReportMedicineService) {}

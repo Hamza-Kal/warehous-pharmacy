@@ -34,13 +34,13 @@ export class SupplierService {
       take: limit,
       skip,
     });
-    const totalCount = await this.supplierRepository.count({
+    const totalRecords = await this.supplierRepository.count({
       where: {
         ...criteria,
       },
     });
     return {
-      totalCount,
+      totalRecords,
       data: suppliers.map((supplier) =>
         new GetAllSuppliers({ supplier }).toObject(),
       ),

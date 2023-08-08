@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Supplier } from '../entities/supplier.entity';
 import { FindOptionsWhere, Repository } from 'typeorm';
@@ -30,16 +25,22 @@ export class SupplierService {
     pagination?: Pagination;
     criteria?: FindOptionsWhere<Supplier> | FindOptionsWhere<Supplier>[];
   }) {
-    // const { skip, limit } = pagination;
+    const { skip, limit } = pagination;
     const suppliers = await this.supplierRepository.find({
       where: {
         ...criteria,
       },
       select: ['id', 'location', 'name', 'phoneNumber'],
-      // take: limit,
-      // skip,
+      take: limit,
+      skip,
+    });
+    const totalCount = await this.supplierRepository.count({
+      where: {
+        ...criteria,
+      },
     });
     return {
+      totalCount,
       data: suppliers.map((supplier) =>
         new GetAllSuppliers({ supplier }).toObject(),
       ),

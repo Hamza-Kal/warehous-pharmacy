@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { Warehouse } from '../entities/warehouse.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -38,18 +33,6 @@ export class WarehouseService {
       },
     });
   }
-  // async findOne(id: number) {
-  //   const supplier = await this.warehouseRepository.findOne({
-  //     where: { id },
-  //     select: ['id', 'location', 'name', 'phoneNumber'],
-  //     relations: {
-  //       owner: true,
-  //     },
-  //   });
-  //   return {
-  //     data: new GetByIdSupplier({ supplier }).toObject(),
-  //   };
-  // }
   async findAll({
     pagination,
     criteria,
@@ -57,17 +40,23 @@ export class WarehouseService {
     pagination?: Pagination;
     criteria?: FindOptionsWhere<Warehouse> | FindOptionsWhere<Warehouse>[];
   }) {
-    // const { skip, limit } = pagination;
-    const suppliers = await this.warehouseRepository.find({
+    const { skip, limit } = pagination;
+    const warehouses = await this.warehouseRepository.find({
       where: {
         ...criteria,
       },
       select: ['id', 'location', 'name', 'phoneNumber'],
-      // take: limit,
-      // skip,
+      take: limit,
+      skip,
+    });
+    const totalCount = await this.warehouseRepository.count({
+      where: {
+        ...criteria,
+      },
     });
     return {
-      data: suppliers.map((warehouse) =>
+      totalCount,
+      data: warehouses.map((warehouse) =>
         new GetAllWarehouses({ warehouse }).toObject(),
       ),
     };

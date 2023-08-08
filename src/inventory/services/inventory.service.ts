@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreateInventoryDto } from '../dtos/create-inventory.dto';
@@ -12,7 +7,7 @@ import { Inventory } from '../entities/inventory.entity';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { GetAllInventories } from 'src/inventory/dtos/response/get-all-inventories.dto';
-import { GetByIdInventory } from '../dtos/response/get-by-id-pharmacy.dto';
+import { GetByIdInventory } from '../dtos/response/get-by-id-inventory.dto';
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
 
 @Injectable()
@@ -45,17 +40,17 @@ export class InventoryService {
     pagination?: Pagination;
     criteria?: FindOptionsWhere<Inventory> | FindOptionsWhere<Inventory>[];
   }) {
-    // const { skip, limit } = pagination;
-    const suppliers = await this.inventoryRepository.find({
+    const { skip, limit } = pagination;
+    const inventories = await this.inventoryRepository.find({
       where: {
         ...criteria,
       },
       select: ['id', 'location', 'name', 'phoneNumber'],
-      // take: limit,
-      // skip,
+      take: limit,
+      skip,
     });
     return {
-      data: suppliers.map((inventory) =>
+      data: inventories.map((inventory) =>
         new GetAllInventories({ inventory }).toObject(),
       ),
     };

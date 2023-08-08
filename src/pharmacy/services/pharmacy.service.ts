@@ -1,12 +1,7 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Pharmacy } from '../entities/pharmacy.entity';
-import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { GetAllPharmacies } from 'src/pharmacy/api/dtos/response/get-all-pharmacies.dto';
 import { GetByIdPharmacy } from '../api/dtos/response/get-by-id-pharmacy.dto';
@@ -26,17 +21,23 @@ export class PharmacyService {
     pagination?: Pagination;
     criteria?: FindOptionsWhere<Pharmacy> | FindOptionsWhere<Pharmacy>[];
   }) {
-    // const { skip, limit } = pagination;
-    const suppliers = await this.pharmacyRepository.find({
+    const { skip, limit } = pagination;
+    const pharmacies = await this.pharmacyRepository.find({
       where: {
         ...criteria,
       },
       select: ['id', 'location', 'name', 'phoneNumber'],
-      // take: limit,
-      // skip,
+      take: limit,
+      skip,
+    });
+    const totalCount = await this.pharmacyRepository.count({
+      where: {
+        ...criteria,
+      },
     });
     return {
-      data: suppliers.map((pharmacy) =>
+      totalCount,
+      data: pharmacies.map((pharmacy) =>
         new GetAllPharmacies({ pharmacy }).toObject(),
       ),
     };

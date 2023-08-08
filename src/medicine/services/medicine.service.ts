@@ -9,6 +9,7 @@ import { In, Repository } from 'typeorm';
 import { MedicineError } from './medicine-error.service';
 import { MoveMedicineDto } from '../api/dto/update-Brew.dto';
 import {
+  InventoryMedicineDetails,
   SupplierMedicine,
   SupplierMedicineDetails,
   WarehouseMedicine,
@@ -35,6 +36,8 @@ export class MedicineService {
     private warehouseMedicineRepository: Repository<WarehouseMedicine>,
     @InjectRepository(WarehouseMedicineDetails)
     private warehouseMedicineDetailsRepository: Repository<WarehouseMedicineDetails>,
+    @InjectRepository(InventoryMedicineDetails)
+    private inventoryMedicineDetailsRepository: Repository<InventoryMedicineDetails>,
     @InjectRepository(SupplierMedicineDetails)
     private supplierMedicineDetailsRepository: Repository<SupplierMedicineDetails>,
     private medicineError: MedicineError,
@@ -123,6 +126,16 @@ export class MedicineService {
 
   async findWarehouseMedicineDetailsByMedicineDetails(id: number) {
     return await this.warehouseMedicineDetailsRepository.findOne({
+      where: {
+        medicineDetails: {
+          id,
+        },
+      },
+    });
+  }
+
+  async findInventoryMedicineDetailsByMedicineDetails(id: number) {
+    return await this.inventoryMedicineDetailsRepository.findOne({
       where: {
         medicineDetails: {
           id,

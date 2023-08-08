@@ -23,7 +23,7 @@ export class ReportMedicineInventoryController {
     role: [Role.INVENTORY],
   })
   async create(@Body() body: CreateReportMedicineDto, @CurrUser() user: IUser) {
-    return await this.reportMedicineService.creategi(body, user);
+    return await this.reportMedicineService.create(body, user);
   }
 
   @AuthorizedApi({

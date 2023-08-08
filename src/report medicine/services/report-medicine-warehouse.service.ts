@@ -10,13 +10,6 @@ import { DataSource, LessThan, Repository } from 'typeorm';
 import { IUser } from 'src/shared/interface/user.interface';
 import { IParams } from 'src/shared/interface/params.interface';
 import { MedicineService } from 'src/medicine/services/medicine.service';
-import {
-  WarehouseMedicine,
-  WarehouseMedicineDetails,
-} from 'src/medicine/entities/medicine-role.entities';
-import { Supplier } from 'src/supplier/entities/supplier.entity';
-import { or } from 'sequelize';
-import { OrderStatus } from 'src/order/entities/order.entities';
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
 import {
   DeliverService,

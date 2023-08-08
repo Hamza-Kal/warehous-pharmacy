@@ -32,7 +32,7 @@ export class ReportMedicineWarehouesController {
     role: [Role.WAREHOUSE],
   })
   async rejectReportMedicine(@Param() param: IParams, @CurrUser() user: IUser) {
-    return this.reportMedicineService.rejectReportMedicine(
+    return this.reportMedicineService.rejectReportOrder(
       { id: +param.id },
       user,
     );

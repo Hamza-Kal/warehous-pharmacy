@@ -49,7 +49,16 @@ export class InventoryService {
       take: limit,
       skip,
     });
+    const totalRecords = await this.inventoryRepository.count({
+      where: {
+        ...criteria,
+      },
+      select: ['id', 'location', 'name', 'phoneNumber'],
+      take: limit,
+      skip,
+    });
     return {
+      totalRecords,
       data: inventories.map((inventory) =>
         new GetAllInventories({ inventory }).toObject(),
       ),

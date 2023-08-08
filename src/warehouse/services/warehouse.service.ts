@@ -49,13 +49,13 @@ export class WarehouseService {
       take: limit,
       skip,
     });
-    const totalCount = await this.warehouseRepository.count({
+    const totalRecrods = await this.warehouseRepository.count({
       where: {
         ...criteria,
       },
     });
     return {
-      totalCount,
+      totalRecrods,
       data: warehouses.map((warehouse) =>
         new GetAllWarehouses({ warehouse }).toObject(),
       ),

@@ -30,13 +30,13 @@ export class PharmacyService {
       take: limit,
       skip,
     });
-    const totalCount = await this.pharmacyRepository.count({
+    const totalRecords = await this.pharmacyRepository.count({
       where: {
         ...criteria,
       },
     });
     return {
-      totalCount,
+      totalRecords,
       data: pharmacies.map((pharmacy) =>
         new GetAllPharmacies({ pharmacy }).toObject(),
       ),

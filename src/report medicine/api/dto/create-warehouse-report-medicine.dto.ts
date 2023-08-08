@@ -8,7 +8,7 @@ import {
   IsString,
 } from 'class-validator';
 
-export class CreateWarehouseReturnOrderDto {
+export class CreateReportMedicineDto {
   @IsString()
   @IsNotEmpty()
   returnReason: string;

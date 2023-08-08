@@ -1,16 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Pharmacy } from '../entities/pharmacy.entity';
 import { FindOneOptions, FindOptionsWhere, Repository } from 'typeorm';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { GetAllPharmacies } from 'src/pharmacy/api/dtos/response/get-all-pharmacies.dto';
 import { GetByIdPharmacy } from '../api/dtos/response/get-by-id-pharmacy.dto';
+import { MedicineError } from 'src/medicine/services/medicine-error.service';
 
 @Injectable()
 export class PharmacyService {
   constructor(
     @InjectRepository(Pharmacy)
     private pharmacyRepository: Repository<Pharmacy>,
+    private errorsService: MedicineError,
   ) {}
   async findAll({
     pagination,
@@ -43,6 +50,11 @@ export class PharmacyService {
         user: true,
       },
     });
+    if (!pharmacy)
+      throw new HttpException(
+        this.errorsService.notFoundPharmacy(),
+        HttpStatus.NOT_FOUND,
+      );
     return {
       data: new GetByIdPharmacy({ pharmacy }).toObject(),
     };

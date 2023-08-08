@@ -21,9 +21,35 @@ export class MedicineError {
     code: errorsCode.notFoundInventory,
     message: 'Inventory not found',
   };
+  private notFoundSupplierError = {
+    code: errorsCode.notFoundSupplier,
+    message: 'supplier not found',
+  };
+  private notFoundWarehouseError = {
+    code: errorsCode.notFoundSupplier,
+    message: 'warehouse not found',
+  };
+  private notFoundPharmacyError = {
+    code: errorsCode.notFoundPharmacy,
+    message: 'pharmacy not found',
+  };
+
+  notFoundSupplier() {
+    return this.notFoundSupplierError;
+  }
+
+  notFoundWarehouse() {
+    return this.notFoundWarehouseError;
+  }
+
   notFoundInventory() {
     return this.notFoundInventoryError;
   }
+
+  notFoundPharmacy() {
+    return this.notFoundPharmacyError;
+  }
+
   notFoundMedicine() {
     return this.notFoundMedicineError;
   }

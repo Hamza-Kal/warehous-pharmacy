@@ -6,6 +6,7 @@ import { GetAllSuppliers } from 'src/supplier/api/response/get-all-suppliers.dto
 import { WarehouseService } from 'src/warehouse/services/warehouse.service';
 import { GetByIdSupplier } from 'src/supplier/api/response/get-by-id-supplier.dto';
 import { abort } from 'process';
+import { MedicineError } from 'src/medicine/services/medicine-error.service';
 
 @Injectable()
 export class AdminService {
@@ -14,6 +15,7 @@ export class AdminService {
     private warehouseService: WarehouseService,
     private inventoryService: InventoryService,
     private pharmacyService: PharmacyService,
+    private errorService: MedicineError,
   ) {}
   async findAllSuppliers({ pagination, criteria }) {
     const suppliers = await this.supplierService.findAll({
@@ -50,17 +52,17 @@ export class AdminService {
   }
 
   async findOneWarehouse(id: number) {
-    const warehouse = await this.supplierService.findOne(id);
+    const warehouse = await this.warehouseService.findOne(id);
     return warehouse;
   }
 
   async findOneInventory(id: number) {
-    const inventory = await this.supplierService.findOne(id);
+    const inventory = await this.inventoryService.findOne(id);
     return inventory;
   }
 
   async findOnePharmacy(id: number) {
-    const pharmacy = await this.supplierService.findOne(id);
+    const pharmacy = await this.pharmacyService.findOne(id);
     return pharmacy;
   }
 }

@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { Warehouse } from '../entities/warehouse.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,6 +15,7 @@ import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { GetAllWarehouses } from 'src/warehouse/api/dto/response/get-all-warehouses.dto';
 import { GetAllInventories } from '../../inventory/dtos/response/get-all-inventories.dto';
 import { GetByIdWarehouse } from '../api/dto/response/get-by-id-warehouse.dto';
+import { MedicineError } from 'src/medicine/services/medicine-error.service';
 
 @Injectable()
 export class WarehouseService {
@@ -20,6 +26,7 @@ export class WarehouseService {
     private userRepo: Repository<User>,
     @InjectRepository(Inventory)
     private inventoryRepository: Repository<Inventory>,
+    private errorsService: MedicineError,
   ) {}
 
   async findByUser(id: number) {
@@ -109,6 +116,11 @@ export class WarehouseService {
         owner: true,
       },
     });
+    if (!warehouse)
+      throw new HttpException(
+        this.errorsService.notFoundWarehouse(),
+        HttpStatus.NOT_FOUND,
+      );
     return {
       data: new GetByIdWarehouse({ warehouse }).toObject(),
     };

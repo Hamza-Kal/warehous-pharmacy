@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreateInventoryDto } from '../dtos/create-inventory.dto';
@@ -8,12 +13,14 @@ import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { GetAllInventories } from 'src/inventory/dtos/response/get-all-inventories.dto';
 import { GetByIdInventory } from '../dtos/response/get-by-id-pharmacy.dto';
+import { MedicineError } from 'src/medicine/services/medicine-error.service';
 
 @Injectable()
 export class InventoryService {
   constructor(
     @InjectRepository(Inventory)
     private inventoryRepository: Repository<Inventory>,
+    private errorsService: MedicineError,
   ) {}
 
   async create(
@@ -62,6 +69,11 @@ export class InventoryService {
         manager: true,
       },
     });
+    if (!inventory)
+      throw new HttpException(
+        this.errorsService.notFoundInventory(),
+        HttpStatus.NOT_FOUND,
+      );
     return {
       data: new GetByIdInventory({ inventory }).toObject(),
     };

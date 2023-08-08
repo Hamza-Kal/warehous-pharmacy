@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Supplier } from '../entities/supplier.entity';
 import { FindOptionsWhere, Repository } from 'typeorm';
@@ -8,6 +13,7 @@ import { IUser } from 'src/shared/interface/user.interface';
 import { MedicineService } from 'src/medicine/services/medicine.service';
 import { GetBrewsMedicineDto } from '../api/response/get-brews-medicine.dto';
 import { GetByIdSupplier } from 'src/supplier/api/response/get-by-id-supplier.dto';
+import { MedicineError } from 'src/medicine/services/medicine-error.service';
 
 @Injectable()
 export class SupplierService {
@@ -15,6 +21,7 @@ export class SupplierService {
     @InjectRepository(Supplier)
     private supplierRepository: Repository<Supplier>,
     private medicinesService: MedicineService,
+    private errorsService: MedicineError,
   ) {}
   async findAll({
     pagination,
@@ -47,6 +54,11 @@ export class SupplierService {
         user: true,
       },
     });
+    if (!supplier)
+      throw new HttpException(
+        this.errorsService.notFoundSupplier(),
+        HttpStatus.NOT_FOUND,
+      );
     return {
       data: new GetByIdSupplier({ supplier }).toObject(),
     };

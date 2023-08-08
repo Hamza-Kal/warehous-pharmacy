@@ -55,7 +55,7 @@ export class AdminController {
   }
 
   @AuthorizedApi({
-    url: '/pharmacy/:id',
+    url: '/suppliers/:id',
     api: Api.GET,
     role: [Role.ADMIN],
   })
@@ -64,7 +64,7 @@ export class AdminController {
   }
 
   @AuthorizedApi({
-    url: '/pharmacy/:id',
+    url: '/warehouses/:id',
     api: Api.GET,
     role: [Role.ADMIN],
   })
@@ -73,7 +73,7 @@ export class AdminController {
   }
 
   @AuthorizedApi({
-    url: '/pharmacy/:id',
+    url: '/inventories/:id',
     api: Api.GET,
     role: [Role.ADMIN],
   })
@@ -82,7 +82,7 @@ export class AdminController {
   }
 
   @AuthorizedApi({
-    url: '/pharmacy/:id',
+    url: '/pharmacies/:id',
     api: Api.GET,
     role: [Role.ADMIN],
   })

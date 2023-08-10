@@ -11,7 +11,7 @@ import { CreateUserDto } from '../dtos/create-user.dto';
 import { Role } from 'src/shared/enums/roles';
 import passport, { use } from 'passport';
 import { IsStrongPassword } from 'class-validator';
-import { error } from 'console';
+
 import { IParams } from 'src/shared/interface/params.interface';
 import { where } from 'sequelize';
 

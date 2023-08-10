@@ -160,7 +160,6 @@ export class MedicineSupplierService {
         },
       },
     });
-    console.log(supplierMedicine);
     if (!medicine || !supplierMedicine)
       throw new HttpException(
         this.medicineError.notFoundMedicine(),
@@ -180,7 +179,7 @@ export class MedicineSupplierService {
       medicineDetails: medicineBrew,
     });
     await this.supplierMedicineDetails.save(medicineSupplierBrew);
-    console.log('safdasfwefsherere');
+
     await this.supplierMedicineRepository.update(
       {
         id: medicineId,

@@ -388,8 +388,6 @@ export class SupplierOrderService {
       ],
     });
 
-    console.log('ordrerer', order);
-
     if (!order) {
       throw new HttpException(
         this.orderError.notFoundOrder(),

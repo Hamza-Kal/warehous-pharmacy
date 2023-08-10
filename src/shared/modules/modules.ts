@@ -37,10 +37,8 @@ import {
   WarehouseReturnOrderDetails,
 } from 'src/return order/entities/returnOrder.entities';
 import { ReturnOrderModule } from 'src/return order/returnOrder.module';
-import {
-  InventoryReportMedicine,
-  InventoryReportMedicineDetails,
-} from 'src/report medicine/entities/report-medicine.entities';
+import { InventoryReportMedicine } from 'src/report medicine/entities/report-medicine.entities';
+import { ReportMedicineModule } from 'src/report medicine/report-medicine.module';
 
 export const Modules = [
   WarehouseModule,
@@ -52,6 +50,7 @@ export const Modules = [
   MedicineModule,
   OrderModule,
   ReturnOrderModule,
+  ReportMedicineModule,
 ];
 
 export const entities = [
@@ -77,5 +76,4 @@ export const entities = [
   WarehouseReturnOrder,
   WarehouseReturnOrderDetails,
   InventoryReportMedicine,
-  InventoryReportMedicineDetails,
 ];

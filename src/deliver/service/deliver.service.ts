@@ -117,7 +117,9 @@ export class DeliverService {
   async deliverMedicineDetails(
     role: RepositoryEnum,
     {
+      // role medicine Id
       medicineId,
+      // medicineDetails id
       medicineDetails,
       quantity,
       price,
@@ -128,9 +130,6 @@ export class DeliverService {
       price?: number;
     },
   ) {
-    if ([RepositoryEnum.WarehouseMedicineDetails].includes(role)) {
-      return;
-    }
     let repo;
     let roleKey: {
       lastSupplierPrice?: number;
@@ -202,7 +201,11 @@ export class DeliverService {
     {
       medicineId,
       quantity,
-    }: { medicineId: number | Medicine; quantity: number },
+    }: {
+      // medicine table id
+      medicineId: number | Medicine;
+      quantity: number;
+    },
   ) {
     let repo;
     let roleKey: {
@@ -234,8 +237,6 @@ export class DeliverService {
     } else {
       return;
     }
-
-    console.log(roleKey);
 
     const medicine = await repo.findOne({
       where: {
@@ -269,7 +270,9 @@ export class DeliverService {
   async removeMedicineDetails(
     role: RepositoryEnum,
     {
+      // role medicine id table
       medicineId,
+      // medicineDetails id
       medicineDetails,
       quantity,
     }: { medicineId: number; medicineDetails: number; quantity: number },
@@ -304,7 +307,6 @@ export class DeliverService {
       },
     });
 
-    console.log('medicineDeatil', medicienDetailsRow);
     if (medicienDetailsRow.quantity < quantity) {
       throw new HttpException(
         this.medicineError.notEnoughMedicine(),

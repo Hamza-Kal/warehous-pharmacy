@@ -20,6 +20,8 @@ import {
   ReportMedicineStatus,
 } from '../entities/report-medicine.entities';
 import { ReportMedicineError } from './report-medicine-error.service';
+import { Pagination } from 'src/shared/pagination/pagination.validation';
+import { GetByCriteraReportMedicine } from '../api/dto/response/get-warehouse-report-medicine.dto';
 
 @Injectable()
 export class WarehouseReportMedicineService {
@@ -31,11 +33,10 @@ export class WarehouseReportMedicineService {
     private medicineService: MedicineService,
     @Inject(forwardRef(() => DeliverService))
     private deliverService: DeliverService,
-    private dataSource: DataSource,
   ) {}
 
   async acceptReportOrder({ id }: IParams, user: IUser) {
-    const reportOrderRepo = await this.inventoryReportOrderRepository.find({
+    const reportOrder = await this.inventoryReportOrderRepository.findOne({
       where: {
         id,
         status: ReportMedicineStatus.Pending,
@@ -46,82 +47,78 @@ export class WarehouseReportMedicineService {
         },
       },
       relations: {
-        details: {
-          medicineDetails: {
-            medicine: true,
-          },
+        inventory: true,
+
+        medicineDetails: {
+          medicine: true,
         },
       },
       select: {
         id: true,
-        details: {
-          quantity: true,
-          medicineDetails: {
+        inventory: {
+          id: true,
+        },
+        quantity: true,
+        medicineDetails: {
+          id: true,
+          medicine: {
             id: true,
-            medicine: {
-              id: true,
-            },
           },
         },
       },
     });
-
-    if (!reportOrderRepo.length) {
+    if (!reportOrder) {
       throw new HttpException(
         this.reportOrderError.notFoundReportMedicine(),
         HttpStatus.NOT_FOUND,
       );
     }
-    const reportOrder = reportOrderRepo[0];
+
     const inventoryId = reportOrder.inventory.id;
     const medicineDetailsIds: number[] = [],
       quantities: number[] = [],
       medicineIds = [];
-    for (const { quantity, medicineDetails } of reportOrder.details) {
-      const warehouseMedicineDetails =
-        await this.medicineService.findWarehouseMedicineDetailsByMedicineDetails(
-          medicineDetails.id,
-        );
-      if (warehouseMedicineDetails.quantity < quantity)
-        throw new HttpException(
-          this.reportOrderError.notFoundReportMedicine(),
-          HttpStatus.NOT_FOUND,
-        );
-      quantities.push(quantity);
-      medicineIds.push(medicineDetails.medicine.id);
-      medicineDetailsIds.push(medicineDetails.id);
-    }
-
-    for (let i = 0; i < medicineDetailsIds.length; ++i) {
-      const inventoryMedicine = await this.deliverService.removeMedicine(
-        RepositoryEnum.InventoryMedicine,
-        inventoryId,
-        { medicineId: medicineIds[i], quantity: quantities[i] },
+    const warehouseMedicineDetails =
+      await this.medicineService.findInventoryMedicineDetailsByMedicineDetails(
+        reportOrder.medicineDetails.id,
       );
-      await this.deliverService.removeMedicineDetails(
-        RepositoryEnum.InventoryMedicineDetails,
-        {
-          medicineDetails: medicineDetailsIds[i],
-          medicineId: inventoryMedicine.id,
-          quantity: quantities[i],
-        },
+    if (warehouseMedicineDetails.quantity < reportOrder.quantity)
+      throw new HttpException(
+        this.reportOrderError.notFoundReportMedicine(),
+        HttpStatus.NOT_FOUND,
       );
 
-      const warehouseMedicine = await this.deliverService.deliverMedicine(
-        RepositoryEnum.WarehouseMedicine,
-        user.supplierId as number,
-        { medicineId: medicineIds[i], quantity: quantities[i] },
+    const inventoryMedicine = await this.deliverService.removeMedicine(
+      RepositoryEnum.InventoryMedicine,
+      inventoryId,
+      {
+        medicineId: reportOrder.medicineDetails.medicine.id,
+        quantity: reportOrder.quantity,
+      },
+    );
+    await this.deliverService.removeMedicineDetails(
+      RepositoryEnum.InventoryMedicineDetails,
+      {
+        medicineDetails: reportOrder.medicineDetails.id,
+        medicineId: inventoryMedicine.id,
+        quantity: reportOrder.quantity,
+      },
+    );
+
+    const warehouseMedicine =
+      await this.medicineService.findWarehouseMedicineByMedicine(
+        reportOrder.medicineDetails.medicine.id,
       );
 
-      await this.deliverService.deliverMedicineDetails(
-        RepositoryEnum.WarehouseMedicineDetails,
-        {
-          medicineId: warehouseMedicine.id,
-          medicineDetails: medicineDetailsIds[i],
-          quantity: quantities[i],
-        },
-      );
-    }
+    await this.deliverService.deliverMedicineDetails(
+      RepositoryEnum.WarehouseMedicineDetails,
+      {
+        medicineId: warehouseMedicine.id,
+        medicineDetails: reportOrder.medicineDetails.id,
+        quantity: reportOrder.quantity,
+      },
+    );
+
     await this.inventoryReportOrderRepository.update(
       {
         id,
@@ -155,5 +152,66 @@ export class WarehouseReportMedicineService {
     }
     reportOrder.status = ReportMedicineStatus.Rejected;
     await this.inventoryReportOrderRepository.save(reportOrder);
+  }
+
+  async findAll(
+    { criteria, pagination }: { criteria: any; pagination: Pagination },
+    user: IUser,
+  ) {
+    const { skip, limit } = pagination;
+    const totalRecords = await this.inventoryReportOrderRepository.count({
+      where: {
+        ...criteria,
+        inventory: {
+          warehouse: {
+            id: user.warehouseId as number,
+          },
+        },
+
+        status: ReportMedicineStatus.Pending,
+      },
+    });
+
+    const reports = await this.inventoryReportOrderRepository.find({
+      where: {
+        ...criteria,
+        inventory: {
+          warehouse: {
+            id: user.warehouseId as number,
+          },
+        },
+        status: ReportMedicineStatus.Pending,
+      },
+      select: {
+        id: true,
+        reason: true,
+        inventory: {
+          name: true,
+        },
+        medicineDetails: {
+          id: true,
+          medicine: {
+            name: true,
+          },
+        },
+      },
+      relations: {
+        inventory: true,
+        medicineDetails: {
+          medicine: true,
+        },
+      },
+      skip,
+      take: limit,
+    });
+
+    return {
+      totalRecords,
+      data: reports.map((report) =>
+        new GetByCriteraReportMedicine({
+          reportMedicine: report,
+        }).toObject(),
+      ),
+    };
   }
 }

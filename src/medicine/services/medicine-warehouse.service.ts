@@ -206,9 +206,14 @@ export class WarehouseMedicineService {
   }
 
   // TODO check for duplicate batch id in dto
-  async transferToInventory(body: TransferToInventoryDto, owner: IUser) {
+  async transferToInventory(
+    { id }: IParams,
+    body: TransferToInventoryDto,
+    owner: IUser,
+  ) {
     const { warehouseId } = owner;
-    const { inventoryId, batches } = body;
+    const { batches } = body;
+    const inventoryId = id;
 
     const inventory = await this.inventoryRepository.findOne({
       where: {

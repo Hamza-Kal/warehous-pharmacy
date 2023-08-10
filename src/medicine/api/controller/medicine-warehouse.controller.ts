@@ -41,6 +41,23 @@ export class MedicineWarehouseController {
   }
 
   @AuthorizedApi({
+    api: Api.PATCH,
+    url: '/transfer-to-inventory/:id',
+    role: [Role.WAREHOUSE],
+  })
+  transterToInventory(
+    @Body() body: TransferToInventoryDto,
+    @CurrUser() user: IUser,
+    @Param() param: IParams,
+  ) {
+    return this.warehouseMedicineService.transferToInventory(
+      { id: +param.id },
+      body,
+      user,
+    );
+  }
+
+  @AuthorizedApi({
     api: Api.GET,
     url: '/:id',
     role: [Role.WAREHOUSE],
@@ -59,18 +76,6 @@ export class MedicineWarehouseController {
       { criteria, pagination },
       user,
     );
-  }
-
-  @AuthorizedApi({
-    api: Api.PATCH,
-    url: '/transfer-to-inventory',
-    role: [Role.WAREHOUSE],
-  })
-  transterToInventory(
-    @Body() body: TransferToInventoryDto,
-    @CurrUser() user: IUser,
-  ) {
-    return this.warehouseMedicineService.transferToInventory(body, user);
   }
 
   @AuthorizedApi({

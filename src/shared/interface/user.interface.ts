@@ -11,5 +11,5 @@ export interface IUser {
   supplierId?: number | Supplier;
   warehouseId?: number | Warehouse;
   pharmacyId?: number | Pharmacy;
-  inventoyId?: number | Inventory;
+  inventoryId?: number | Inventory;
 }

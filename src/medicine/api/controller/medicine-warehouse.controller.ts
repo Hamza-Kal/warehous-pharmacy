@@ -57,6 +57,23 @@ export class MedicineWarehouseController {
     );
   }
 
+  // All the medicines that are not distributed to the inventories
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/all',
+    role: [Role.WAREHOUSE],
+  })
+  async findAllWarehouseMedicine(
+    @CurrUser() user: IUser,
+    @Query() query: Pagination,
+  ) {
+    const { criteria, pagination } = paginationParser(query);
+    return await this.warehouseMedicineService.findAllWarehouse(
+      { criteria, pagination },
+      user,
+    );
+  }
+
   @AuthorizedApi({
     api: Api.GET,
     url: '/:id',

@@ -30,6 +30,8 @@ import {
   RepositoryEnum,
 } from 'src/deliver/service/deliver.service';
 import { IParams } from 'src/shared/interface/params.interface';
+import { NotEquals } from 'class-validator';
+import { WarehouseMedicines } from '../api/dto/reponse/warehouse-medicines-get-by-criteria.dto';
 
 @Injectable()
 export class WarehouseMedicineService {
@@ -85,6 +87,61 @@ export class WarehouseMedicineService {
       ),
     };
   }
+
+  async findAllWarehouse({ criteria, pagination }, user: IUser) {
+    const { skip, limit } = pagination;
+    const totalRecords = await this.warehouseMedicineRepository.count({
+      where: {
+        ...criteria,
+        warehouse: {
+          id: user.warehouseId,
+        },
+        medicineDetails: {
+          quantity: Not(0),
+        },
+      },
+    });
+    const medicines = await this.warehouseMedicineRepository.find({
+      where: {
+        ...criteria,
+        warehouse: {
+          id: user.warehouseId,
+        },
+      },
+      select: {
+        id: true,
+        medicineDetails: {
+          id: true,
+          quantity: true,
+          medicineDetails: {
+            id: true,
+            endDate: true,
+          },
+        },
+        medicine: {
+          name: true,
+        },
+      },
+      relations: {
+        medicineDetails: {
+          medicineDetails: true,
+        },
+        medicine: true,
+      },
+      skip,
+      take: limit,
+    });
+
+    return {
+      totalRecords,
+      data: medicines.map((medicine) =>
+        new WarehouseMedicines({
+          medicine,
+        }).toObject(),
+      ),
+    };
+  }
+
   async findAll({ criteria, pagination }, user: IUser) {
     const { skip, limit } = pagination;
     const totalRecords = await this.warehouseMedicineRepository.count({

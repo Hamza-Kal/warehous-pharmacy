@@ -75,4 +75,10 @@ export class AuthController {
   async loginSupplier(@CurrUser() user: IUser) {
     return this.authService.login(user);
   }
+  @UseGuards(LocalAuthGuard)
+  @HttpCode(200)
+  @Post('login-inventory')
+  async loginInventory(@CurrUser() user: IUser) {
+    return this.authService.login(user);
+  }
 }

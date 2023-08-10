@@ -8,18 +8,6 @@ import {
   IsString,
 } from 'class-validator';
 
-export class CreateReportMedicineDto {
-  @IsString()
-  @IsNotEmpty()
-  returnReason: string;
-
-  @ValidateNested({ each: true })
-  @Type(() => Batch)
-  @IsArray()
-  @ArrayNotEmpty()
-  batches: Batch[];
-}
-
 class Batch {
   @IsNumber()
   @IsNotEmpty()
@@ -28,4 +16,15 @@ class Batch {
   @IsNumber()
   @IsNotEmpty()
   quantity: number;
+}
+
+export class CreateReportMedicineDto {
+  @IsString()
+  @IsNotEmpty()
+  reason: string;
+
+  @ValidateNested({ each: true })
+  @Type(() => Batch)
+  @IsNotEmpty()
+  batch: Batch;
 }

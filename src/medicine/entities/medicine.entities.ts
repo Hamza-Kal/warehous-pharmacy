@@ -27,10 +27,7 @@ import {
   WarehouseReturnOrder,
   WarehouseReturnOrderDetails,
 } from 'src/return order/entities/returnOrder.entities';
-import {
-  InventoryReportMedicine,
-  InventoryReportMedicineDetails,
-} from 'src/report medicine/entities/report-medicine.entities';
+import { InventoryReportMedicine } from 'src/report medicine/entities/report-medicine.entities';
 
 // ####################  Category  ####################
 @Entity()
@@ -237,12 +234,12 @@ export class MedicineDetails {
   warehouseReturnOrderDetails: WarehouseReturnOrderDetails[];
 
   @OneToMany(
-    () => InventoryReportMedicineDetails,
+    () => InventoryReportMedicine,
     (inventoryReportMedicineDetails) =>
       inventoryReportMedicineDetails.medicineDetails,
     {
       cascade: true,
     },
   )
-  inventoryReportMedicineDetails: InventoryReportMedicineDetails[];
+  inventoryReportMedicineDetails: InventoryReportMedicine[];
 }

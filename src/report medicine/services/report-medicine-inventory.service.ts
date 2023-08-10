@@ -4,16 +4,12 @@ import { Repository } from 'typeorm';
 import { IUser } from 'src/shared/interface/user.interface';
 import { SupplierService } from 'src/supplier/service/supplier.service';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
-import { InventoryMedicineDetails } from 'src/medicine/entities/medicine-role.entities';
-import { In } from 'typeorm/find-options/operator/In';
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
-import {
-  InventoryReportMedicine,
-  InventoryReportMedicineDetails,
-} from '../entities/report-medicine.entities';
+import { InventoryReportMedicine } from '../entities/report-medicine.entities';
 import { ReportMedicineError } from './report-medicine-error.service';
 import { GetByCriteraReportMedicine } from '../api/dto/response/get-warehouse-report-medicine.dto';
 import { CreateReportMedicineDto } from '../api/dto/create-warehouse-report-medicine.dto';
+import { MedicineService } from 'src/medicine/services/medicine.service';
 
 @Injectable()
 export class InventoryReportMedicineService {
@@ -21,57 +17,22 @@ export class InventoryReportMedicineService {
     @InjectRepository(InventoryReportMedicine)
     private inventoryReportOrderRepository: Repository<InventoryReportMedicine>,
 
-    @InjectRepository(InventoryReportMedicineDetails)
-    private inventoryReportOrderDetailsRepository: Repository<InventoryReportMedicineDetails>,
     private supplierService: SupplierService,
     private readonly medicineError: MedicineError,
     private readonly reportOrderError: ReportMedicineError,
-    @InjectRepository(InventoryMedicineDetails)
-    private inventoryMedicineDetailsRepository: Repository<InventoryMedicineDetails>,
+    private medicineService: MedicineService,
   ) {}
 
   async create(body: CreateReportMedicineDto, owner: IUser) {
-    const { inventoyId } = owner;
-    const { batches } = body;
-
-    const batchQuantity = new Map<number, number>();
-    const batchesIds = [];
-    for (const batch of batches) {
-      batchesIds.push(batch.batchId);
-      batchQuantity.set(batch.batchId, batch.quantity);
-    }
+    const { inventoryId } = owner;
+    const { batch } = body;
 
     const inventoryMedicineDetails =
-      await this.inventoryMedicineDetailsRepository.find({
-        where: {
-          id: In(batchesIds),
-          medicine: {
-            inventory: {
-              id: inventoyId as number,
-            },
-          },
-        },
-        relations: {
-          medicine: {
-            medicine: {
-              supplier: true,
-            },
-          },
-          medicineDetails: true,
-        },
-        select: {
-          medicine: {
-            id: true,
-            medicine: { id: true },
-          },
-          id: true,
-          quantity: true,
-          medicineDetails: {
-            id: true,
-          },
-        },
-      });
-    if (inventoryMedicineDetails.length !== batchesIds.length)
+      await this.medicineService.findInventoryMedicineDetails(
+        batch.batchId,
+        inventoryId as number,
+      );
+    if (!inventoryMedicineDetails)
       throw new HttpException(
         this.medicineError.notFoundMedicine(),
         HttpStatus.NOT_FOUND,
@@ -80,42 +41,26 @@ export class InventoryReportMedicineService {
     //* batches can be for a different medicines so we don't need to check
     //* to be the same medicine id for all batches
     //? validate the order
-    for (const warehouseMedicineDetail of inventoryMedicineDetails) {
-      const toBeReturnedQuantity = batchQuantity.get(
-        warehouseMedicineDetail.id,
+
+    if (batch.quantity > inventoryMedicineDetails.quantity) {
+      throw new HttpException(
+        this.medicineError.notEnoughMedicine(),
+        HttpStatus.BAD_REQUEST,
       );
-      if (toBeReturnedQuantity > warehouseMedicineDetail.quantity) {
-        throw new HttpException(
-          this.medicineError.notEnoughMedicine(),
-          HttpStatus.BAD_REQUEST,
-        );
-      }
     }
 
     const reportOrder = this.inventoryReportOrderRepository.create({
-      // medicine: inventoryMedicineDetails[0].medicine.medicine,
-
       created_at: new Date(),
+      medicineDetails: inventoryMedicineDetails.medicineDetails,
       inventory: {
-        id: inventoyId as number,
+        id: inventoryId as number,
       },
+      quantity: batch.quantity,
+      reason: body.reason,
     });
-    await this.inventoryMedicineDetailsRepository.save(reportOrder);
 
-    for (const inventoryMedicineDetail of inventoryMedicineDetails) {
-      const toBeReturnedQuantity = batchQuantity.get(
-        inventoryMedicineDetail.id,
-      );
-      const inventoryReportOrderDetail =
-        this.inventoryReportOrderDetailsRepository.create({
-          medicineDetails: inventoryMedicineDetail.medicineDetails,
-          quantity: toBeReturnedQuantity,
-          InventoryReportMedicine: reportOrder,
-        });
-      await this.inventoryReportOrderDetailsRepository.save(
-        inventoryReportOrderDetail,
-      );
-    }
+    await this.inventoryReportOrderRepository.save(reportOrder);
+
     return {
       data: {
         id: reportOrder.id,

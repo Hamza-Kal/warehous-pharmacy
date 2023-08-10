@@ -144,6 +144,41 @@ export class MedicineService {
     });
   }
 
+  async findInventoryMedicineDetails(
+    medicineDetailsId: number,
+    inventoryId: number,
+  ) {
+    const inventoryMedicineDetails =
+      await this.inventoryMedicineDetailsRepository.findOne({
+        where: {
+          id: medicineDetailsId,
+          medicine: {
+            inventory: {
+              id: inventoryId as number,
+            },
+          },
+        },
+        relations: {
+          medicine: {
+            medicine: true,
+          },
+          medicineDetails: true,
+        },
+        select: {
+          medicine: {
+            id: true,
+            medicine: { id: true },
+          },
+          id: true,
+          quantity: true,
+          medicineDetails: {
+            id: true,
+          },
+        },
+      });
+    return inventoryMedicineDetails;
+  }
+
   async createWarehouseMedicineDetails(dto: CreateWarehouseMedicineDetails) {
     let medicineDetails = this.warehouseMedicineDetailsRepository.create({
       medicine: dto.medicine as WarehouseMedicine,

@@ -13,7 +13,7 @@ import { InventoryReportMedicineService } from 'src/report medicine/services/rep
 import { CreateReportMedicineDto } from '../dto/create-warehouse-report-medicine.dto';
 
 @AuthenticatedController({
-  controller: '/reportMedicine/warehouse',
+  controller: '/report-medicine/inventory',
 })
 export class ReportMedicineInventoryController {
   constructor(private reportMedicineService: InventoryReportMedicineService) {}

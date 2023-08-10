@@ -1,18 +1,12 @@
 import { Inventory } from 'src/inventory/entities/inventory.entity';
-import {
-  Medicine,
-  MedicineDetails,
-} from 'src/medicine/entities/medicine.entities';
-import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
-import { Supplier } from 'src/supplier/entities/supplier.entity';
-import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
+import { MedicineDetails } from 'src/medicine/entities/medicine.entities';
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -49,34 +43,14 @@ export class InventoryReportMedicine {
   @JoinColumn()
   inventory: Inventory;
 
-  @OneToMany(
-    () => InventoryReportMedicineDetails,
-    (InventoryReportMedicineDetails) =>
-      InventoryReportMedicineDetails.InventoryReportMedicine,
-    {
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
-    },
-  )
-  details: InventoryReportMedicineDetails[];
-}
-
-@Entity()
-export class InventoryReportMedicineDetails {
-  @PrimaryGeneratedColumn({
+  //********************  Details  ********************/
+  @Column({
     type: 'int',
   })
-  id: number;
+  quantity: number;
 
-  @ManyToOne(
-    () => InventoryReportMedicine,
-    (InventoryReportMedicine) => InventoryReportMedicine.details,
-    {
-      onDelete: 'CASCADE',
-    },
-  )
-  @JoinColumn()
-  InventoryReportMedicine: InventoryReportMedicine;
+  @Column({ type: 'varchar', length: 255 })
+  reason: string;
 
   @ManyToOne(
     () => MedicineDetails,
@@ -84,9 +58,4 @@ export class InventoryReportMedicineDetails {
   )
   @JoinColumn()
   medicineDetails: MedicineDetails;
-
-  @Column({
-    type: 'int',
-  })
-  quantity: number;
 }

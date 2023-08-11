@@ -1,5 +1,6 @@
 import { diskStorage } from 'multer';
 import { config } from 'dotenv';
+import { fi } from '@faker-js/faker';
 config();
 export const storage = diskStorage({
   destination: function (req, file, cb) {
@@ -7,6 +8,9 @@ export const storage = diskStorage({
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix);
+    cb(
+      null,
+      file.fieldname + '-' + uniqueSuffix + '.' + file.mimetype.split('/')[1],
+    );
   },
 });

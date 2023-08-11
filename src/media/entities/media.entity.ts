@@ -22,6 +22,12 @@ export class Media {
   url: string;
 
   @Column({
+    type: 'varchar',
+    length: 255,
+  })
+  path: string;
+
+  @Column({
     type: 'int',
   })
   size: number;

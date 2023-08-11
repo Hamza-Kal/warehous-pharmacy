@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Media } from '../entities/media.entity';
 import { Repository } from 'typeorm';
 import { IUser } from 'src/shared/interface/user.interface';
+import { he } from '@faker-js/faker';
 config();
 
 @Injectable()
@@ -24,16 +25,15 @@ export class MediaService {
   }
 
   async uploadImage(file: Express.Multer.File, user: IUser) {
-    const url = this.constructUrlForFile(file.originalname);
-    const { height, width } = imageSize(
-      `./uploads/file-1691776625340-887886427`,
-    );
-    const { size } = file;
+    const url = this.constructUrlForFile(file.filename);
+    const { size, path } = file;
+    const { width, height } = imageSize(path);
     const image = this.mediaRepository.create({
       height,
       width,
       size,
       url,
+      path,
       user: {
         id: user.id,
       },

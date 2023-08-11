@@ -16,21 +16,16 @@ import {
   WarehouseMedicine,
   WarehouseMedicineDetails,
 } from '../entities/medicine-role.entities';
-import { GetByIdMedicineSupplier } from '../api/response/get-by-id-medicine-supplier.dto';
 import { WarehouseGetMedicines } from '../api/response/warehouse-get-medicines.dto';
 import { UpdatePriceDto } from '../api/dto/warehouseDto/update-medicine-price.dto';
-import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { TransferToInventoryDto } from 'src/warehouse/api/dto/transfer-to-inventory';
-import { NotFoundException } from '@nestjs/common';
-import { BadRequestException } from '@nestjs/common';
 import { MedicineService } from './medicine.service';
 import {
   DeliverService,
   RepositoryEnum,
 } from 'src/deliver/service/deliver.service';
 import { IParams } from 'src/shared/interface/params.interface';
-import { NotEquals } from 'class-validator';
 import { WarehouseMedicines } from '../api/dto/reponse/warehouse-medicines-get-by-criteria.dto';
 
 @Injectable()
@@ -126,7 +121,10 @@ export class WarehouseMedicineService {
         medicineDetails: {
           medicineDetails: true,
         },
-        medicine: true,
+        medicine: {
+          category: true,
+          supplier: true,
+        },
       },
       skip,
       take: limit,

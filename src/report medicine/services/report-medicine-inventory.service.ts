@@ -59,6 +59,8 @@ export class InventoryReportMedicineService {
       reason: body.reason,
     });
 
+    console.log(body.reason);
+
     await this.inventoryReportOrderRepository.save(reportOrder);
 
     return {

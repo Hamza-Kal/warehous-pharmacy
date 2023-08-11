@@ -185,6 +185,7 @@ export class WarehouseReportMedicineService {
       select: {
         id: true,
         reason: true,
+        created_at: true,
         inventory: {
           name: true,
         },

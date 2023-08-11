@@ -11,6 +11,7 @@ export class GetByCriteraReportMedicine {
   medicineDetailsId: number;
   medicineName: string;
   inventoryName: string;
+  date: Date;
   constructor({ reportMedicine }: { reportMedicine: InventoryReportMedicine }) {
     this.id = reportMedicine.id;
     this.reportDate = reportMedicine.created_at;
@@ -18,6 +19,8 @@ export class GetByCriteraReportMedicine {
     this.medicineName = reportMedicine.medicineDetails.medicine.name;
     this.medicineDetailsId = reportMedicine.medicineDetails.id;
     this.inventoryName = reportMedicine.inventory.name;
+    this.date = reportMedicine.created_at;
+    this.reason = reportMedicine.reason;
   }
 
   toObject(): {

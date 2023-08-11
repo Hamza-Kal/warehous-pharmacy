@@ -1,6 +1,7 @@
 import {
   Body,
   HttpStatus,
+  Param,
   ParseFilePipeBuilder,
   Post,
   UploadedFile,
@@ -11,12 +12,18 @@ import { AuthenticatedController } from 'src/shared/decorators/authenticated.con
 import { MediaService } from '../service/media.service';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { IUser } from 'src/shared/interface/user.interface';
+import { IParams } from 'src/shared/interface/params.interface';
 
 @AuthenticatedController({
   controller: '/upload',
 })
 export class MediaController {
   constructor(private mediaService: MediaService) {}
+
+  @Post('/remove/:id')
+  removeImage(@Param() param: IParams) {
+    return this.mediaService.removeImage(+param.id);
+  }
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
@@ -38,9 +45,5 @@ export class MediaController {
   ) {
     console.log(file);
     return this.mediaService.uploadImage(file, user);
-  }
-  @Post('/remove')
-  removeImage(@Body() body: { path: string }) {
-    return this.mediaService.removeImage(body.path);
   }
 }

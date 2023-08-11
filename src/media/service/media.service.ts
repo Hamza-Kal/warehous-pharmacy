@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { unlink } from 'fs';
 import { config } from 'dotenv';
 
@@ -7,7 +12,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Media } from '../entities/media.entity';
 import { Repository } from 'typeorm';
 import { IUser } from 'src/shared/interface/user.interface';
-import { he } from '@faker-js/faker';
+import { NotFoundError } from 'rxjs';
+import e from 'express';
+
 config();
 
 @Injectable()
@@ -40,11 +47,25 @@ export class MediaService {
     });
     return this.mediaRepository.save(image);
   }
-  async removeImage(path: string) {
-    unlink(path, (err) => {
-      if (err) console.log(err);
-      console.log('image removed');
+  async removeImage(imageId: number) {
+    const image = await this.mediaRepository.findOne({
+      where: {
+        id: imageId,
+      },
     });
-    return;
+    if (!image) throw new NotFoundException('the image does not exist');
+    const error = new InternalServerErrorException(
+      'the image is not found on the server',
+    );
+    let errorHappened = false;
+    unlink(image.path, (err) => {
+      if (err) {
+        errorHappened = true;
+        throw error;
+      }
+    });
+    if (errorHappened) throw error;
+
+    return await this.mediaRepository.remove(image);
   }
 }

@@ -5,6 +5,8 @@ import { Modules } from './shared/modules/modules';
 import { ConfigModule } from '@nestjs/config';
 import { AdminModule } from './admin/admin.module';
 import TypeOrmModule from './shared/modules/connection.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { MediaModule } from './media/media.module';
 
 @Module({
   imports: [
@@ -14,6 +16,7 @@ import TypeOrmModule from './shared/modules/connection.module';
     ...TypeOrmModule,
     ...Modules,
     AdminModule,
+    MediaModule,
   ],
   controllers: [],
   providers: [

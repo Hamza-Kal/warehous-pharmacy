@@ -1,10 +1,4 @@
-import { th } from '@faker-js/faker';
-import {
-  SupplierMedicineDetails,
-  WarehouseMedicine,
-} from 'src/medicine/entities/medicine-role.entities';
-import { MedicineDetails } from 'src/medicine/entities/medicine.entities';
-import { OrderStatus, WarehouseOrder } from 'src/order/entities/order.entities';
+import { WarehouseMedicine } from 'src/medicine/entities/medicine-role.entities';
 
 export class WarehouseMedicines {
   id: number;
@@ -14,6 +8,8 @@ export class WarehouseMedicines {
     expireDate: Date;
     quantity: number;
   }[];
+  medicineSupplier: string;
+  medicineCategory: string;
   constructor({ medicine }: { medicine: WarehouseMedicine }) {
     this.id = medicine.id;
     this.name = medicine.medicine.name;
@@ -30,6 +26,8 @@ export class WarehouseMedicines {
       });
     }
     this.batches = batches;
+    this.medicineCategory = medicine.medicine.category.category;
+    this.medicineSupplier = medicine.medicine.supplier.name;
   }
 
   toObject(): {
@@ -40,11 +38,15 @@ export class WarehouseMedicines {
       expireDate: Date;
       quantity: number;
     }[];
+    medicineCategory: string;
+    medicineSupplier: string;
   } {
     return {
       id: this.id,
       name: this.name,
       batches: this.batches,
+      medicineCategory: this.medicineCategory,
+      medicineSupplier: this.medicineSupplier,
     };
   }
 }

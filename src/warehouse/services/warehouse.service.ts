@@ -63,7 +63,7 @@ export class WarehouseService {
   }
 
   async getAllInventories(user: IUser) {
-    const { inventories } = await this.warehouseRepository.findOne({
+    const warehouse = await this.warehouseRepository.findOne({
       where: {
         id: user.warehouseId as number,
         inventories: {
@@ -89,9 +89,13 @@ export class WarehouseService {
         },
       },
     });
+    if (!warehouse) {
+      return [];
+    }
+
     return {
-      totalRecords: inventories.length,
-      data: inventories.map((inventory) =>
+      totalRecords: warehouse.inventories.length,
+      data: warehouse.inventories.map((inventory) =>
         new GetAllInventories({ inventory }).toObject(),
       ),
     };

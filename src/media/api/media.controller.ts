@@ -13,6 +13,10 @@ import { MediaService } from '../service/media.service';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { IUser } from 'src/shared/interface/user.interface';
 import { IParams } from 'src/shared/interface/params.interface';
+import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
+import { Api } from 'src/shared/enums/API';
+import { Supplier } from 'src/supplier/entities/supplier.entity';
+import { Role } from 'src/shared/enums/roles';
 
 @AuthenticatedController({
   controller: '/upload',
@@ -20,12 +24,20 @@ import { IParams } from 'src/shared/interface/params.interface';
 export class MediaController {
   constructor(private mediaService: MediaService) {}
 
-  @Post('/remove/:id')
+  @AuthorizedApi({
+    api: Api.DELETE,
+    role: [Role.SUPPLIER, Role.ADMIN],
+    url: '',
+  })
   removeImage(@Param() param: IParams) {
     return this.mediaService.removeImage(+param.id);
   }
 
-  @Post()
+  @AuthorizedApi({
+    api: Api.POST,
+    role: [Role.SUPPLIER, Role.ADMIN],
+    url: '/medicine/:id',
+  })
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(
     @UploadedFile(
@@ -43,7 +55,6 @@ export class MediaController {
     file: Express.Multer.File,
     @CurrUser() user: IUser,
   ) {
-    console.log(file);
     return this.mediaService.uploadImage(file, user);
   }
 }

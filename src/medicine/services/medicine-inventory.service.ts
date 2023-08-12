@@ -61,7 +61,6 @@ export class MedicineInventoryService {
       relations: {
         medicine: {
           category: true,
-          image: true,
         },
       },
       skip,
@@ -90,7 +89,6 @@ export class MedicineInventoryService {
         medicine: {
           warehouseMedicine: true,
           category: true,
-          image: true,
         },
         medicineDetails: {
           medicineDetails: true,

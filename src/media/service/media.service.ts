@@ -33,7 +33,7 @@ export class MediaService {
     const url = this.constructUrlForFile(file.filename);
     const { size, path } = file;
     const { width, height } = imageSize(path);
-    const image = this.mediaRepository.create({
+    let image: Media | Promise<Media> = this.mediaRepository.create({
       height,
       width,
       size,
@@ -43,7 +43,12 @@ export class MediaService {
         id: user.id,
       },
     });
-    return this.mediaRepository.save(image);
+    image = await this.mediaRepository.save(image);
+    return {
+      data: {
+        id: image.id,
+      },
+    };
   }
   async removeImage(imageId: number) {
     const image = await this.mediaRepository.findOne({

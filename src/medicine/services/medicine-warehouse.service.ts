@@ -160,7 +160,6 @@ export class WarehouseMedicineService {
       relations: {
         medicine: {
           category: true,
-          image: true,
         },
       },
       skip,

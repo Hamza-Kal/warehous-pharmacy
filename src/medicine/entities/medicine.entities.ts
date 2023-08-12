@@ -28,6 +28,7 @@ import {
   WarehouseReturnOrderDetails,
 } from 'src/return order/entities/returnOrder.entities';
 import { InventoryReportMedicine } from 'src/report medicine/entities/report-medicine.entities';
+import { Media } from 'src/media/entities/media.entity';
 
 // ####################  Category  ####################
 @Entity()
@@ -71,6 +72,10 @@ export class Medicine {
     length: 255,
   })
   description: string;
+
+  @OneToOne(() => Media, (image) => image.medicine)
+  @JoinColumn()
+  image: Media;
 
   @ManyToOne(() => Supplier, (supplier) => supplier.medicine, {
     onDelete: 'CASCADE',

@@ -8,11 +8,13 @@ export class GetAllMedicinesSupplier {
   category: string;
   id: number;
   quantity: number;
+  imageUrl: string | null;
   constructor({ supplierMedicine }: { supplierMedicine: SupplierMedicine }) {
     this.id = supplierMedicine.id;
     this.name = supplierMedicine.medicine.name;
     this.category = supplierMedicine.medicine.category.category;
     this.quantity = supplierMedicine.quantity;
+    this.imageUrl = supplierMedicine.medicine?.image?.url;
   }
 
   toObject(): {
@@ -20,12 +22,14 @@ export class GetAllMedicinesSupplier {
     name: string;
     category: string;
     quantity: number;
+    imageUrl: string | null;
   } {
     return {
       id: this.id,
       name: this.name,
       category: this.category,
       quantity: this.quantity,
+      imageUrl: this.imageUrl,
     };
   }
 }

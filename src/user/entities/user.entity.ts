@@ -1,4 +1,5 @@
 import { Inventory } from 'src/inventory/entities/inventory.entity';
+import { Media } from 'src/media/entities/media.entity';
 import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
 import { Role } from 'src/shared/enums/roles';
 import { hashPassword } from 'src/shared/utils/bcrypt';
@@ -11,6 +12,7 @@ import {
   BeforeRemove,
   Column,
   Entity,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -71,6 +73,9 @@ export class User {
 
   @OneToOne(() => Inventory, (inventory) => inventory.manager)
   inventory: Inventory;
+
+  @OneToMany(() => Media, (image) => image.user)
+  image: Media;
 
   @BeforeInsert()
   async logBeforeInsertOrUpdate() {

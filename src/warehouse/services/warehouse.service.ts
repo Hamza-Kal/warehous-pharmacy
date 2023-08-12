@@ -11,6 +11,8 @@ import { GetAllWarehouses } from 'src/warehouse/api/dto/response/get-all-warehou
 import { GetAllInventories } from '../../inventory/dtos/response/get-all-inventories.dto';
 import { GetByIdWarehouse } from '../api/dto/response/get-by-id-warehouse.dto';
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
+import { AdminGetAllWarehouses } from 'src/admin/api/dto/warehouse-dtos/find-all.dto';
+import { AdminGetByIdWarehouse } from 'src/admin/api/dto/warehouse-dtos/find-one.dto';
 
 @Injectable()
 export class WarehouseService {
@@ -116,6 +118,53 @@ export class WarehouseService {
       );
     return {
       data: new GetByIdWarehouse({ warehouse }).toObject(),
+    };
+  }
+
+  async AdminfindAll({
+    pagination,
+    criteria,
+  }: {
+    pagination?: Pagination;
+    criteria?: FindOptionsWhere<Warehouse> | FindOptionsWhere<Warehouse>[];
+  }) {
+    const { skip, limit } = pagination;
+    const warehouses = await this.warehouseRepository.find({
+      where: {
+        ...criteria,
+      },
+      select: ['id', 'location', 'name', 'phoneNumber'],
+      take: limit,
+      skip,
+    });
+    const totalRecrods = await this.warehouseRepository.count({
+      where: {
+        ...criteria,
+      },
+    });
+    return {
+      totalRecrods,
+      data: warehouses.map((warehouse) =>
+        new AdminGetAllWarehouses({ warehouse }).toObject(),
+      ),
+    };
+  }
+
+  async AdminfindOne(id: number) {
+    const warehouse = await this.warehouseRepository.findOne({
+      where: { id },
+      select: ['id', 'location', 'name', 'phoneNumber'],
+      relations: {
+        owner: true,
+      },
+    });
+    if (!warehouse)
+      throw new HttpException(
+        this.errorsService.notFoundWarehouse(),
+        HttpStatus.NOT_FOUND,
+      );
+    return {
+      data: new AdminGetByIdWarehouse({ warehouse }).toObject(),
     };
   }
 }

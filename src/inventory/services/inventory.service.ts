@@ -9,6 +9,8 @@ import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { GetAllInventories } from 'src/inventory/dtos/response/get-all-inventories.dto';
 import { GetByIdInventory } from '../dtos/response/get-by-id-inventory.dto';
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
+import { AdminGetByIdInventory } from 'src/admin/api/dto/inventory-dtos/find-one.dto';
+import { AdminGetAllInventories } from 'src/admin/api/dto/inventory-dtos/find-all.dto';
 
 @Injectable()
 export class InventoryService {
@@ -80,6 +82,56 @@ export class InventoryService {
       );
     return {
       data: new GetByIdInventory({ inventory }).toObject(),
+    };
+  }
+
+  async AdminfindAll({
+    pagination,
+    criteria,
+  }: {
+    pagination?: Pagination;
+    criteria?: FindOptionsWhere<Inventory> | FindOptionsWhere<Inventory>[];
+  }) {
+    const { skip, limit } = pagination;
+    const inventories = await this.inventoryRepository.find({
+      where: {
+        ...criteria,
+      },
+      select: ['id', 'location', 'name', 'phoneNumber'],
+      take: limit,
+      skip,
+    });
+    const totalRecords = await this.inventoryRepository.count({
+      where: {
+        ...criteria,
+      },
+      select: ['id', 'location', 'name', 'phoneNumber'],
+      take: limit,
+      skip,
+    });
+    return {
+      totalRecords,
+      data: inventories.map((inventory) =>
+        new AdminGetAllInventories({ inventory }).toObject(),
+      ),
+    };
+  }
+
+  async AdminfindOne(id: number) {
+    const inventory = await this.inventoryRepository.findOne({
+      where: { id },
+      select: ['id', 'location', 'name', 'phoneNumber'],
+      relations: {
+        manager: true,
+      },
+    });
+    if (!inventory)
+      throw new HttpException(
+        this.errorsService.notFoundInventory(),
+        HttpStatus.NOT_FOUND,
+      );
+    return {
+      data: new AdminGetByIdInventory({ inventory }).toObject(),
     };
   }
 }

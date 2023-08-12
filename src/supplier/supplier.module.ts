@@ -7,6 +7,7 @@ import { UserModule } from 'src/user/user.module';
 import { SupplierService } from './service/supplier.service';
 import { MedicineModule } from 'src/medicine/medicine.module';
 import { SupplierError } from './service/supplier-error.service';
+import { AdminModule } from 'src/admin/admin.module';
 
 @Module({
   controllers: [SupplierController],

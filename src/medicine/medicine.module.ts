@@ -29,6 +29,7 @@ import { OrderModule } from 'src/order/order.module';
 import { DeliverModule } from 'src/deliver/deliver.module';
 import { MedicineInventoryService } from './services/medicine-inventory.service';
 import { MedicineInventoryController } from './api/controller/medicine-inventory.controller';
+import { Media } from 'src/media/entities/media.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -45,6 +46,7 @@ import { MedicineInventoryController } from './api/controller/medicine-inventory
       WarehouseOrderDetails,
       Category,
       Inventory,
+      Media,
     ]),
     DeliverModule,
   ],

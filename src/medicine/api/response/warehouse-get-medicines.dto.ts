@@ -10,12 +10,14 @@ export class WarehouseGetMedicines {
   price: number;
   id: number;
   quantity: number;
+  imageUrl: string | null;
   constructor({ warehouseMedicine }: { warehouseMedicine: WarehouseMedicine }) {
     this.id = warehouseMedicine.id;
     this.name = warehouseMedicine.medicine.name;
     this.category = warehouseMedicine.medicine.category.category;
     this.price = warehouseMedicine.price;
     this.quantity = warehouseMedicine.quantity;
+    this.imageUrl = warehouseMedicine.medicine?.image?.url;
   }
 
   toObject(): {
@@ -24,6 +26,7 @@ export class WarehouseGetMedicines {
     category: string;
     price: number;
     quantity: number;
+    imageUrl: string | null;
   } {
     return {
       id: this.id,
@@ -31,6 +34,7 @@ export class WarehouseGetMedicines {
       category: this.category,
       price: this.price,
       quantity: this.quantity,
+      imageUrl: this.imageUrl,
     };
   }
 }

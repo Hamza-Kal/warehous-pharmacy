@@ -1,4 +1,5 @@
 import { IsNumber, IsString, Max, MaxLength, Min } from 'class-validator';
+import { Media } from 'src/media/entities/media.entity';
 import { WarehouseMedicine } from 'src/medicine/entities/medicine-role.entities';
 import {
   Category,
@@ -16,7 +17,10 @@ export class CreateMedicine {
   description: string;
 
   @IsNumber()
-  categoryId: Category;
+  categoryId: Category | number;
+
+  @IsNumber()
+  imageId: Media | number | null;
 
   @IsNumber()
   @Min(1)

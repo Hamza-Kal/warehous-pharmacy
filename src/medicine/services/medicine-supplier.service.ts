@@ -19,6 +19,7 @@ import {
   SupplierMedicine,
   SupplierMedicineDetails,
 } from '../entities/medicine-role.entities';
+import { Media } from 'src/media/entities/media.entity';
 
 @Injectable()
 export class MedicineSupplierService {
@@ -34,21 +35,40 @@ export class MedicineSupplierService {
     @InjectRepository(SupplierMedicineDetails)
     private supplierMedicineDetails: Repository<SupplierMedicineDetails>,
     private medicineError: MedicineError,
+    @InjectRepository(Media) private mediaRepository: Repository<Media>,
   ) {}
 
   async create(user: IUser, body: CreateMedicine) {
-    const { name, description, categoryId, price } = body;
-    if (!categoryId)
+    const { name, description, categoryId, price, imageId } = body;
+    const category = this.categoryRepository.findOne({
+      where: {
+        id: categoryId as number,
+      },
+    });
+    if (!category)
       throw new HttpException(
         this.medicineError.notFoundCategory(),
         HttpStatus.NOT_FOUND,
       );
+    if (imageId) {
+      const image = this.mediaRepository.findOne({
+        where: {
+          id: imageId as number,
+        },
+      });
+      if (!image)
+        throw new HttpException(
+          this.medicineError.notFoundCategory(),
+          HttpStatus.NOT_FOUND,
+        );
+    }
 
     //* creating for medicine table
     const medicine = new Medicine();
     medicine.description = description;
     medicine.name = name;
-    medicine.category = categoryId;
+    medicine.category = categoryId as Category;
+    medicine.image = imageId as Media;
     medicine.supplier = user.supplierId as Supplier;
 
     //* creating for supplier medicine table
@@ -87,6 +107,7 @@ export class MedicineSupplierService {
       relations: {
         medicine: {
           category: true,
+          image: true,
         },
       },
       skip,
@@ -106,6 +127,7 @@ export class MedicineSupplierService {
       relations: {
         medicine: {
           category: true,
+          image: true,
         },
       },
       select: {

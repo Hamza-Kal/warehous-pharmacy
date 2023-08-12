@@ -19,8 +19,6 @@ import { join } from 'path';
     }),
     ...TypeOrmModule,
     ...Modules,
-    AdminModule,
-    MediaModule,
   ],
   controllers: [],
   providers: [

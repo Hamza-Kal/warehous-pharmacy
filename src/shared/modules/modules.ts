@@ -41,6 +41,7 @@ import { InventoryReportMedicine } from 'src/report medicine/entities/report-med
 import { ReportMedicineModule } from 'src/report medicine/report-medicine.module';
 import { MediaModule } from 'src/media/media.module';
 import { Media } from 'src/media/entities/media.entity';
+import { AdminModule } from 'src/admin/admin.module';
 
 export const Modules = [
   WarehouseModule,
@@ -53,7 +54,8 @@ export const Modules = [
   OrderModule,
   ReturnOrderModule,
   ReportMedicineModule,
-  MediaModule,
+  AdminModule,
+  // MediaModule,
 ];
 
 export const entities = [

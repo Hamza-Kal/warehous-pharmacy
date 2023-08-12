@@ -11,12 +11,12 @@ import { Media } from './entities/media.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Media]),
-    MulterModule.registerAsync({
-      useFactory: () => ({
-        storage,
-      }),
-    }),
-    UserModule,
+    // MulterModule.registerAsync({
+    //   useFactory: () => ({
+    //     storage,
+    //   }),
+    // }),
+    // UserModule,
   ],
   controllers: [MediaController],
   providers: [MediaService],

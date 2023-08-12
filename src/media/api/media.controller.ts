@@ -19,7 +19,7 @@ import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { Role } from 'src/shared/enums/roles';
 
 @AuthenticatedController({
-  controller: '/upload',
+  controller: '/uploads',
 })
 export class MediaController {
   constructor(private mediaService: MediaService) {}
@@ -27,18 +27,18 @@ export class MediaController {
   @AuthorizedApi({
     api: Api.DELETE,
     role: [Role.SUPPLIER, Role.ADMIN],
-    url: '',
+    url: '/remove',
   })
-  removeImage(@Param() param: IParams) {
-    return this.mediaService.removeImage(+param.id);
+  removeImage(@Body() body: { imageId: number }) {
+    return this.mediaService.removeImage(body.imageId);
   }
 
   @AuthorizedApi({
     api: Api.POST,
     role: [Role.SUPPLIER, Role.ADMIN],
-    url: '/medicine/:id',
+    url: '',
   })
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('image'))
   uploadFile(
     @UploadedFile(
       new ParseFilePipeBuilder()

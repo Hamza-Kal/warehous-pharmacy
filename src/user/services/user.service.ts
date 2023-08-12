@@ -14,6 +14,7 @@ import { IsStrongPassword } from 'class-validator';
 
 import { IParams } from 'src/shared/interface/params.interface';
 import { where } from 'sequelize';
+import { GetAllGuestsDto } from '../dtos/response/get-all-guests.dto';
 
 @Injectable()
 export class UserService {
@@ -23,10 +24,13 @@ export class UserService {
   ) {}
 
   async getAllGuests() {
-    return this.userRepository.find({
+    const users = await this.userRepository.find({
       where: { role: Role.GUEST, completedAccount: true },
-      select: { email: true, id: true },
+      select: { email: true, id: true, assignedRole: true },
     });
+    return {
+      data: users.map((user: User) => new GetAllGuestsDto({ user }).toObject()),
+    };
   }
 
   async completeInfo(id: number) {

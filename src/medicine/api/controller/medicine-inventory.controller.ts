@@ -28,7 +28,6 @@ export class MedicineInventoryController {
   })
   async findAll(@Query() query: Pagination, @CurrUser() user: IUser) {
     const { pagination, criteria } = paginationParser(query);
-
     return await this.inventoryMedicineService.findAll(
       { pagination, criteria },
       user,

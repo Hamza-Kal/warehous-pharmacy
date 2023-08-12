@@ -1,22 +1,9 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Patch,
-  Param,
-  Body,
-  ParseIntPipe,
-} from '@nestjs/common';
-import { CreateUserDto } from '../dtos/create-user.dto';
+import { Param } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { Role } from 'src/shared/enums/roles';
-import { UpdateUserDto } from '../dtos/update-user.dto';
 import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
 import { Api } from 'src/shared/enums/API';
 import { IParams } from 'src/shared/interface/params.interface';
-import { Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
 import { AuthenticatedController } from 'src/shared/decorators/authenticated.controller.decorator';
 
 @AuthenticatedController({

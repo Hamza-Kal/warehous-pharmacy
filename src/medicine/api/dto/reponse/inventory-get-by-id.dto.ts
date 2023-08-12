@@ -1,12 +1,4 @@
-import { th } from '@faker-js/faker';
-import {
-  InventoryMedicine,
-  SupplierMedicineDetails,
-  WarehouseMedicine,
-} from 'src/medicine/entities/medicine-role.entities';
-import { MedicineDetails } from 'src/medicine/entities/medicine.entities';
-import { OrderStatus, WarehouseOrder } from 'src/order/entities/order.entities';
-
+import { InventoryMedicine } from 'src/medicine/entities/medicine-role.entities';
 export class GetByIdInventoryMedicines {
   id: number;
   name: string;
@@ -18,12 +10,14 @@ export class GetByIdInventoryMedicines {
     quantity: number;
     id: number;
   }[];
+  imageUrl: string | null;
   constructor({ medicine }: { medicine: InventoryMedicine }) {
     this.id = medicine.id;
     this.name = medicine.medicine.name;
     this.category = medicine.medicine.category.category;
     this.quantity = medicine.quantity;
     this.price = medicine.medicine.warehouseMedicine.price;
+    this.imageUrl = medicine.medicine?.image?.url;
     const batch: {
       expireDate: Date;
       quantity: number;
@@ -46,6 +40,7 @@ export class GetByIdInventoryMedicines {
     category: string;
     quantity: number;
     price: number;
+    imageUrl: string | null;
     batch: {
       expireDate: Date;
       quantity: number;
@@ -59,6 +54,7 @@ export class GetByIdInventoryMedicines {
       quantity: this.quantity,
       price: this.price,
       batch: this.batch,
+      imageUrl: this.imageUrl,
     };
   }
 }

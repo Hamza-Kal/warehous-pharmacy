@@ -8,18 +8,9 @@ import {
 import { Not, Repository } from 'typeorm';
 
 import { MedicineError } from './medicine-error.service';
-import { CreateMedicine } from '../api/dto/create-medicine.dto';
 import { IUser } from 'src/shared/interface/user.interface';
-import { Supplier } from 'src/supplier/entities/supplier.entity';
-import { CreateMedicineBrew } from '../api/dto/create-medicine-brew.dto';
-import { GetByIdMedicineSupplier } from '../api/response/get-by-id-medicine-supplier.dto';
 import { IParams } from 'src/shared/interface/params.interface';
-import { GetAllMedicinesSupplier } from '../api/response/get-all-medicine-supplier.dto copy';
-import {
-  InventoryMedicine,
-  SupplierMedicine,
-  SupplierMedicineDetails,
-} from '../entities/medicine-role.entities';
+import { InventoryMedicine } from '../entities/medicine-role.entities';
 import { GetByCriteriaInventoryMedicines } from '../api/dto/reponse/inventory-get-by-criteria.dto';
 import { GetByIdInventoryMedicines } from '../api/dto/reponse/inventory-get-by-id.dto';
 
@@ -70,6 +61,7 @@ export class MedicineInventoryService {
       relations: {
         medicine: {
           category: true,
+          image: true,
         },
       },
       skip,
@@ -98,6 +90,7 @@ export class MedicineInventoryService {
         medicine: {
           warehouseMedicine: true,
           category: true,
+          image: true,
         },
         medicineDetails: {
           medicineDetails: true,

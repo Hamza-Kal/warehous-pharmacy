@@ -67,7 +67,9 @@ export class MedicineService {
             supplier: { id: supplierId },
           },
           relations: {
-            medicine: true,
+            medicine: {
+              image: true,
+            },
           },
           select: {
             id: true,

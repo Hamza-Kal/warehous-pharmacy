@@ -25,8 +25,17 @@ export class UserService {
 
   async getAllGuests() {
     const users = await this.userRepository.find({
-      where: { role: Role.GUEST, completedAccount: true },
       select: { email: true, id: true, assignedRole: true },
+      where: {
+        completedAccount: true,
+        role: Role.GUEST,
+      },
+      relations: {
+        inventory: true,
+        warehouse: true,
+        supplier: true,
+        pharmacy: true,
+      },
     });
     return {
       data: users.map((user: User) => new GetAllGuestsDto({ user }).toObject()),

@@ -1,6 +1,6 @@
 import { diskStorage } from 'multer';
 import { config } from 'dotenv';
-import { fi } from '@faker-js/faker';
+
 config();
 export const storage = diskStorage({
   destination: function (req, file, cb) {

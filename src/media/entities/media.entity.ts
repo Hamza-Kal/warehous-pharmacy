@@ -1,3 +1,4 @@
+import { Medicine } from 'src/medicine/entities/medicine.entities';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -5,6 +6,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -48,4 +50,7 @@ export class Media {
   @ManyToOne(() => User, (user) => user.image, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: User;
+
+  @OneToOne(() => Medicine, (medicine) => medicine.image)
+  medicine: Medicine;
 }

@@ -55,7 +55,7 @@ export const Modules = [
   ReturnOrderModule,
   ReportMedicineModule,
   AdminModule,
-  // MediaModule,
+  MediaModule,
 ];
 
 export const entities = [

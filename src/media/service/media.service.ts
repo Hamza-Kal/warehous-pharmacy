@@ -13,7 +13,6 @@ import { Media } from '../entities/media.entity';
 import { Repository } from 'typeorm';
 import { IUser } from 'src/shared/interface/user.interface';
 import { NotFoundError } from 'rxjs';
-import e from 'express';
 
 config();
 

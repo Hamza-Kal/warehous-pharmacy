@@ -27,14 +27,18 @@ export class SupplierService {
     pagination?: Pagination;
     criteria?: FindOptionsWhere<Supplier> | FindOptionsWhere<Supplier>[];
   }) {
-    const { skip, limit } = pagination;
+    let limit, skip;
+    if (pagination) {
+      limit = pagination.limit;
+      skip = pagination.skip;
+    }
     const suppliers = await this.supplierRepository.find({
       where: {
         ...criteria,
       },
       select: ['id', 'location', 'name', 'phoneNumber'],
-      take: limit,
       skip,
+      take: limit,
     });
     const totalRecords = await this.supplierRepository.count({
       where: {

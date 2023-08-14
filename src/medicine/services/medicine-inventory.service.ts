@@ -56,6 +56,9 @@ export class MedicineInventoryService {
           category: {
             category: true,
           },
+          image: {
+            id: true,
+          },
         },
       },
       relations: {

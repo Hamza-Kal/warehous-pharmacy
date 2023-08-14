@@ -26,6 +26,7 @@ export class MediaService {
     const url = new URL(origin);
     url.port = String(process.env.PORT);
     url.pathname = `${process.env.MEDIA_FOLDER}/${fileName}`;
+    console.log(url.toString());
     return url.toString();
   }
 

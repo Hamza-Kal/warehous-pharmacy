@@ -33,6 +33,10 @@ export class MedicineError {
     code: errorsCode.notFoundPharmacy,
     message: 'pharmacy not found',
   };
+  private notFoundImageError = {
+    code: errorsCode.notFoundImage,
+    message: 'Image not found',
+  };
 
   notFoundSupplier() {
     return this.notFoundSupplierError;
@@ -56,6 +60,9 @@ export class MedicineError {
 
   notFoundCategory() {
     return this.notFoundCategoryError;
+  }
+  notFoundImage() {
+    return this.notFoundImageError;
   }
 
   notEnoughMedicine() {

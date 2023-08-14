@@ -51,14 +51,15 @@ export class MedicineSupplierService {
         HttpStatus.NOT_FOUND,
       );
     if (imageId) {
-      const image = this.mediaRepository.findOne({
+      const image = await this.mediaRepository.findOne({
         where: {
           id: imageId as number,
         },
       });
+      console.log('image', image);
       if (!image)
         throw new HttpException(
-          this.medicineError.notFoundCategory(),
+          this.medicineError.notFoundImage(),
           HttpStatus.NOT_FOUND,
         );
     }

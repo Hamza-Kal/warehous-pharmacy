@@ -186,6 +186,7 @@ export class WarehouseMedicineService {
         warehouse: {
           id: user.warehouseId as number,
         },
+        id,
         medicineDetails: true,
       },
       relations: {
@@ -196,9 +197,10 @@ export class WarehouseMedicineService {
         medicineDetails: true,
       },
     });
+    console.log(medicines);
     if (!medicines.length) {
       throw new HttpException(
-        this.medicineError.notEnoughMedicine(),
+        this.medicineError.notFoundMedicine(),
         HttpStatus.NOT_FOUND,
       );
     }
@@ -279,6 +281,9 @@ export class WarehouseMedicineService {
     const inventory = await this.inventoryRepository.findOne({
       where: {
         id: inventoryId,
+        warehouse: {
+          id: warehouseId as number,
+        },
       },
     });
 

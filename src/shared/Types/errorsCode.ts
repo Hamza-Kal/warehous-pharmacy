@@ -10,4 +10,5 @@ export const errorsCode = {
   notFoundReportMedicine: 110000,
   notFoundPharmacy: 120000,
   notFoundWarehouse: 120000,
+  notFoundImage: 130000,
 };

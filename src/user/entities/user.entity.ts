@@ -11,6 +11,7 @@ import {
   BeforeInsert,
   BeforeRemove,
   Column,
+  DeleteDateColumn,
   Entity,
   OneToMany,
   OneToOne,
@@ -61,6 +62,9 @@ export class User {
     default: false,
   })
   completedAccount?: boolean;
+
+  @DeleteDateColumn()
+  deleted_at: Date;
 
   @OneToOne(() => Pharmacy, (pharamcy) => pharamcy.user)
   pharmacy: Pharmacy;

@@ -59,6 +59,14 @@ export class WarehouseMedicineService {
 
   async findAllSuppliers({ criteria, pagination }, supplierId: number) {
     const { skip, limit } = pagination;
+    const totalRecords = await this.supplierMedicineRepository.count({
+      where: {
+        ...criteria,
+        supplier: {
+          id: supplierId,
+        },
+      },
+    });
     const medicines = await this.supplierMedicineRepository.find({
       where: {
         ...criteria,
@@ -76,6 +84,7 @@ export class WarehouseMedicineService {
     });
 
     return {
+      totalRecords,
       data: medicines.map((medicine) =>
         new WarehouseGetSupplierMedicines({
           supplierMedicine: medicine,
@@ -197,7 +206,7 @@ export class WarehouseMedicineService {
         medicineDetails: true,
       },
     });
-    console.log(medicines);
+
     if (!medicines.length) {
       throw new HttpException(
         this.medicineError.notFoundMedicine(),
@@ -275,7 +284,7 @@ export class WarehouseMedicineService {
     owner: IUser,
   ) {
     const { warehouseId } = owner;
-    const { batches } = body;
+    const { batch } = body;
     const inventoryId = id;
 
     const inventory = await this.inventoryRepository.findOne({
@@ -293,17 +302,11 @@ export class WarehouseMedicineService {
         HttpStatus.NOT_FOUND,
       );
     }
-    const batchQuantity = new Map<number, number>();
-    const batchIds = [];
-    for (const batch of batches) {
-      batchIds.push(batch.batchId);
-      batchQuantity.set(batch.batchId, batch.quantity);
-    }
 
     const warehouseMedicineDetails =
-      await this.warehouseMedicineDetailsRepository.find({
+      await this.warehouseMedicineDetailsRepository.findOne({
         where: {
-          id: In(batchIds),
+          id: batch.batchId,
           medicine: {
             warehouse: {
               id: owner.warehouseId as number,
@@ -330,69 +333,56 @@ export class WarehouseMedicineService {
         },
       });
 
-    if (warehouseMedicineDetails.length !== batchIds.length)
+    if (!warehouseMedicineDetails)
       throw new HttpException(
         this.medicineError.notFoundMedicine(),
         HttpStatus.NOT_FOUND,
       );
 
     const inventoryMedicines = [];
-    let wholeQuantity = 0;
+
     const inventoryMedicinesDetails: {
       quantity: number;
       medicineDetails: number;
     }[] = [];
-    const medicineId = warehouseMedicineDetails[0].medicine.id;
-    for (const medicineDetail of warehouseMedicineDetails) {
-      if (medicineDetail.medicine.id !== medicineId) {
-        throw new HttpException(
-          this.medicineError.notFoundMedicine(),
-          HttpStatus.NOT_FOUND,
-        );
-      }
+    const medicineId = warehouseMedicineDetails.medicine.id;
 
-      const movedQuantity = batchQuantity.get(medicineDetail.id);
-      if (medicineDetail.quantity < movedQuantity) {
-        throw new HttpException(
-          this.medicineError.notEnoughMedicine(),
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-      wholeQuantity += movedQuantity;
-      inventoryMedicinesDetails.push({
-        quantity: movedQuantity,
-        medicineDetails: medicineDetail.medicineDetails.id,
-      });
+    const movedQuantity = batch.quantity;
+    if (warehouseMedicineDetails.quantity < movedQuantity) {
+      throw new HttpException(
+        this.medicineError.notEnoughMedicine(),
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const inventoryMedicine = await this.deliverService.deliverMedicine(
       RepositoryEnum.InventoryMedicine,
       inventoryId,
       {
-        quantity: wholeQuantity,
-        medicineId: warehouseMedicineDetails[0].medicine.medicine.id,
+        quantity: batch.quantity,
+        medicineId: warehouseMedicineDetails.medicine.medicine.id,
       },
     );
-    for (const inventoryMedicineDetail of inventoryMedicinesDetails) {
-      // { quantity: 99, medicineDetails: MedicineDetails { id: 32 } }
-      await this.deliverService.deliverMedicineDetails(
-        RepositoryEnum.InventoryMedicineDetails,
-        {
-          medicineDetails: inventoryMedicineDetail.medicineDetails,
-          medicineId: inventoryMedicine.id,
-          quantity: inventoryMedicineDetail.quantity,
-        },
-      );
 
-      await this.deliverService.removeMedicineDetails(
-        RepositoryEnum.WarehouseMedicineDetails,
-        {
-          medicineDetails: inventoryMedicineDetail.medicineDetails,
-          medicineId: medicineId,
-          quantity: inventoryMedicineDetail.quantity,
-        },
-      );
-    }
+    // { quantity: 99, medicineDetails: MedicineDetails { id: 32 } }
+    await this.deliverService.deliverMedicineDetails(
+      RepositoryEnum.InventoryMedicineDetails,
+      {
+        medicineDetails: warehouseMedicineDetails.medicineDetails.id,
+        medicineId: inventoryMedicine.id,
+        quantity: batch.quantity,
+      },
+    );
+
+    await this.deliverService.removeMedicineDetails(
+      RepositoryEnum.WarehouseMedicineDetails,
+      {
+        medicineDetails: warehouseMedicineDetails.medicineDetails.id,
+        medicineId: medicineId,
+        quantity: batch.quantity,
+      },
+    );
+
     return;
   }
 }

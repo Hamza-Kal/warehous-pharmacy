@@ -58,6 +58,9 @@ export class Warehouse {
   @OneToMany(
     () => WarehouseOrder,
     (warehouseOrders) => warehouseOrders.warehouse,
+    {
+      onDelete: 'CASCADE',
+    },
   )
   warehouseOrder: WarehouseOrder[];
 

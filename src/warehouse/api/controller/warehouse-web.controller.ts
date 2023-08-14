@@ -9,6 +9,7 @@ import { Role } from '../../../shared/enums/roles';
 import { IUser } from 'src/shared/interface/user.interface';
 import { WarehouseService } from 'src/warehouse/services/warehouse.service';
 import { IParams } from 'src/shared/interface/params.interface';
+import { UpdateWareHouseDto } from '../dto/update-warehouse.dto';
 
 @AuthenticatedController({
   controller: 'warehouse',
@@ -18,15 +19,6 @@ export class WarehouseController {
     private warehouseWebService: WarehouseWebService,
     private warehouseService: WarehouseService,
   ) {}
-
-  @AuthorizedApi({
-    api: Api.GET,
-    role: [Role.WAREHOUSE],
-    url: '/inventories',
-  })
-  async getAllInventories(@CurrUser() user: IUser) {
-    return await this.warehouseService.getAllInventories(user);
-  }
 
   @AuthorizedApi({
     api: Api.POST,
@@ -39,6 +31,24 @@ export class WarehouseController {
     @CurrUser() user: IUser,
   ) {
     return this.warehouseWebService.createWarehouse(body, user);
+  }
+
+  @AuthorizedApi({
+    api: Api.PATCH,
+    url: '',
+    role: [Role.WAREHOUSE],
+  })
+  async update(@Body() body: UpdateWareHouseDto, @CurrUser() user: IUser) {
+    return this.warehouseWebService.update(body, user);
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    role: [Role.WAREHOUSE],
+    url: '/inventories',
+  })
+  async getAllInventories(@CurrUser() user: IUser) {
+    return await this.warehouseService.getAllInventories(user);
   }
 
   @AuthorizedApi({

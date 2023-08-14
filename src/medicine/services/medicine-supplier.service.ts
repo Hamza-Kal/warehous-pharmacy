@@ -103,21 +103,23 @@ export class MedicineSupplierService {
       .leftJoinAndSelect('supplier_medicine.supplier', 'supplier')
       .leftJoinAndSelect('supplier_medicine.medicine', 'medicine')
       .leftJoinAndSelect('medicine.category', 'category')
-      .leftJoinAndSelect('medicine.image', 'image')
-      .where('supplier.id = :id', { id: supplierId })
+      .where('supplier.id = :id', { id: supplierId as number })
+      // .leftJoinAndSelect('medicine.image', 'image')
       .select([
+        'supplier.id',
         'supplier_medicine.id',
         'supplier_medicine.price',
         'supplier_medicine.quantity',
         'medicine.id',
         'medicine.name',
         'category.category',
-        'image.id',
-        'image.url',
+        // 'image.id',
+        // 'image.url',
       ])
       .take(limit)
       .skip(skip)
       .getMany();
+
     return {
       totalRecords,
       data: medicines.map((medicine) =>

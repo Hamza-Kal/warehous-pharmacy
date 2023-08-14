@@ -24,6 +24,8 @@ export class AuthService {
     }
     const { password, ...result } = user;
 
+    console.log(user);
+
     return result;
   }
 
@@ -64,6 +66,9 @@ export class AuthService {
       supplierId: supplier ? supplier.id : null,
       warehouseId: warehouse ? warehouse.id : null,
     };
+
+    console.log('fafsfsfasf', user);
+    console.log(supplier);
     const accessToken = this.jwtService.sign(payload);
     return {
       accessToken,

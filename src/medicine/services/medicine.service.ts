@@ -40,8 +40,14 @@ export class MedicineService {
     private inventoryMedicineDetailsRepository: Repository<InventoryMedicineDetails>,
     @InjectRepository(SupplierMedicineDetails)
     private supplierMedicineDetailsRepository: Repository<SupplierMedicineDetails>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
     private medicineError: MedicineError,
   ) {}
+
+  async findAllCategories() {
+    return await this.categoryRepository.find({ where: {} });
+  }
 
   async getMedicines(
     medicineIds: number[],

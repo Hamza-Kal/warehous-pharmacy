@@ -68,8 +68,4 @@ export class MedicineError {
   notEnoughMedicine() {
     return this.notEnoughMedicineError;
   }
-
-  notFoundImage() {
-    return this.notFoundImageError;
-  }
 }

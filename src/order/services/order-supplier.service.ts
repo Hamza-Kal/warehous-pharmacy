@@ -116,7 +116,7 @@ export class SupplierOrderService {
       .leftJoinAndSelect(
         'medicine.medicineDetails',
         'medicineDetails',
-        'medicineDetails.endDate <= :date',
+        'medicineDetails.endDate >= :date',
         { date },
       )
       .leftJoinAndSelect(

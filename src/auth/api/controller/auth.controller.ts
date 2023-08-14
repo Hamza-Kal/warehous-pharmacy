@@ -15,6 +15,7 @@ import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { IUser } from 'src/shared/interface/user.interface';
 import { WarehouseAuthService } from 'src/auth/services/warehouse.auth.service';
 import { InventoryAuthService } from 'src/auth/services/inventory.auth.service';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {

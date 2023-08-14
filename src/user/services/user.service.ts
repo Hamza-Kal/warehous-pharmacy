@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -6,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { Role } from 'src/shared/enums/roles';
 
@@ -20,6 +21,19 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
+  async findActive() {
+    const users = await this.userRepository.find({
+      relations: {
+        inventory: true,
+        warehouse: true,
+        supplier: true,
+        pharmacy: true,
+      },
+    });
+    return {
+      data: users.map((user) => new GetAllGuestsDto({ user }).toObject()),
+    };
+  }
   async getAllGuests() {
     const users = await this.userRepository.find({
       select: { email: true, id: true, assignedRole: true, fullName: true },
@@ -90,5 +104,44 @@ export class UserService {
       throw new NotFoundException('there is no user with the given id');
     user.role = role;
     return this.userRepository.save(user);
+  }
+  async banUser(id: number) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!user) throw new NotFoundException('user not found');
+    const bannedUser = await this.userRepository.softRemove(user);
+    return {
+      data: new GetAllGuestsDto({ user: bannedUser }).toObject(),
+    };
+  }
+  async recoverUser(id: number) {
+    const user = await this.userRepository.findOne({
+      withDeleted: true,
+      where: {
+        id,
+      },
+    });
+    if (!user) throw new NotFoundException('user not found');
+    if (user.deleted_at === null)
+      throw new BadRequestException('this user is not banned');
+    const restoredUser = await this.userRepository.recover(user);
+    return {
+      data: new GetAllGuestsDto({ user: restoredUser }).toObject(),
+    };
+  }
+
+  async getBannedUsers() {
+    const users = await this.userRepository.find({
+      withDeleted: true,
+      where: {
+        deleted_at: Not(IsNull()),
+      },
+    });
+    return {
+      data: users.map((user) => new GetAllGuestsDto({ user }).toObject()),
+    };
   }
 }

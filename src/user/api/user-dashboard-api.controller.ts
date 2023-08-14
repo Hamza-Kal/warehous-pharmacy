@@ -29,4 +29,40 @@ export class UserDashboardController {
   async getAllGuests() {
     return this.userService.getAllGuests();
   }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: 'active',
+    role: [Role.ADMIN],
+  })
+  async getAllUsers() {
+    return this.userService.findActive();
+  }
+
+  @AuthorizedApi({
+    api: Api.PATCH,
+    url: 'ban/:id',
+    role: [Role.ADMIN],
+  })
+  async getBannedUsers(@Param() params: IParams) {
+    return this.userService.banUser(+params.id);
+  }
+
+  @AuthorizedApi({
+    api: Api.PATCH,
+    url: 'recover/:id',
+    role: [Role.ADMIN],
+  })
+  async recoverUser(@Param() params: IParams) {
+    return this.userService.recoverUser(+params.id);
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: 'banned',
+    role: [Role.ADMIN],
+  })
+  async getBanned() {
+    return this.userService.getBannedUsers();
+  }
 }

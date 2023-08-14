@@ -35,7 +35,7 @@ export class MedicineError {
   };
   private notFoundImageError = {
     code: errorsCode.notFoundImage,
-    message: 'image nout found',
+    message: 'Image not found',
   };
 
   notFoundSupplier() {
@@ -60,6 +60,9 @@ export class MedicineError {
 
   notFoundCategory() {
     return this.notFoundCategoryError;
+  }
+  notFoundImage() {
+    return this.notFoundImageError;
   }
 
   notEnoughMedicine() {

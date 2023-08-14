@@ -56,7 +56,7 @@ export class MedicineSupplierService {
           id: imageId as number,
         },
       });
-      console.log('image', image);
+
       if (!image)
         throw new HttpException(
           this.medicineError.notFoundImage(),

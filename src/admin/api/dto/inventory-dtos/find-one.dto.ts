@@ -5,15 +5,15 @@ export class AdminGetByIdInventory {
   name: string;
   location: string;
   phoneNumber: string;
-  managerEmail: string;
-  managerFullName: string;
+  userEmail: string;
+  userFullName: string;
   constructor({ inventory }: { inventory: Inventory }) {
     this.id = inventory.id;
     this.name = inventory.name;
     this.location = inventory.location;
     this.phoneNumber = inventory.phoneNumber;
-    this.managerEmail = inventory.manager.email;
-    this.managerFullName = inventory.manager.fullName;
+    this.userEmail = inventory.manager.email;
+    this.userFullName = inventory.manager.fullName;
   }
 
   toObject(): {
@@ -21,16 +21,16 @@ export class AdminGetByIdInventory {
     name: string;
     location: string;
     phoneNumber: string;
-    managerEmail: string;
-    managerFullName: string;
+    userEmail: string;
+    userFullName: string;
   } {
     return {
       id: this.id,
       name: this.name,
       location: this.location,
       phoneNumber: this.phoneNumber,
-      managerEmail: this.managerEmail,
-      managerFullName: this.managerFullName,
+      userEmail: this.userEmail,
+      userFullName: this.userFullName,
     };
   }
 }

@@ -27,6 +27,7 @@ import {
 } from 'src/deliver/service/deliver.service';
 import { IParams } from 'src/shared/interface/params.interface';
 import { WarehouseMedicines } from '../api/dto/reponse/warehouse-medicines-get-by-criteria.dto';
+import { sk } from '@faker-js/faker';
 
 @Injectable()
 export class WarehouseMedicineService {
@@ -150,22 +151,26 @@ export class WarehouseMedicineService {
         },
       },
     });
-    const medicines = await this.warehouseMedicineRepository.find({
-      where: {
-        ...criteria,
-        warehouse: {
-          id: user.warehouseId,
-        },
-      },
-      relations: {
-        medicine: {
-          category: true,
-        },
-      },
-      skip,
-      take: limit,
-    });
-
+    const medicines = await this.warehouseMedicineRepository
+      .createQueryBuilder('warehouse_medicine')
+      .leftJoinAndSelect('warehouse_medicine.warehouse', 'warehouse')
+      .leftJoinAndSelect('warehouse_medicine.medicine', 'medicine')
+      .leftJoinAndSelect('medicine.image', 'image')
+      .leftJoinAndSelect('medicine.category', 'category')
+      .where('warehouse.id = :id', { id: user.warehouseId })
+      .select([
+        'warehouse_medicine.id',
+        'warehouse_medicine.quantity',
+        'warehouse_medicine.price',
+        'medicine.id',
+        'category.category',
+        'medicine.name',
+        'image.id',
+        'image.url',
+      ])
+      .take(limit)
+      .skip(skip)
+      .getMany();
     return {
       totalRecords,
       data: medicines.map((medicine) =>
@@ -181,18 +186,21 @@ export class WarehouseMedicineService {
         warehouse: {
           id: user.warehouseId as number,
         },
+        id,
         medicineDetails: true,
       },
       relations: {
         medicine: {
           category: true,
+          image: true,
         },
         medicineDetails: true,
       },
     });
+    console.log(medicines);
     if (!medicines.length) {
       throw new HttpException(
-        this.medicineError.notEnoughMedicine(),
+        this.medicineError.notFoundMedicine(),
         HttpStatus.NOT_FOUND,
       );
     }
@@ -273,6 +281,9 @@ export class WarehouseMedicineService {
     const inventory = await this.inventoryRepository.findOne({
       where: {
         id: inventoryId,
+        warehouse: {
+          id: warehouseId as number,
+        },
       },
     });
 

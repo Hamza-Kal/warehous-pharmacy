@@ -97,21 +97,26 @@ export class MedicineSupplierService {
         },
       },
     });
-    const medicines = await this.supplierMedicineRepository.find({
-      where: {
-        ...criteria,
-        supplier: {
-          id: supplierId,
-        },
-      },
-      relations: {
-        medicine: {
-          category: true,
-        },
-      },
-      skip,
-      take: limit,
-    });
+    const medicines = await this.supplierMedicineRepository
+      .createQueryBuilder('supplier_medicine')
+      .leftJoinAndSelect('supplier_medicine.supplier', 'supplier')
+      .leftJoinAndSelect('supplier_medicine.medicine', 'medicine')
+      .leftJoinAndSelect('medicine.category', 'category')
+      .leftJoinAndSelect('medicine.image', 'image')
+      .where('supplier.id = :id', { id: supplierId })
+      .select([
+        'supplier_medicine.id',
+        'supplier_medicine.price',
+        'supplier_medicine.quantity',
+        'medicine.id',
+        'medicine.name',
+        'category.category',
+        'image.id',
+        'image.url',
+      ])
+      .take(limit)
+      .skip(skip)
+      .getMany();
     return {
       totalRecords,
       data: medicines.map((medicine) =>
@@ -126,10 +131,15 @@ export class MedicineSupplierService {
       relations: {
         medicine: {
           category: true,
+          image: true,
         },
       },
       select: {
-        medicine: { name: true, category: { category: true } },
+        medicine: {
+          name: true,
+          category: { category: true },
+          image: { id: true, url: true },
+        },
         id: true,
         price: true,
         quantity: true,

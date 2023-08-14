@@ -41,31 +41,25 @@ export class MedicineInventoryService {
         },
       },
     });
-    const medicines = await this.inventoryMedicineRepository.find({
-      where: {
-        ...criteria,
-        inventory: {
-          id: user.warehouseId,
-        },
-      },
-      select: {
-        id: true,
-        quantity: true,
-        medicine: {
-          name: true,
-          category: {
-            category: true,
-          },
-        },
-      },
-      relations: {
-        medicine: {
-          category: true,
-        },
-      },
-      skip,
-      take: limit,
-    });
+    const medicines = await this.inventoryMedicineRepository
+      .createQueryBuilder('inventory_medicine')
+      .leftJoinAndSelect('inventory_medicine.inventory', 'inventory')
+      .leftJoinAndSelect('inventory_medicine.medicine', 'medicine')
+      .leftJoinAndSelect('medicine.category', 'category')
+      .leftJoinAndSelect('medicine.image', 'image')
+      .where('inventory.id = :id', { id: user.inventoryId })
+      .select([
+        'inventory_medicine.id',
+        'inventory_medicine.quantity',
+        'medicine.id',
+        'medicine.name',
+        'category.category',
+        'image.id',
+        'image.url',
+      ])
+      .take(limit)
+      .skip(skip)
+      .getMany();
 
     return {
       totalRecords,
@@ -89,6 +83,7 @@ export class MedicineInventoryService {
         medicine: {
           warehouseMedicine: true,
           category: true,
+          image: true,
         },
         medicineDetails: {
           medicineDetails: true,
@@ -103,6 +98,10 @@ export class MedicineInventoryService {
           },
           category: {
             category: true,
+          },
+          image: {
+            id: true,
+            url: true,
           },
         },
         quantity: true,

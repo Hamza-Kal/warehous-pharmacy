@@ -6,14 +6,11 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
-import { Repository, StreamDescription } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { Role } from 'src/shared/enums/roles';
-import passport, { use } from 'passport';
-import { IsStrongPassword } from 'class-validator';
 
 import { IParams } from 'src/shared/interface/params.interface';
-import { where } from 'sequelize';
 import { GetAllGuestsDto } from '../dtos/response/get-all-guests.dto';
 
 @Injectable()
@@ -25,7 +22,7 @@ export class UserService {
 
   async getAllGuests() {
     const users = await this.userRepository.find({
-      select: { email: true, id: true, assignedRole: true },
+      select: { email: true, id: true, assignedRole: true, fullName: true },
       where: {
         completedAccount: true,
         role: Role.GUEST,

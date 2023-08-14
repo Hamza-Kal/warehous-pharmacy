@@ -22,11 +22,8 @@ export class MediaService {
   ) {}
 
   constructUrlForFile(fileName: string) {
-    const origin = `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}`;
-    const url = new URL(origin);
-    url.port = String(process.env.PORT);
-    url.pathname = `${process.env.MEDIA_FOLDER}/${fileName}`;
-    return url.toString();
+    const url = `${process.env.UPLOADS_URL}/${process.env.MEDIA_FOLDER}/${fileName}`;
+    return url;
   }
 
   async uploadImage(file: Express.Multer.File, user: IUser) {
@@ -45,9 +42,7 @@ export class MediaService {
     });
     image = await this.mediaRepository.save(image);
     return {
-      data: {
-        id: image.id,
-      },
+      data: image,
     };
   }
   async removeImage(imageId: number) {

@@ -5,15 +5,15 @@ export class AdminGetByIdWarehouse {
   name: string;
   location: string;
   phoneNumber: string;
-  ownerFullName: string;
-  ownerEmail: string;
+  userFullName: string;
+  userEmail: string;
   constructor({ warehouse }: { warehouse: Warehouse }) {
     this.id = warehouse.id;
     this.name = warehouse.name;
     this.location = warehouse.location;
     this.phoneNumber = warehouse.phoneNumber;
-    this.ownerEmail = warehouse.owner.email;
-    this.ownerFullName = warehouse.owner.fullName;
+    this.userEmail = warehouse.owner.email;
+    this.userFullName = warehouse.owner.fullName;
   }
 
   toObject(): {
@@ -21,16 +21,16 @@ export class AdminGetByIdWarehouse {
     name: string;
     location: string;
     phoneNumber: string;
-    ownerFullName: string;
-    ownerEmail: string;
+    userFullName: string;
+    userEmail: string;
   } {
     return {
       id: this.id,
       name: this.name,
       location: this.location,
       phoneNumber: this.phoneNumber,
-      ownerEmail: this.ownerEmail,
-      ownerFullName: this.ownerFullName,
+      userEmail: this.userEmail,
+      userFullName: this.userFullName,
     };
   }
 }

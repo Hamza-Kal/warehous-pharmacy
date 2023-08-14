@@ -1,5 +1,4 @@
-import { Body, Param, Query } from '@nestjs/common';
-import { WarehouseMedicineService } from 'src/medicine/services/medicine-warehouse.service';
+import { Param, Query } from '@nestjs/common';
 import { AuthenticatedController } from 'src/shared/decorators/authenticated.controller.decorator';
 import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
@@ -9,11 +8,7 @@ import { IParams } from 'src/shared/interface/params.interface';
 import { IUser } from 'src/shared/interface/user.interface';
 import { paginationParser } from 'src/shared/pagination/pagination';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
-import { UpdatePriceDto } from '../dto/warehouseDto/update-medicine-price.dto';
-import { TransferToInventoryDto } from 'src/warehouse/api/dto/transfer-to-inventory';
 import { MedicineInventoryService } from 'src/medicine/services/medicine-inventory.service';
-import { query } from 'express';
-import { User } from 'src/user/entities/user.entity';
 
 @AuthenticatedController({
   controller: 'medicine/inventory',

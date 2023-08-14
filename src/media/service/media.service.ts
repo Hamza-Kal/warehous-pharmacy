@@ -42,7 +42,9 @@ export class MediaService {
     });
     image = await this.mediaRepository.save(image);
     return {
-      data: image,
+      data: {
+        id: image.id,
+      },
     };
   }
   async removeImage(imageId: number) {

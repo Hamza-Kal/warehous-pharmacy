@@ -7,6 +7,13 @@ export class GetByIdMedicineSupplier {
   price: number;
   quantity: number;
   imageUrl: string | null;
+  batches: {
+    id: number;
+    expireDate: Date;
+    quantity: number;
+  }[];
+  medicineSupplier: string;
+  medicineCategory: string;
   constructor({ supplierMedicine }: { supplierMedicine: SupplierMedicine }) {
     this.id = supplierMedicine.id;
     this.name = supplierMedicine.medicine.name;
@@ -14,6 +21,25 @@ export class GetByIdMedicineSupplier {
     this.price = supplierMedicine.price;
     this.quantity = supplierMedicine.quantity;
     this.imageUrl = supplierMedicine.medicine?.image?.url;
+    const batches: {
+      id: number;
+      expireDate: Date;
+      quantity: number;
+    }[] = [];
+    for (const {
+      id,
+      medicineDetails,
+      quantity,
+    } of supplierMedicine.medicineDetails) {
+      batches.push({
+        id,
+        quantity,
+        expireDate: medicineDetails.endDate,
+      });
+    }
+    this.batches = batches;
+    this.medicineCategory = supplierMedicine.medicine.category.category;
+    this.medicineSupplier = supplierMedicine.medicine.supplier.name;
   }
 
   toObject(): {
@@ -23,6 +49,13 @@ export class GetByIdMedicineSupplier {
     price: number;
     quantity: number;
     imageUrl: string | null;
+    batches: {
+      id: number;
+      expireDate: Date;
+      quantity: number;
+    }[];
+    medicineCategory: string;
+    medicineSupplier: string;
   } {
     return {
       id: this.id,
@@ -31,6 +64,9 @@ export class GetByIdMedicineSupplier {
       price: this.price,
       quantity: this.quantity,
       imageUrl: this.imageUrl,
+      batches: this.batches,
+      medicineCategory: this.medicineCategory,
+      medicineSupplier: this.medicineSupplier,
     };
   }
 }

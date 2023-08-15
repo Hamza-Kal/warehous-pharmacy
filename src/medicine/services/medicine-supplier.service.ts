@@ -135,6 +135,10 @@ export class MedicineSupplierService {
         medicine: {
           category: true,
           image: true,
+          supplier: true,
+        },
+        medicineDetails: {
+          medicineDetails: true,
         },
       },
       select: {
@@ -142,6 +146,9 @@ export class MedicineSupplierService {
           name: true,
           category: { category: true },
           image: { id: true, url: true },
+          supplier: {
+            name: true,
+          },
         },
         id: true,
         price: true,

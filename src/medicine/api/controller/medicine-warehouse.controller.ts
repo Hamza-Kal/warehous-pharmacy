@@ -82,6 +82,22 @@ export class MedicineWarehouseController {
   async findOne(@CurrUser() user: IUser, @Param() param: IParams) {
     return await this.warehouseMedicineService.findOne({ id: +param.id }, user);
   }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/get-inventory-distributions/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async findInventoryDistributions(
+    @CurrUser() user: IUser,
+    @Param() params: IParams,
+  ) {
+    return this.warehouseMedicineService.findInventoryDistributions(
+      +params.id,
+      user,
+    );
+  }
+
   @AuthorizedApi({
     api: Api.GET,
     url: '',

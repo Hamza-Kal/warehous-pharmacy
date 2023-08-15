@@ -28,6 +28,7 @@ import {
 import { IParams } from 'src/shared/interface/params.interface';
 import { WarehouseMedicines } from '../api/dto/reponse/warehouse-medicines-get-by-criteria.dto';
 import { sk } from '@faker-js/faker';
+import { GetInventoriesDistributionsDto } from '../api/response/get-inventories-distributions.dto';
 
 @Injectable()
 export class WarehouseMedicineService {
@@ -228,31 +229,91 @@ export class WarehouseMedicineService {
       ),
     };
   }
+
+  async findInventoryDistributions(warehouseMedicineId: number, user: IUser) {
+    const { warehouseId } = user;
+    const warehouseMedicine = await this.warehouseMedicineRepository.findOne({
+      where: {
+        id: warehouseMedicineId,
+        warehouse: {
+          id: warehouseId as number,
+        },
+      },
+      relations: {
+        medicine: true,
+      },
+    });
+    if (!warehouseMedicine)
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.NOT_FOUND,
+      );
+    const medicine = await this.medicineRepository.findOne({
+      where: {
+        id: warehouseMedicine.medicine.id,
+      },
+    });
+    if (!medicine)
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.NOT_FOUND,
+      );
+    const inventoryMedicines = await this.inventoryMedicineRepository.find({
+      where: {
+        medicine: {
+          id: medicine.id,
+        },
+        inventory: {
+          warehouse: {
+            id: warehouseId as number,
+          },
+        },
+      },
+      select: {
+        id: true,
+        quantity: true,
+        inventory: {
+          phoneNumber: true,
+          manager: {
+            id: true,
+            fullName: true,
+          },
+          name: true,
+        },
+        medicine: {
+          name: true,
+        },
+      },
+      relations: {
+        inventory: {
+          manager: true,
+        },
+        medicine: true,
+      },
+    });
+    return {
+      data: inventoryMedicines.map((inventoryMedicine) =>
+        new GetInventoriesDistributionsDto({ inventoryMedicine }).toObject(),
+      ),
+    };
+  }
   async findOne({ id }: IParams, user: IUser) {
-    const medicines = await this.warehouseMedicineRepository.find({
+    const medicine = await this.warehouseMedicineRepository.findOne({
       where: {
         warehouse: {
           id: user.warehouseId as number,
         },
         id,
-        medicineDetails: true,
       },
       relations: {
         medicine: {
           category: true,
           image: true,
+          supplier: true,
+          inventoryMedicine: true,
         },
-        medicineDetails: true,
       },
     });
-
-    if (!medicines.length) {
-      throw new HttpException(
-        this.medicineError.notFoundMedicine(),
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    const medicine = medicines[0];
     return {
       data: new WarehouseGetMedicines({
         warehouseMedicine: medicine,

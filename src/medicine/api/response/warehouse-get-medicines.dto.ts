@@ -1,8 +1,4 @@
-import {
-  SupplierMedicine,
-  WarehouseMedicine,
-} from 'src/medicine/entities/medicine-role.entities';
-import { Medicine } from 'src/medicine/entities/medicine.entities';
+import { WarehouseMedicine } from 'src/medicine/entities/medicine-role.entities';
 
 export class WarehouseGetMedicines {
   name: string;
@@ -11,6 +7,7 @@ export class WarehouseGetMedicines {
   id: number;
   quantity: number;
   imageUrl: string | null;
+  supplier: string;
   constructor({ warehouseMedicine }: { warehouseMedicine: WarehouseMedicine }) {
     this.id = warehouseMedicine.id;
     this.name = warehouseMedicine.medicine.name;
@@ -18,6 +15,7 @@ export class WarehouseGetMedicines {
     this.price = warehouseMedicine.price;
     this.quantity = warehouseMedicine.quantity;
     this.imageUrl = warehouseMedicine.medicine?.image?.url;
+    this.supplier = warehouseMedicine.medicine.supplier.name;
   }
 
   toObject(): {
@@ -27,6 +25,7 @@ export class WarehouseGetMedicines {
     price: number;
     quantity: number;
     imageUrl: string | null;
+    supplier: string;
   } {
     return {
       id: this.id,
@@ -35,6 +34,7 @@ export class WarehouseGetMedicines {
       price: this.price,
       quantity: this.quantity,
       imageUrl: this.imageUrl,
+      supplier: this.supplier,
     };
   }
 }

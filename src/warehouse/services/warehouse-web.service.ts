@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Warehouse } from '../entities/warehouse.entity';
@@ -9,6 +9,8 @@ import { SupplierService } from 'src/supplier/service/supplier.service';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
 import { WarehouseMedicineService } from 'src/medicine/services/medicine-warehouse.service';
+import { UpdateWareHouseDto } from '../api/dto/update-warehouse.dto';
+import { WarehouseError } from './warehouse-error.service';
 
 @Injectable()
 export class WarehouseWebService {
@@ -19,7 +21,7 @@ export class WarehouseWebService {
     private supplierService: SupplierService,
     @InjectRepository(Inventory)
     private inventoryRepository: Repository<Inventory>,
-    private medicineError: MedicineError,
+    private warehouseError: WarehouseError,
     private warehouseMedicineService: WarehouseMedicineService,
   ) {}
 
@@ -38,6 +40,31 @@ export class WarehouseWebService {
     const warehouse = this.warehouseRepository.create(body);
     await this.warehouseRepository.save(warehouse);
     return { data: { id: warehouse.id } };
+  }
+
+  async update(body: UpdateWareHouseDto, user: IUser) {
+    const warehouse = await this.warehouseRepository.findOne({
+      where: {
+        id: user.warehouseId as number,
+      },
+    });
+
+    if (!warehouse) {
+      throw new HttpException(
+        this.warehouseError.notFoundWarehouse(),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    await this.warehouseRepository.update(
+      {
+        id: user.warehouseId as number,
+      },
+      {
+        ...body,
+        ...warehouse,
+      },
+    );
   }
 
   async getAllSuppliers() {

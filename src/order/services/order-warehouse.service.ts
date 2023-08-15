@@ -67,6 +67,7 @@ export class WarehouseOrderService {
     warehouseOrder.supplier = supplierId as Supplier;
     warehouseOrder.warehouse = currUser.warehouseId as Warehouse;
     warehouseOrder.totalPrice = totalPrice;
+
     await this.warehouseOrderRepository.save(warehouseOrder);
     // creating the order details
     for (const detail of details) {

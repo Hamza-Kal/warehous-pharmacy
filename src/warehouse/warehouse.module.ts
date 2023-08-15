@@ -11,6 +11,7 @@ import { InventoryModule } from 'src/inventory/inventory.module';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { SupplierModule } from 'src/supplier/supplier.module';
 import { MedicineModule } from 'src/medicine/medicine.module';
+import { WarehouseError } from './services/warehouse-error.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Warehouse, User, Inventory]),
@@ -22,7 +23,7 @@ import { MedicineModule } from 'src/medicine/medicine.module';
     MedicineModule,
   ],
   controllers: [WarehouseController],
-  providers: [WarehouseWebService, WarehouseService],
+  providers: [WarehouseWebService, WarehouseService, WarehouseError],
   exports: [WarehouseService, WarehouseWebService],
 })
 export class WarehouseModule {}

@@ -32,9 +32,7 @@ export class WarehouseOrder {
   @CreateDateColumn()
   created_at: Date;
 
-  @ManyToOne(() => Warehouse, (warehouse) => warehouse.warehouseOrder, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Warehouse, (warehouse) => warehouse.warehouseOrder)
   @JoinColumn()
   warehouse: Warehouse;
 

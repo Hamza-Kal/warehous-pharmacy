@@ -1,16 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsPhoneNumber, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsPhoneNumber,
+  IsOptional,
+  IsNumberString,
+} from 'class-validator';
 
 export class UpdateWareHouseDto {
   @ApiProperty()
   @IsString()
-  name: string;
+  @IsOptional()
+  name?: string;
 
   @ApiProperty()
   @IsString()
-  location: string;
+  @IsOptional()
+  location?: string;
 
   @ApiProperty()
-  @IsPhoneNumber()
-  phoneNumber: string;
+  @IsNumberString()
+  @IsOptional()
+  phoneNumber?: string;
 }

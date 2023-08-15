@@ -9,14 +9,6 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-export class TransferToInventoryDto {
-  @ValidateNested({ each: true })
-  @Type(() => Batch)
-  @IsArray()
-  @ArrayNotEmpty()
-  batches: Batch[];
-}
-
 class Batch {
   @IsNumber()
   @IsNotEmpty()
@@ -25,4 +17,10 @@ class Batch {
   @IsNumber()
   @IsNotEmpty()
   quantity: number;
+}
+export class TransferToInventoryDto {
+  @ValidateNested({ each: true })
+  @Type(() => Batch)
+  @IsNotEmpty()
+  batch: Batch;
 }

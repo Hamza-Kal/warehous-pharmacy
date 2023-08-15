@@ -13,6 +13,7 @@ import { Role } from 'src/shared/enums/roles';
 
 import { IParams } from 'src/shared/interface/params.interface';
 import { GetAllGuestsDto } from '../dtos/response/get-all-guests.dto';
+import { IUser } from 'src/shared/interface/user.interface';
 
 @Injectable()
 export class UserService {
@@ -64,13 +65,24 @@ export class UserService {
     const user = await this.userRepository.findOne({
       where: { email },
       relations: {
+        pharmacy: true,
         supplier: true,
         inventory: true,
         warehouse: true,
-        pharmacy: true,
       },
     });
     return user;
+  }
+
+  async isAccepted(currUser: IUser) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id: currUser.id as number,
+        role: Not(Role.GUEST),
+      },
+    });
+
+    return !!user;
   }
 
   async acceptAccount({ id }: IParams) {

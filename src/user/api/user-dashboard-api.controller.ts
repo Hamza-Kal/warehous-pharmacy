@@ -24,15 +24,16 @@ export class UserDashboardController {
 
   @AuthorizedApi({
     api: Api.POST,
-    created: false,
+    created: true,
     role: [
+      Role.GUEST,
       Role.WAREHOUSE,
       Role.INVENTORY,
       Role.SUPPLIER,
       Role.PHARMACY,
-      Role.GUEST,
     ],
     url: 'is-accepted',
+    completedAccount: [true, false],
   })
   async isAccepted(@CurrUser() user: IUser) {
     return this.userService.isAccepted(user);

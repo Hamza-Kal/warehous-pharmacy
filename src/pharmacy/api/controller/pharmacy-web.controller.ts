@@ -19,7 +19,7 @@ export class PharmacyWebController {
     api: Api.POST,
     url: '/complete-info',
     role: [Role.GUEST],
-    completedAccount: false,
+    completedAccount: [false],
   })
   async completeInfo(@Body() body: CreatePharmacyDto, @CurrUser() user: IUser) {
     return this.pharmacyWebService.createPharmacy(body, user);

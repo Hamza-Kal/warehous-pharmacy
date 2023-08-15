@@ -9,14 +9,14 @@ export function AuthorizedApi({
   url,
   role,
   created = true,
-  completedAccount = true,
+  completedAccount = [true],
 }: {
   api: Api;
   url: string;
   role: Role[];
   created?: boolean;
   // indecate whether this api need to the information of the account must be completed or not
-  completedAccount?: boolean;
+  completedAccount?: boolean[];
 }) {
   return applyDecorators(
     Authorized({ role, completedAccount }),

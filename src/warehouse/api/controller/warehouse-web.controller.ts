@@ -24,7 +24,7 @@ export class WarehouseController {
     api: Api.POST,
     url: '/create-warehouse',
     role: [Role.GUEST],
-    completedAccount: false,
+    completedAccount: [false],
   })
   async completeInfo(
     @Body() body: CreateWarehouseDto,

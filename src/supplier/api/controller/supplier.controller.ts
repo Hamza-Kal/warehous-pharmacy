@@ -22,7 +22,7 @@ export class SupplierController {
     api: Api.POST,
     url: '/complete-info',
     role: [Role.GUEST],
-    completedAccount: false,
+    completedAccount: [false],
   })
   async completeInfo(@Body() body: CreateSupplierDto, @CurrUser() user: IUser) {
     return this.supplierDashboardService.createSupplier(user, body);

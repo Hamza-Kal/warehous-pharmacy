@@ -71,20 +71,18 @@ export class WarehouseService {
     };
   }
 
-  async getWarehouseInfo(id: number, user: IUser) {
+  async getWarehouseInfo(user: IUser) {
     const warehouseId = user.warehouseId as number;
-    if (warehouseId !== id)
-      throw new UnauthorizedException(
-        'you are not allowed to view this warehouse',
-      );
 
     const warehouse = await this.warehouseRepository.findOne({
       where: {
-        id,
+        id: warehouseId,
       },
     });
     if (!warehouse) throw new NotFoundException('warehouse not found');
-    return warehouse;
+    return {
+      data: warehouse,
+    };
   }
 
   async getAllInventories(user: IUser) {

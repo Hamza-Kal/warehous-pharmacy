@@ -35,11 +35,11 @@ export class WarehouseController {
 
   @AuthorizedApi({
     api: Api.GET,
-    url: 'get-info/:id',
+    url: 'get-info',
     role: [Role.WAREHOUSE],
   })
-  async getWarehouseInfo(@CurrUser() user: IUser, @Param() params: IParams) {
-    return this.warehouseService.getWarehouseInfo(+params.id, user);
+  async getWarehouseInfo(@CurrUser() user: IUser) {
+    return this.warehouseService.getWarehouseInfo(user);
   }
   @AuthorizedApi({
     api: Api.PATCH,

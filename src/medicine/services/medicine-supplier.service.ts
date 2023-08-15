@@ -104,7 +104,7 @@ export class MedicineSupplierService {
       .leftJoinAndSelect('supplier_medicine.medicine', 'medicine')
       .leftJoinAndSelect('medicine.category', 'category')
       .where('supplier.id = :id', { id: supplierId as number })
-      // .leftJoinAndSelect('medicine.image', 'image')
+      .leftJoinAndSelect('medicine.image', 'image')
       .select([
         'supplier.id',
         'supplier_medicine.id',
@@ -113,8 +113,8 @@ export class MedicineSupplierService {
         'medicine.id',
         'medicine.name',
         'category.category',
-        // 'image.id',
-        // 'image.url',
+        'image.id',
+        'image.url',
       ])
       .take(limit)
       .skip(skip)

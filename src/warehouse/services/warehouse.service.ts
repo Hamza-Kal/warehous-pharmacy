@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { Warehouse } from '../entities/warehouse.entity';
@@ -69,14 +71,18 @@ export class WarehouseService {
     };
   }
 
-  async getWarehouseInfo(id: number) {
+  async getWarehouseInfo(user: IUser) {
+    const warehouseId = user.warehouseId as number;
+
     const warehouse = await this.warehouseRepository.findOne({
       where: {
-        id,
+        id: warehouseId,
       },
     });
     if (!warehouse) throw new NotFoundException('warehouse not found');
-    return warehouse;
+    return {
+      data: warehouse,
+    };
   }
 
   async getAllInventories(user: IUser) {

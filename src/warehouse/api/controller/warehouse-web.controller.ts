@@ -24,7 +24,7 @@ export class WarehouseController {
     api: Api.POST,
     url: '/create-warehouse',
     role: [Role.GUEST],
-    completedAccount: false,
+    completedAccount: [false],
   })
   async completeInfo(
     @Body() body: CreateWarehouseDto,
@@ -35,11 +35,11 @@ export class WarehouseController {
 
   @AuthorizedApi({
     api: Api.GET,
-    url: 'get-info/:id',
+    url: 'get-info',
     role: [Role.WAREHOUSE],
   })
-  async getWarehouseInfo(@Param() params: IParams) {
-    return this.warehouseService.getWarehouseInfo(+params.id);
+  async getWarehouseInfo(@CurrUser() user: IUser) {
+    return this.warehouseService.getWarehouseInfo(user);
   }
   @AuthorizedApi({
     api: Api.PATCH,

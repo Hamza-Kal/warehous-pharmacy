@@ -9,7 +9,7 @@ export function Authorized({
   completedAccount,
 }: {
   role: Role[];
-  completedAccount: boolean;
+  completedAccount: boolean[];
 }) {
   return applyDecorators(
     Roles(role),

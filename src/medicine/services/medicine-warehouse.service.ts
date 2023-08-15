@@ -28,6 +28,7 @@ import {
 import { IParams } from 'src/shared/interface/params.interface';
 import { WarehouseMedicines } from '../api/dto/reponse/warehouse-medicines-get-by-criteria.dto';
 import { sk } from '@faker-js/faker';
+import { GetInventoriesDistributionsDto } from '../api/response/get-inventories-distributions.dto';
 
 @Injectable()
 export class WarehouseMedicineService {
@@ -67,22 +68,27 @@ export class WarehouseMedicineService {
         },
       },
     });
-    const medicines = await this.supplierMedicineRepository.find({
-      where: {
-        ...criteria,
-        supplier: {
-          id: supplierId,
-        },
-      },
-      relations: {
-        medicine: {
-          category: true,
-        },
-      },
-      skip,
-      take: limit,
-    });
-
+    const medicines = await this.supplierMedicineRepository
+      .createQueryBuilder('supplier_medicine')
+      .leftJoinAndSelect('supplier_medicine.supplier', 'supplier')
+      .leftJoinAndSelect('supplier_medicine.medicine', 'medicine')
+      .leftJoinAndSelect('medicine.category', 'category')
+      .where('supplier.id = :id', { id: supplierId as number })
+      .leftJoinAndSelect('medicine.image', 'image')
+      .select([
+        'supplier.id',
+        'supplier_medicine.id',
+        'supplier_medicine.price',
+        'supplier_medicine.quantity',
+        'medicine.id',
+        'medicine.name',
+        'category.category',
+        'image.id',
+        'image.url',
+      ])
+      .take(limit)
+      .skip(skip)
+      .getMany();
     return {
       totalRecords,
       data: medicines.map((medicine) =>
@@ -106,43 +112,77 @@ export class WarehouseMedicineService {
         },
       },
     });
-    const medicines = await this.warehouseMedicineRepository.find({
-      where: {
-        ...criteria,
-        warehouse: {
-          id: user.warehouseId,
-        },
-      },
-      select: {
-        id: true,
-        medicineDetails: {
-          id: true,
-          quantity: true,
-          medicineDetails: {
-            id: true,
-            endDate: true,
-          },
-        },
-        medicine: {
-          name: true,
-        },
-      },
-      relations: {
-        medicineDetails: {
-          medicineDetails: true,
-        },
-        medicine: {
-          category: true,
-          supplier: true,
-        },
-      },
-      skip,
-      take: limit,
-    });
-
+    const mmedicines = await this.warehouseMedicineRepository
+      .createQueryBuilder('warehouse_medicine')
+      .leftJoinAndSelect('warehouse_medicine.warehouse', 'warehouse')
+      .leftJoinAndSelect('warehouse_medicine.medicine', 'medicine')
+      .leftJoinAndSelect(
+        'warehouse_medicine.medicineDetails',
+        'outerMedicineDetails',
+      )
+      .leftJoinAndSelect('medicine.image', 'image')
+      .leftJoinAndSelect('medicine.category', 'category')
+      .leftJoinAndSelect('medicine.supplier', 'supplier')
+      .leftJoinAndSelect(
+        'outerMedicineDetails.medicineDetails',
+        'medicineDetails',
+      )
+      .where('warehouse.id = :id', { id: user.warehouseId })
+      // .andWhere('outerMedicineDetails.quantity != quantity', { quantity: 0 })
+      .select([
+        'warehouse_medicine.id',
+        'medicine.id',
+        'medicine.name',
+        'category.category',
+        'outerMedicineDetails.id',
+        'outerMedicineDetails.quantity',
+        'medicineDetails.id',
+        'medicineDetails.endDate',
+        'supplier.id',
+        'supplier.name',
+        'image.id',
+        'image.url',
+      ])
+      .take(limit)
+      .skip(skip)
+      .getMany();
+    // const medicines = await this.warehouseMedicineRepository.find({
+    //   where: {
+    //     ...criteria,
+    //     warehouse: {
+    //       id: user.warehouseId,
+    //     },
+    //   },
+    //   select: {
+    //     id: true,
+    //     medicineDetails: {
+    //       id: true,
+    //       quantity: true,
+    //       medicineDetails: {
+    //         id: true,
+    //         endDate: true,
+    //       },
+    //     },
+    //     medicine: {
+    //       name: true,
+    //     },
+    //   },
+    //   relations: {
+    //     medicineDetails: {
+    //       medicineDetails: true,
+    //     },
+    //     medicine: {
+    //       category: true,
+    //       supplier: true,
+    //     },
+    //   },
+    //   skip,
+    //   take: limit,
+    // });
+    // console.log(mmedicines);
     return {
       totalRecords,
-      data: medicines.map((medicine) =>
+      data: mmedicines.map((medicine) =>
         new WarehouseMedicines({
           medicine,
         }).toObject(),
@@ -189,31 +229,91 @@ export class WarehouseMedicineService {
       ),
     };
   }
+
+  async findInventoryDistributions(warehouseMedicineId: number, user: IUser) {
+    const { warehouseId } = user;
+    const warehouseMedicine = await this.warehouseMedicineRepository.findOne({
+      where: {
+        id: warehouseMedicineId,
+        warehouse: {
+          id: warehouseId as number,
+        },
+      },
+      relations: {
+        medicine: true,
+      },
+    });
+    if (!warehouseMedicine)
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.NOT_FOUND,
+      );
+    const medicine = await this.medicineRepository.findOne({
+      where: {
+        id: warehouseMedicine.medicine.id,
+      },
+    });
+    if (!medicine)
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.NOT_FOUND,
+      );
+    const inventoryMedicines = await this.inventoryMedicineRepository.find({
+      where: {
+        medicine: {
+          id: medicine.id,
+        },
+        inventory: {
+          warehouse: {
+            id: warehouseId as number,
+          },
+        },
+      },
+      select: {
+        id: true,
+        quantity: true,
+        inventory: {
+          phoneNumber: true,
+          manager: {
+            id: true,
+            fullName: true,
+          },
+          name: true,
+        },
+        medicine: {
+          name: true,
+        },
+      },
+      relations: {
+        inventory: {
+          manager: true,
+        },
+        medicine: true,
+      },
+    });
+    return {
+      data: inventoryMedicines.map((inventoryMedicine) =>
+        new GetInventoriesDistributionsDto({ inventoryMedicine }).toObject(),
+      ),
+    };
+  }
   async findOne({ id }: IParams, user: IUser) {
-    const medicines = await this.warehouseMedicineRepository.find({
+    const medicine = await this.warehouseMedicineRepository.findOne({
       where: {
         warehouse: {
           id: user.warehouseId as number,
         },
         id,
-        medicineDetails: true,
       },
       relations: {
         medicine: {
           category: true,
           image: true,
+          supplier: true,
+          inventoryMedicine: true,
         },
-        medicineDetails: true,
       },
     });
-
-    if (!medicines.length) {
-      throw new HttpException(
-        this.medicineError.notFoundMedicine(),
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    const medicine = medicines[0];
     return {
       data: new WarehouseGetMedicines({
         warehouseMedicine: medicine,

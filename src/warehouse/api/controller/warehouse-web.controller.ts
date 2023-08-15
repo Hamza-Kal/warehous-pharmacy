@@ -34,6 +34,14 @@ export class WarehouseController {
   }
 
   @AuthorizedApi({
+    api: Api.GET,
+    url: 'get-info/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async getWarehouseInfo(@Param() params: IParams) {
+    return this.warehouseService.getWarehouseInfo(+params.id);
+  }
+  @AuthorizedApi({
     api: Api.PATCH,
     url: '',
     role: [Role.WAREHOUSE],

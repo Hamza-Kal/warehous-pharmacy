@@ -25,7 +25,13 @@ export class UserDashboardController {
   @AuthorizedApi({
     api: Api.POST,
     created: false,
-    role: [Role.WAREHOUSE, Role.INVENTORY, Role.SUPPLIER, Role.PHARMACY],
+    role: [
+      Role.WAREHOUSE,
+      Role.INVENTORY,
+      Role.SUPPLIER,
+      Role.PHARMACY,
+      Role.GUEST,
+    ],
     url: 'is-accepted',
   })
   async isAccepted(@CurrUser() user: IUser) {

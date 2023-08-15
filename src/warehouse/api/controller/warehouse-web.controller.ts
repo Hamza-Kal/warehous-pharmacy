@@ -38,8 +38,8 @@ export class WarehouseController {
     url: 'get-info/:id',
     role: [Role.WAREHOUSE],
   })
-  async getWarehouseInfo(@Param() params: IParams) {
-    return this.warehouseService.getWarehouseInfo(+params.id);
+  async getWarehouseInfo(@CurrUser() user: IUser, @Param() params: IParams) {
+    return this.warehouseService.getWarehouseInfo(+params.id, user);
   }
   @AuthorizedApi({
     api: Api.PATCH,

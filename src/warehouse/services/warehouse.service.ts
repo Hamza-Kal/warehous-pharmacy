@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { Warehouse } from '../entities/warehouse.entity';
@@ -69,7 +71,13 @@ export class WarehouseService {
     };
   }
 
-  async getWarehouseInfo(id: number) {
+  async getWarehouseInfo(id: number, user: IUser) {
+    const warehouseId = user.warehouseId as number;
+    if (warehouseId !== id)
+      throw new UnauthorizedException(
+        'you are not allowed to view this warehouse',
+      );
+
     const warehouse = await this.warehouseRepository.findOne({
       where: {
         id,

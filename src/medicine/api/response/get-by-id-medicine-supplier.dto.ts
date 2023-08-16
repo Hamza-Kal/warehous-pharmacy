@@ -52,13 +52,12 @@ export class GetByIdMedicineSupplier {
     quantity: number;
     imageUrl: string | null;
     description: string;
+
     batches: {
       id: number;
       expireDate: Date;
       quantity: number;
     }[];
-    medicineCategory: string;
-    medicineSupplier: string;
   } {
     return {
       id: this.id,
@@ -68,8 +67,6 @@ export class GetByIdMedicineSupplier {
       quantity: this.quantity,
       imageUrl: this.imageUrl,
       batches: this.batches,
-      medicineCategory: this.medicineCategory,
-      medicineSupplier: this.medicineSupplier,
       description: this.description,
     };
   }

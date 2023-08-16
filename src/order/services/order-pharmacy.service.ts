@@ -1,30 +1,17 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { IUser } from 'src/shared/interface/user.interface';
-import { User } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/services/user.service';
 import { SupplierService } from 'src/supplier/service/supplier.service';
 import {
   PharmacyOrder,
   PharmacyOrderDetails,
-  WarehouseOrder,
-  WarehouseOrderDetails,
 } from '../entities/order.entities';
-import {
-  CreatePharmacyOrderDto,
-  CreateWarehouseOrderDto,
-} from '../api/dto/create-warehouse-order.dto';
+import { CreatePharmacyOrderDto } from '../api/dto/create-warehouse-order.dto';
 import { MedicineService } from 'src/medicine/services/medicine.service';
-import { MedicineError } from 'src/medicine/services/medicine-error.service';
-import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 import { Medicine } from 'src/medicine/entities/medicine.entities';
-import { GetAllWarehouseOrder } from '../api/dto/response/get-warehouse-order.dto';
-import { Pagination } from 'src/shared/pagination/pagination.validation';
-import { IParams } from 'src/shared/interface/params.interface';
 import { OrderError } from './order-error.service';
-import { GetByIdWarehouseOrder } from '../api/dto/response/get-by-id-warehouse-order.dto';
 import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
 
 @Injectable()

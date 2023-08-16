@@ -36,9 +36,7 @@ export class MedicineInventoryService {
         inventory: {
           id: user.inventoryId,
         },
-        medicineDetails: {
-          quantity: Not(0),
-        },
+        quantity: Not(0),
       },
     });
     const medicines = await this.inventoryMedicineRepository
@@ -48,6 +46,7 @@ export class MedicineInventoryService {
       .leftJoinAndSelect('medicine.category', 'category')
       .leftJoinAndSelect('medicine.image', 'image')
       .where('inventory.id = :id', { id: user.inventoryId })
+      .andWhere('inventory_medicine.quantity > 0')
       .select([
         'inventory_medicine.id',
         'inventory_medicine.quantity',
@@ -78,6 +77,7 @@ export class MedicineInventoryService {
           id: user.inventoryId as number,
         },
         id,
+        quantity: Not(0),
       },
       relations: {
         medicine: {

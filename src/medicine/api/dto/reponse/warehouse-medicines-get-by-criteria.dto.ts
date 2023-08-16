@@ -36,21 +36,21 @@ export class WarehouseMedicines {
     id: number;
     name: string;
     imageUrl: string | null;
+    medicineCategory: string;
+    medicineSupplier: string;
     batches: {
       id: number;
       expireDate: Date;
       quantity: number;
     }[];
-    medicineCategory: string;
-    medicineSupplier: string;
   } {
     return {
       id: this.id,
       name: this.name,
-      batches: this.batches,
       medicineCategory: this.medicineCategory,
       medicineSupplier: this.medicineSupplier,
       imageUrl: this.imageUrl,
+      batches: this.batches,
     };
   }
 }

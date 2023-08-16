@@ -139,6 +139,7 @@ export class SupplierOrderService {
         'medicineDetails.id',
         'medicineDetails.endDate',
         'supplierMedicine.id',
+        'supplierMedicine.quantity',
         'supplierMedicineDetails.quantity',
         'supplierMedicineDetails.id',
       ])
@@ -161,8 +162,10 @@ export class SupplierOrderService {
     //! the medicine of the order must be unique
     //! i should comment this
     //* object example is above this funcion
-    for (const { quantity, medicine, price } of orders[0].details) {
+    for (const detail of orders[0].details) {
+      const { quantity, medicine, price } = detail;
       let wholeQuantity = quantity;
+
       //? If the supplier didn't create the brew in the first place then it will go here
       if (!medicine.medicineDetails.length) {
         throw new HttpException(
@@ -178,9 +181,10 @@ export class SupplierOrderService {
             HttpStatus.BAD_REQUEST,
           );
         }
-        const { quantity } = supplierMedicine;
+
         if (!wholeQuantity) break;
         const movedQuantity = Math.min(quantity, wholeQuantity);
+
         //* this array is stored in DistributedWarehouseOrder
         //* id must be the id of the medicineDetailsId
         toPending.push({
@@ -189,6 +193,7 @@ export class SupplierOrderService {
           price,
         });
         //* this elements are removed from SupplierMedicineDetails
+
         removeMedicineDetails.push({
           medicineId: medicine.id,
           detailsId: id,

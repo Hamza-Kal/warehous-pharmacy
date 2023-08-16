@@ -1,4 +1,6 @@
 import { InventoryMedicine } from 'src/medicine/entities/medicine-role.entities';
+
+// TODO price cannot be get
 export class GetByIdInventoryMedicines {
   id: number;
   name: string;
@@ -16,7 +18,7 @@ export class GetByIdInventoryMedicines {
     this.name = medicine.medicine.name;
     this.category = medicine.medicine.category.category;
     this.quantity = medicine.quantity;
-    this.price = medicine.medicine.warehouseMedicine.price;
+    // this.price = medicine.medicine.warehouseMedicine.price;
     this.imageUrl = medicine.medicine?.image?.url;
     const batch: {
       expireDate: Date;

@@ -27,7 +27,10 @@ import {
   WarehouseMedicineDetails,
 } from 'src/medicine/entities/medicine-role.entities';
 import {
+  DistributionPharmacyOrder,
   DistributionWarehouseOrder,
+  PharmacyOrder,
+  PharmacyOrderDetails,
   WarehouseOrder,
   WarehouseOrderDetails,
 } from 'src/order/entities/order.entities';
@@ -82,4 +85,7 @@ export const entities = [
   WarehouseReturnOrderDetails,
   InventoryReportMedicine,
   Media,
+  PharmacyOrder,
+  PharmacyOrderDetails,
+  DistributionPharmacyOrder,
 ];

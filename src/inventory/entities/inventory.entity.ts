@@ -1,4 +1,5 @@
 import { InventoryMedicine } from 'src/medicine/entities/medicine-role.entities';
+import { DistributionPharmacyOrder } from 'src/order/entities/order.entities';
 import { InventoryReportMedicine } from 'src/report medicine/entities/report-medicine.entities';
 import { User } from 'src/user/entities/user.entity';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
@@ -62,4 +63,12 @@ export class Inventory {
     (inventoryReportMedicine) => inventoryReportMedicine.inventory,
   )
   inventoryReportMedicine: InventoryReportMedicine[];
+
+  // ******************** Distribution ********************
+
+  @OneToMany(
+    () => DistributionPharmacyOrder,
+    (distribution) => distribution.inventory,
+  )
+  distribution: DistributionPharmacyOrder[];
 }

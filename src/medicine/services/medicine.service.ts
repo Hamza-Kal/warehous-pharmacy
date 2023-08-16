@@ -5,10 +5,11 @@ import {
   Medicine,
   MedicineDetails,
 } from '../entities/medicine.entities';
-import { In, Repository } from 'typeorm';
+import { In, MoreThan, Repository } from 'typeorm';
 import { MedicineError } from './medicine-error.service';
 import { MoveMedicineDto } from '../api/dto/update-Brew.dto';
 import {
+  InventoryMedicine,
   InventoryMedicineDetails,
   SupplierMedicine,
   SupplierMedicineDetails,
@@ -34,6 +35,8 @@ export class MedicineService {
     private supplierMedicineRepository: Repository<SupplierMedicine>,
     @InjectRepository(WarehouseMedicine)
     private warehouseMedicineRepository: Repository<WarehouseMedicine>,
+    @InjectRepository(InventoryMedicine)
+    private inventoryMedicineRepository: Repository<InventoryMedicine>,
     @InjectRepository(WarehouseMedicineDetails)
     private warehouseMedicineDetailsRepository: Repository<WarehouseMedicineDetails>,
     @InjectRepository(InventoryMedicineDetails)
@@ -45,11 +48,60 @@ export class MedicineService {
     private medicineError: MedicineError,
   ) {}
 
+  async getInventoriesMedicines(warehouseId: number, medicineId: number) {
+    const date = new Date();
+    const medicines = await this.inventoryMedicineRepository.find({
+      where: {
+        inventory: {
+          warehouse: {
+            id: warehouseId as number,
+          },
+        },
+        medicine: {
+          id: medicineId,
+        },
+        medicineDetails: {
+          medicineDetails: {
+            endDate: MoreThan(date),
+          },
+        },
+      },
+      order: {
+        medicineDetails: {
+          medicineDetails: {
+            endDate: 1,
+          },
+          quantity: -1,
+        },
+      },
+      select: {
+        id: true,
+        inventory: {
+          id: true,
+        },
+        medicineDetails: {
+          medicineDetails: {
+            id: true,
+          },
+          quantity: true,
+        },
+      },
+      relations: {
+        inventory: true,
+        medicineDetails: {
+          medicineDetails: true,
+        },
+      },
+    });
+
+    return medicines;
+  }
+
   async findAllCategories() {
     return await this.categoryRepository.find({ where: {} });
   }
 
-  async getMedicines(
+  async getSupplierMedicines(
     medicineIds: number[],
     supplierId: number,
   ): Promise<SupplierMedicine[]> {
@@ -71,6 +123,58 @@ export class MedicineService {
           where: {
             id: medicineId,
             supplier: { id: supplierId },
+          },
+          relations: {
+            medicine: {
+              image: true,
+            },
+          },
+          select: {
+            id: true,
+            price: true,
+            medicine: {
+              id: true,
+            },
+          },
+        }),
+      );
+    }
+
+    const medicines = await Promise.all(queries);
+
+    // making sure the mediecines we found are match with the one we are given
+    if (count - medicineIds.length || count - medicines.length) {
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return medicines;
+  }
+
+  async getWarehouseMedicines(
+    medicineIds: number[],
+    warehouseId: number,
+  ): Promise<WarehouseMedicine[]> {
+    const queries = [];
+
+    // counting how many medicines fullfill this condition
+    // here supplier id is being searched to make sure that the medicines only come from one source
+    const count = await this.warehouseMedicineRepository.count({
+      where: {
+        id: In(medicineIds),
+        warehouse: { id: warehouseId },
+      },
+    });
+
+    // searching for the medicines in medicines table
+    for (const medicineId of medicineIds) {
+      queries.push(
+        this.warehouseMedicineRepository.findOne({
+          where: {
+            id: medicineId,
+            warehouse: { id: warehouseId },
           },
           relations: {
             medicine: {

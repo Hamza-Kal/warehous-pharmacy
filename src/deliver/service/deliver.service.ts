@@ -56,6 +56,7 @@ export class DeliverService {
     role: RepositoryEnum,
     roleId: number,
     {
+      // medicine table id
       medicineId,
       quantity,
     }: { medicineId: number | Medicine; quantity: number },
@@ -306,6 +307,8 @@ export class DeliverService {
         ...roleKey,
       },
     });
+
+    console.log('medicine', medicienDetailsRow);
 
     if (medicienDetailsRow.quantity < quantity) {
       throw new HttpException(

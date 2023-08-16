@@ -1,3 +1,4 @@
+import { Inventory } from 'src/inventory/entities/inventory.entity';
 import {
   Medicine,
   MedicineDetails,
@@ -135,28 +136,103 @@ export class DistributionWarehouseOrder {
   medicineDetails: MedicineDetails;
 }
 
-// @Entity()
-// export class PharmacyOrders {
-//   @PrimaryGeneratedColumn({
-//     type: 'int',
-//   })
-//   id: number;
+@Entity()
+export class PharmacyOrder {
+  @PrimaryGeneratedColumn({
+    type: 'int',
+  })
+  id: number;
 
-//   @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyOrder, {
-//     onDelete: 'CASCADE',
-//   })
-// @JoinColumn()
-//   pharmacy: Pharmacy;
-// }
+  @CreateDateColumn()
+  created_at: Date;
 
-// @Entity()
-// export class PharmacyOrders {
-//   @PrimaryGeneratedColumn({
-//     type: 'int',
-//   })
-//   id: number;
+  @ManyToOne(() => Warehouse, (warehouse) => warehouse.pharmacyOrder)
+  @JoinColumn()
+  warehouse: Warehouse;
 
-//   @ManyToOne(() => PharmacyOrders)
-// @JoinColumn()
-//   phrmacyOrder: PharmacyOrders;
-// }
+  @Column({
+    type: 'enum',
+    enum: OrderStatus,
+    default: OrderStatus.Pending,
+  })
+  status: OrderStatus;
+
+  @Column({
+    type: 'int',
+  })
+  totalPrice: number;
+
+  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyOrder, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  pharmacy: Pharmacy;
+
+  @OneToMany(
+    () => PharmacyOrderDetails,
+    (pharmacyOrderDetails) => pharmacyOrderDetails.pharmacyOrder,
+  )
+  details: PharmacyOrderDetails[];
+
+  @OneToMany(
+    () => DistributionPharmacyOrder,
+    (distributionPharmacyOrder) => distributionPharmacyOrder.order,
+  )
+  distribution: DistributionPharmacyOrder[];
+}
+
+@Entity()
+export class PharmacyOrderDetails {
+  @PrimaryGeneratedColumn({
+    type: 'int',
+  })
+  id: number;
+
+  @ManyToOne(() => PharmacyOrder, (pharmacyOrder) => pharmacyOrder.details, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  pharmacyOrder: PharmacyOrder;
+
+  @ManyToOne(() => Medicine, (medicine) => medicine.pharmacyOrderDetails)
+  @JoinColumn()
+  medicine: Medicine;
+
+  @Column({
+    type: 'int',
+  })
+  quantity: number;
+
+  @Column({
+    type: 'int',
+  })
+  price: number;
+}
+
+@Entity()
+export class DistributionPharmacyOrder {
+  @PrimaryGeneratedColumn({
+    type: 'int',
+  })
+  id: number;
+
+  @ManyToOne(() => Inventory, (inventory) => inventory.distribution)
+  @JoinColumn()
+  inventory: Inventory;
+
+  @ManyToOne(
+    () => MedicineDetails,
+    (medicineDetails) => medicineDetails.distributionPharmacy,
+  )
+  @JoinColumn()
+  medicineDetails: MedicineDetails;
+
+  @Column({
+    type: 'int',
+  })
+  quantity: number;
+
+  @ManyToOne(() => PharmacyOrder, (pharmacyOrder) => pharmacyOrder.distribution)
+  @JoinColumn()
+  order: PharmacyOrder;
+}

@@ -10,7 +10,10 @@ import { IUser } from 'src/shared/interface/user.interface';
 import { paginationParser } from 'src/shared/pagination/pagination';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { UpdatePriceDto } from '../dto/warehouseDto/update-medicine-price.dto';
-import { TransferToInventoryDto } from 'src/warehouse/api/dto/transfer-to-inventory';
+import {
+  TransferFromInventoryDto,
+  TransferToInventoryDto,
+} from 'src/warehouse/api/dto/transfer-to-inventory';
 
 @AuthenticatedController({
   controller: 'medicine/warehouse',
@@ -38,6 +41,18 @@ export class MedicineWarehouseController {
   })
   async findOneSupplier(@Param() param: IParams) {
     return this.warehouseMedicineService.findOneSupplierMedicine(+param.id);
+  }
+
+  @AuthorizedApi({
+    api: Api.PATCH,
+    url: '/transfer-between-inventories',
+    role: [Role.WAREHOUSE],
+  })
+  transferFromInventory(
+    @Body() body: TransferFromInventoryDto,
+    @CurrUser() user: IUser,
+  ) {
+    return this.warehouseMedicineService.transferFromInventory(body, user);
   }
 
   @AuthorizedApi({

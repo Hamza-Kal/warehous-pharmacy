@@ -8,7 +8,10 @@ import {
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
-import { WarehouseOrder } from 'src/order/entities/order.entities';
+import {
+  PharmacyOrder,
+  WarehouseOrder,
+} from 'src/order/entities/order.entities';
 import { WarehouseMedicine } from 'src/medicine/entities/medicine-role.entities';
 import { WarehouseReturnOrder } from 'src/return order/entities/returnOrder.entities';
 
@@ -55,6 +58,7 @@ export class Warehouse {
 
   // ******************** Order ********************
 
+  // ******************** Warehouse ********************
   @OneToMany(
     () => WarehouseOrder,
     (warehouseOrders) => warehouseOrders.warehouse,
@@ -69,4 +73,11 @@ export class Warehouse {
     (warehouseOrders) => warehouseOrders.warehouse,
   )
   returnOrder: WarehouseReturnOrder[];
+
+  // ******************** Pharmacy ********************
+
+  @OneToMany(() => PharmacyOrder, (pharmacyOrder) => pharmacyOrder.warehouse, {
+    onDelete: 'CASCADE',
+  })
+  pharmacyOrder: PharmacyOrder[];
 }

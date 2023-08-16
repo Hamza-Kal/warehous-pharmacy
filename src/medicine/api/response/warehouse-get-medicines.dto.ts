@@ -11,6 +11,7 @@ export class WarehouseGetMedicines {
   constructor({ warehouseMedicine }: { warehouseMedicine: WarehouseMedicine }) {
     this.id = warehouseMedicine.id;
     this.name = warehouseMedicine.medicine.name;
+
     this.category = warehouseMedicine.medicine.category.category;
     this.price = warehouseMedicine.price;
     this.quantity = warehouseMedicine.quantity;
@@ -20,7 +21,7 @@ export class WarehouseGetMedicines {
 
   toObject(): {
     id: number;
-    name: string;
+    name: string | null;
     category: string;
     price: number;
     quantity: number;

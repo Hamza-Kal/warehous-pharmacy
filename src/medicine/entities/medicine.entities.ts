@@ -110,9 +110,6 @@ export class Medicine {
   @OneToOne(
     () => SupplierMedicine,
     (supplierMedicine) => supplierMedicine.medicine,
-    {
-      cascade: true,
-    },
   )
   supplierMedicine: SupplierMedicine;
 

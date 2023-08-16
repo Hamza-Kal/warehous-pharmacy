@@ -20,6 +20,8 @@ import {
   SupplierMedicineDetails,
 } from '../entities/medicine-role.entities';
 import { Media } from 'src/media/entities/media.entity';
+import { UpdateMedicineDto } from '../api/dto/update-medicine.dto';
+import { GetMedicineBathesDto } from '../api/response/get-medicine-batches.dto';
 
 @Injectable()
 export class MedicineSupplierService {
@@ -87,6 +89,70 @@ export class MedicineSupplierService {
     };
   }
 
+  async update(id: number, body: UpdateMedicineDto, user: IUser) {
+    const { imageId, categoryId, price, description } = body;
+    const { supplierId } = user;
+    const medicine = await this.supplierMedicineRepository.findOne({
+      where: {
+        id,
+        supplier: {
+          id: supplierId as number,
+        },
+      },
+      relations: {
+        medicine: {
+          image: true,
+          category: true,
+        },
+      },
+    });
+    if (!medicine) {
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (imageId) medicine.medicine.image = imageId as Media;
+    if (categoryId) medicine.medicine.category = categoryId as Category;
+    if (price) medicine.price = price;
+    if (description) medicine.medicine.description = description;
+    const updatedMedicine = await this.supplierMedicineRepository.save(
+      medicine,
+    );
+    return {
+      data: {
+        id: updatedMedicine.id,
+      },
+    };
+  }
+
+  async findMedicineBatches(medicineId: number, user: IUser) {
+    const { supplierId } = user;
+    const batches = await this.supplierMedicineDetails.find({
+      where: {
+        medicine: {
+          id: medicineId,
+          supplier: {
+            id: supplierId as number,
+          },
+        },
+      },
+      select: {
+        medicineDetails: {
+          startDate: true,
+          endDate: true,
+        },
+      },
+      relations: {
+        medicineDetails: true,
+      },
+    });
+    return {
+      data: batches.map((batch) =>
+        new GetMedicineBathesDto({ batch }).toObject(),
+      ),
+    };
+  }
   async findAll({ criteria, pagination }, user: IUser) {
     const { skip, limit } = pagination;
     const { supplierId } = user;
@@ -149,6 +215,7 @@ export class MedicineSupplierService {
           supplier: {
             name: true,
           },
+          description: true,
         },
         id: true,
         price: true,

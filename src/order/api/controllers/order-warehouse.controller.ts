@@ -25,6 +25,7 @@ export class OrderWarehouesController {
   async create(@Body() body: CreateWarehouseOrderDto, @CurrUser() user: IUser) {
     return await this.orderService.create(body, user);
   }
+
   @AuthorizedApi({
     api: Api.PATCH,
     url: '/accept/:id',
@@ -32,6 +33,15 @@ export class OrderWarehouesController {
   })
   async accept(@CurrUser() user: IUser, @Param() param: IParams) {
     return await this.orderService.acceptOrder({ id: +param.id }, user);
+  }
+
+  @AuthorizedApi({
+    api: Api.PATCH,
+    url: '/deliver/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async deliver(@CurrUser() user: IUser, @Param() param: IParams) {
+    return await this.orderService.deliveredOrder({ id: +param.id }, user);
   }
 
   @AuthorizedApi({

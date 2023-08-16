@@ -131,7 +131,7 @@ export class WarehouseMedicineService {
         'medicineDetails',
       )
       .where('warehouse.id = :id', { id: user.warehouseId })
-      // .andWhere('outerMedicineDetails.quantity != quantity', { quantity: 0 })
+      .andWhere('warehouse_medicine.quantity > 0', { quantity: 0 })
       .select([
         'warehouse_medicine.id',
         'medicine.id',
@@ -211,6 +211,7 @@ export class WarehouseMedicineService {
       .leftJoinAndSelect('medicine.image', 'image')
       .leftJoinAndSelect('medicine.category', 'category')
       .where('warehouse.id = :id', { id: user.warehouseId })
+      .andWhere('warehouse_medicine.quantity > 0', { quantity: 0 })
       .select([
         'warehouse_medicine.id',
         'warehouse_medicine.quantity',

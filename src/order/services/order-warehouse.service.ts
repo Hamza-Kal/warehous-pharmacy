@@ -292,11 +292,19 @@ export class WarehouseOrderService {
     const distributions = await this.pharmacyDistributionRepository.find({
       where: { order: { id } },
       relations: {
+        order: {
+          pharmacy: true,
+        },
         medicineDetails: {
           medicine: true,
         },
       },
       select: {
+        order: {
+          pharmacy: {
+            id: true,
+          },
+        },
         quantity: true,
         medicineDetails: {
           id: true,
@@ -332,50 +340,28 @@ export class WarehouseOrderService {
       medicineQuantity.set(medicine.id, quantity);
     }
 
-    //* Create the medicine to the warehouseMedicien table
-    for (const id of medicineId) {
-      let medicine = await this.medicineService.findWarehouseMedicineByMedicine(
-        id,
-      );
-      const quantity = medicineQuantity.get(id);
-      if (!medicine) {
-        medicine = await this.medicineService.createWarehouseMedicine({
-          medicine: id,
-          warehouse: order.warehouse.id,
-        });
-      }
-
-      await this.medicineService.updateQuantity(
-        medicine.id,
-        quantity + medicine.quantity,
-      );
-    }
-
     //* Create medicine details for warehouseMedicineDetails table
     for (const distribution of distributions) {
-      let medicineDetails =
-        await this.medicineService.findWarehouseMedicineDetailsByMedicineDetails(
-          distribution.medicineDetails.id,
-        );
+      const pharmacyMedicine = await this.deliverService.deliverMedicine(
+        RepositoryEnum.PharmacyMedicine,
+        order.pharmacy.id,
+        {
+          medicineId: distribution.medicineDetails.medicine.id,
+          quantity: distribution.quantity,
+        },
+      );
 
-      // const { medicine } = distribution.medicineDetails;
-      // const warehouseMedicine =
-      //   await this.medicineService.findWarehouseMedicineByMedicine(medicine.id);
-      // if (!medicineDetails) {
-      //   medicineDetails =
-      //     await this.medicineService.createWarehouseMedicineDetails({
-      //       medicine: warehouseMedicine as WarehouseMedicine,
-      //       medicineDetails: distribution.medicineDetails.id as number,
-      //     });
-      // }
-      // await this.medicineService.updateQuantityDetails(
-      //   medicineDetails.id,
-      //   medicineDetails.quantity + distribution.quantity,
-      //   distribution.price,
-      // );
+      await this.deliverService.deliverMedicineDetails(
+        RepositoryEnum.PharmacyMedicineDetails,
+        {
+          medicineDetails: distribution.medicineDetails.id,
+          medicineId: pharmacyMedicine.id,
+          quantity: distribution.quantity,
+        },
+      );
     }
 
-    await this.warehouseOrderRepository.save(order);
+    await this.pharmacyOrderRepository.save(order);
 
     return;
   }

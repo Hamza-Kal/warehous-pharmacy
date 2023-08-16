@@ -226,6 +226,7 @@ export class PharmacyMedicine {
 
   @Column({
     type: 'int',
+    default: 0,
   })
   warehouseLastPrice: number;
 

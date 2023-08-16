@@ -41,7 +41,9 @@ export class SupplierMedicine {
 
   // ******************** Medicine ********************
 
-  @OneToOne(() => Medicine, (medicine) => medicine.supplierMedicine)
+  @OneToOne(() => Medicine, (medicine) => medicine.supplierMedicine, {
+    cascade: true,
+  })
   @JoinColumn()
   medicine: Medicine;
 

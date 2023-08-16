@@ -332,7 +332,7 @@ export class SupplierOrderService {
       medicineQuantity.set(medicine.id, quantity);
     }
 
-    //* Create the medicine to the warehouseMedicien table
+    //* Create the medicine to the warehouseMedicine table
     for (const id of medicineId) {
       let medicine = await this.medicineService.findWarehouseMedicineByMedicine(
         id,

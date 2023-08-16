@@ -24,7 +24,7 @@ export class UserDashboardController {
 
   @AuthorizedApi({
     api: Api.POST,
-    created: true,
+    created: false,
     role: [
       Role.GUEST,
       Role.WAREHOUSE,

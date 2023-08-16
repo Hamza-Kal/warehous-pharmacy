@@ -118,11 +118,11 @@ export class Medicine {
 
   //******************** Roles ********************
 
-  @OneToMany(
+  @OneToOne(
     () => SupplierMedicine,
     (supplierMedicine) => supplierMedicine.medicine,
   )
-  supplierMedicine: SupplierMedicine[];
+  supplierMedicine: SupplierMedicine;
 
   @OneToMany(
     () => WarehouseMedicine,

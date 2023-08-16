@@ -41,13 +41,9 @@ export class SupplierMedicine {
 
   // ******************** Medicine ********************
 
-<<<<<<< HEAD
-  @ManyToOne(() => Medicine, (medicine) => medicine.supplierMedicine)
-=======
   @OneToOne(() => Medicine, (medicine) => medicine.supplierMedicine, {
     cascade: true,
   })
->>>>>>> 6fd594b5fa70c329d82f9c73240d5f9fb14a68e2
   @JoinColumn()
   medicine: Medicine;
 
@@ -230,6 +226,7 @@ export class PharmacyMedicine {
 
   @Column({
     type: 'int',
+    default: 0,
   })
   warehouseLastPrice: number;
 

@@ -6,6 +6,8 @@ import {
   IsNumber,
   Min,
   MinLength,
+  NotEquals,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 
@@ -23,4 +25,20 @@ export class TransferToInventoryDto {
   @Type(() => Batch)
   @IsNotEmpty()
   batch: Batch;
+}
+export class TransferFromInventoryDto {
+  @IsNumber()
+  @IsNotEmpty()
+  from: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  @ValidateIf((o) => o.to !== o.from)
+  to: number;
+
+  @ValidateNested({ each: true })
+  @Type(() => Batch)
+  @IsArray()
+  @IsNotEmpty()
+  batches: Batch[];
 }

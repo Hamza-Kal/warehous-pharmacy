@@ -2,7 +2,10 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WarehouseOrderService } from './services/order-warehouse.service';
 import {
+  DistributionPharmacyOrder,
   DistributionWarehouseOrder,
+  PharmacyOrder,
+  PharmacyOrderDetails,
   WarehouseOrder,
   WarehouseOrderDetails,
 } from './entities/order.entities';
@@ -13,6 +16,8 @@ import { OrderSupplierController } from './api/controllers/order-supplier.contro
 import { SupplierOrderService } from './services/order-supplier.service';
 import { OrderError } from './services/order-error.service';
 import { DeliverModule } from 'src/deliver/deliver.module';
+import { PharmacyOrderService } from './services/order-pharmacy.service';
+import { OrderPharmacyController } from './api/controllers/order-pharmacy.controller';
 
 @Module({
   imports: [
@@ -20,12 +25,24 @@ import { DeliverModule } from 'src/deliver/deliver.module';
       WarehouseOrder,
       WarehouseOrderDetails,
       DistributionWarehouseOrder,
+      PharmacyOrder,
+      PharmacyOrderDetails,
+      DistributionPharmacyOrder,
     ]),
     MedicineModule,
     SupplierModule,
     DeliverModule,
   ],
-  controllers: [OrderWarehouesController, OrderSupplierController],
-  providers: [WarehouseOrderService, SupplierOrderService, OrderError],
+  controllers: [
+    OrderWarehouesController,
+    OrderSupplierController,
+    OrderPharmacyController,
+  ],
+  providers: [
+    WarehouseOrderService,
+    SupplierOrderService,
+    OrderError,
+    PharmacyOrderService,
+  ],
 })
 export class OrderModule {}

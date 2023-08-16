@@ -19,7 +19,10 @@ import {
 import { WarehouseGetMedicines } from '../api/response/warehouse-get-medicines.dto';
 import { UpdatePriceDto } from '../api/dto/warehouseDto/update-medicine-price.dto';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
-import { TransferToInventoryDto } from 'src/warehouse/api/dto/transfer-to-inventory';
+import {
+  TransferFromInventoryDto,
+  TransferToInventoryDto,
+} from 'src/warehouse/api/dto/transfer-to-inventory';
 import { MedicineService } from './medicine.service';
 import {
   DeliverService,
@@ -204,6 +207,7 @@ export class WarehouseMedicineService {
       .createQueryBuilder('warehouse_medicine')
       .leftJoinAndSelect('warehouse_medicine.warehouse', 'warehouse')
       .leftJoinAndSelect('warehouse_medicine.medicine', 'medicine')
+      .leftJoinAndSelect('medicine.supplier', 'supplier')
       .leftJoinAndSelect('medicine.image', 'image')
       .leftJoinAndSelect('medicine.category', 'category')
       .where('warehouse.id = :id', { id: user.warehouseId })
@@ -216,10 +220,12 @@ export class WarehouseMedicineService {
         'medicine.name',
         'image.id',
         'image.url',
+        'supplier.name',
       ])
       .take(limit)
       .skip(skip)
       .getMany();
+
     return {
       totalRecords,
       data: medicines.map((medicine) =>
@@ -378,6 +384,7 @@ export class WarehouseMedicineService {
   }
 
   // TODO check for duplicate batch id in dto
+
   async transferToInventory(
     { id }: IParams,
     body: TransferToInventoryDto,
@@ -483,6 +490,133 @@ export class WarehouseMedicineService {
       },
     );
 
+    return;
+  }
+  async transferFromInventory(body: TransferFromInventoryDto, owner: IUser) {
+    const { warehouseId } = owner;
+    const { batches, from, to } = body;
+
+    const transferFrominventory = await this.inventoryRepository.findOne({
+      where: {
+        id: from,
+        warehouse: {
+          id: warehouseId as number,
+        },
+      },
+    });
+
+    const transferToInventory = await this.inventoryRepository.findOne({
+      where: {
+        id: to,
+        warehouse: {
+          id: warehouseId as number,
+        },
+      },
+    });
+
+    if (!transferFrominventory || !transferToInventory) {
+      throw new HttpException(
+        this.medicineError.notFoundInventory(),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const toBeMovedMedicine: {
+      medicineId: number;
+      roleMedicineId: number; // for the role table like (inventoryMedicine warehouseMedicine ...)
+      quantity: number;
+      medicineDetailsId: number;
+    }[] = [];
+    for (const batch of batches) {
+      const inventoryMedicine =
+        await this.inventoryMedicineDetailsRepository.findOne({
+          where: {
+            id: batch.batchId,
+            medicine: {
+              inventory: {
+                id: from as number,
+              },
+            },
+          },
+          relations: {
+            medicine: {
+              // getting the original medicine table
+              medicine: true,
+            },
+            medicineDetails: true,
+          },
+          select: {
+            medicine: {
+              id: true,
+              medicine: { id: true },
+            },
+            id: true,
+            quantity: true,
+            medicineDetails: {
+              id: true,
+            },
+          },
+        });
+
+      if (!inventoryMedicine)
+        throw new HttpException(
+          this.medicineError.notFoundMedicine(),
+          HttpStatus.NOT_FOUND,
+        );
+
+      const movedQuantity = batch.quantity;
+      if (inventoryMedicine.quantity < movedQuantity) {
+        throw new HttpException(
+          this.medicineError.notEnoughMedicine(),
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      toBeMovedMedicine.push({
+        medicineId: inventoryMedicine.medicine.medicine.id,
+        roleMedicineId: inventoryMedicine.medicine.id,
+        quantity: movedQuantity,
+        medicineDetailsId: inventoryMedicine.medicineDetails.id,
+      });
+    }
+
+    for (const medicine of toBeMovedMedicine) {
+      console.log(medicine);
+      const deliverdMedicine = await this.deliverService.deliverMedicine(
+        RepositoryEnum.InventoryMedicine,
+        to,
+        {
+          quantity: medicine.quantity,
+          medicineId: medicine.medicineId,
+        },
+      );
+
+      // { quantity: 99, medicineDetails: MedicineDetails { id: 32 } }
+      await this.deliverService.deliverMedicineDetails(
+        RepositoryEnum.InventoryMedicineDetails,
+        {
+          medicineDetails: medicine.medicineDetailsId,
+          medicineId: deliverdMedicine.id,
+          quantity: medicine.quantity,
+        },
+      );
+
+      const fromMedicine = await this.deliverService.removeMedicine(
+        RepositoryEnum.InventoryMedicine,
+        from,
+        {
+          medicineId: medicine.medicineId,
+          quantity: medicine.quantity,
+        },
+      );
+      await this.deliverService.removeMedicineDetails(
+        RepositoryEnum.InventoryMedicineDetails,
+        {
+          medicineDetails: medicine.medicineDetailsId,
+          medicineId: fromMedicine.id,
+          quantity: medicine.quantity,
+        },
+      );
+    }
     return;
   }
 }

@@ -41,9 +41,13 @@ export class SupplierMedicine {
 
   // ******************** Medicine ********************
 
+<<<<<<< HEAD
+  @ManyToOne(() => Medicine, (medicine) => medicine.supplierMedicine)
+=======
   @OneToOne(() => Medicine, (medicine) => medicine.supplierMedicine, {
     cascade: true,
   })
+>>>>>>> 6fd594b5fa70c329d82f9c73240d5f9fb14a68e2
   @JoinColumn()
   medicine: Medicine;
 
@@ -72,7 +76,7 @@ export class SupplierMedicineDetails {
   @JoinColumn()
   medicine: SupplierMedicine;
 
-  @OneToOne(
+  @ManyToOne(
     () => MedicineDetails,
     (medicineDetails) => medicineDetails.supplierMedicine,
   )
@@ -107,7 +111,7 @@ export class WarehouseMedicine {
 
   // ******************** Medicine ********************
 
-  @OneToOne(() => Medicine, (medicine) => medicine.warehouseMedicine)
+  @ManyToOne(() => Medicine, (medicine) => medicine.warehouseMedicine)
   @JoinColumn()
   medicine: Medicine;
 
@@ -146,7 +150,7 @@ export class WarehouseMedicineDetails {
   @JoinColumn()
   medicine: WarehouseMedicine;
 
-  @OneToOne(
+  @ManyToOne(
     () => MedicineDetails,
     (medicineDetails) => medicineDetails.warehouseMedicine,
   )
@@ -173,7 +177,7 @@ export class InventoryMedicine {
 
   // ******************** Medicine ********************
 
-  @OneToOne(() => Medicine, (medicine) => medicine.inventoryMedicine)
+  @ManyToOne(() => Medicine, (medicine) => medicine.inventoryMedicine)
   @JoinColumn()
   medicine: Medicine;
 
@@ -204,7 +208,7 @@ export class InventoryMedicineDetails {
   @JoinColumn()
   medicine: InventoryMedicine;
 
-  @OneToOne(
+  @ManyToOne(
     () => MedicineDetails,
     (medicineDetails) => medicineDetails.inventoryMedicine,
   )
@@ -235,7 +239,7 @@ export class PharmacyMedicine {
   pharmacy: Pharmacy;
 
   // ******************** Medicine ********************
-  @OneToOne(() => Medicine, (medicine) => medicine.pharmacyMedicine)
+  @ManyToOne(() => Medicine, (medicine) => medicine.pharmacyMedicine)
   @JoinColumn()
   medicine: Medicine;
 
@@ -264,7 +268,7 @@ export class PharmacyMedicineDetails {
   @JoinColumn()
   medicine: PharmacyMedicine;
 
-  @OneToOne(
+  @ManyToOne(
     () => MedicineDetails,
     (medicineDetails) => medicineDetails.pharmacyMedicine,
   )

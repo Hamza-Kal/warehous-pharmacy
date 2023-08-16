@@ -11,6 +11,7 @@ import { IUser } from 'src/shared/interface/user.interface';
 import { CreateMedicineBrew } from '../dto/create-medicine-brew.dto';
 import { MedicineSupplierService } from 'src/medicine/services/medicine-supplier.service';
 import { IParams } from 'src/shared/interface/params.interface';
+import { UpdateMedicineDto } from '../dto/update-medicine.dto';
 
 @AuthenticatedController({
   controller: '/medicine/supplier',
@@ -52,5 +53,27 @@ export class MedicineController {
   async getAll(@Query() query: Pagination, @CurrUser() user: IUser) {
     const parsingResult = paginationParser(query);
     return this.medicineService.findAll(parsingResult, user);
+  }
+
+  @AuthorizedApi({
+    api: Api.PATCH,
+    url: 'edit/:id',
+    role: [Role.SUPPLIER],
+  })
+  async editMedicine(
+    @Param() params: IParams,
+    @Body() body: UpdateMedicineDto,
+    @CurrUser() user: IUser,
+  ) {
+    return this.medicineService.update(+params.id, body, user);
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: 'batches/:id',
+    role: [Role.SUPPLIER],
+  })
+  async getMedicineBatches(@Param() params: IParams, @CurrUser() user: IUser) {
+    return this.medicineService.findMedicineBatches(+params.id, user);
   }
 }

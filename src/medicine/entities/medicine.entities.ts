@@ -121,9 +121,6 @@ export class Medicine {
   @OneToMany(
     () => SupplierMedicine,
     (supplierMedicine) => supplierMedicine.medicine,
-    {
-      cascade: true,
-    },
   )
   supplierMedicine: SupplierMedicine[];
 

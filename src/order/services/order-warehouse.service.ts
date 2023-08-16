@@ -253,6 +253,133 @@ export class WarehouseOrderService {
     }
   }
 
+  //! price is not assigned here so when making payment table
+  async deliveredOrder({ id }: IParams, user: IUser) {
+    const order = await this.pharmacyOrderRepository.findOne({
+      where: {
+        id,
+        warehouse: {
+          id: user.warehouseId as number,
+        },
+        status: OrderStatus.Accepted,
+      },
+      relations: {
+        warehouse: true,
+        pharmacy: true,
+      },
+      select: {
+        id: true,
+        warehouse: {
+          id: true,
+        },
+        totalPrice: true,
+        pharmacy: {
+          id: true,
+        },
+        status: true,
+      },
+    });
+
+    if (!order) {
+      throw new HttpException(
+        this.orderError.notFoundOrder(),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    order.status = OrderStatus.Delivered;
+
+    const distributions = await this.pharmacyDistributionRepository.find({
+      where: { order: { id } },
+      relations: {
+        medicineDetails: {
+          medicine: true,
+        },
+      },
+      select: {
+        quantity: true,
+        medicineDetails: {
+          id: true,
+          medicine: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (!distributions.length) {
+      throw new HttpException(
+        this.orderError.notFoundDistributionError,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const medicineId = new Set<number>();
+    const medicineQuantity = new Map<number, number>();
+
+    for (const distribution of distributions) {
+      const { medicineDetails } = distribution;
+      const { medicine } = medicineDetails;
+
+      if (!medicineId.has(medicine.id)) {
+        medicineQuantity.set(medicine.id, distribution.quantity);
+        medicineId.add(medicine.id);
+        continue;
+      }
+
+      let quantity = medicineQuantity.get(medicine.id);
+      quantity += distribution.quantity;
+      medicineQuantity.set(medicine.id, quantity);
+    }
+
+    //* Create the medicine to the warehouseMedicien table
+    for (const id of medicineId) {
+      let medicine = await this.medicineService.findWarehouseMedicineByMedicine(
+        id,
+      );
+      const quantity = medicineQuantity.get(id);
+      if (!medicine) {
+        medicine = await this.medicineService.createWarehouseMedicine({
+          medicine: id,
+          warehouse: order.warehouse.id,
+        });
+      }
+
+      await this.medicineService.updateQuantity(
+        medicine.id,
+        quantity + medicine.quantity,
+      );
+    }
+
+    //* Create medicine details for warehouseMedicineDetails table
+    for (const distribution of distributions) {
+      let medicineDetails =
+        await this.medicineService.findWarehouseMedicineDetailsByMedicineDetails(
+          distribution.medicineDetails.id,
+        );
+
+      // const { medicine } = distribution.medicineDetails;
+      // const warehouseMedicine =
+      //   await this.medicineService.findWarehouseMedicineByMedicine(medicine.id);
+      // if (!medicineDetails) {
+      //   medicineDetails =
+      //     await this.medicineService.createWarehouseMedicineDetails({
+      //       medicine: warehouseMedicine as WarehouseMedicine,
+      //       medicineDetails: distribution.medicineDetails.id as number,
+      //     });
+      // }
+      // await this.medicineService.updateQuantityDetails(
+      //   medicineDetails.id,
+      //   medicineDetails.quantity + distribution.quantity,
+      //   distribution.price,
+      // );
+    }
+
+    await this.warehouseOrderRepository.save(order);
+
+    return;
+  }
+
   async findOne({ id }: IParams, user: IUser) {
     const order = await this.warehouseOrderRepository.findOne({
       where: {

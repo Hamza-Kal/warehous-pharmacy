@@ -14,8 +14,8 @@ import {
   InventoryMedicine,
   InventoryMedicineDetails,
 } from '../entities/medicine-role.entities';
-import { GetByCriteriaInventoryMedicines } from '../api/dto/reponse/inventory-get-by-criteria.dto';
-import { GetByIdInventoryMedicines } from '../api/dto/reponse/inventory-get-by-id.dto';
+import { GetByCriteriaInventoryMedicines } from '../api/dto/response/inventory-get-by-criteria.dto';
+import { GetByIdInventoryMedicines } from '../api/dto/response/inventory-get-by-id.dto';
 
 @Injectable()
 export class MedicineInventoryService {

@@ -10,7 +10,10 @@ import { Not, Repository } from 'typeorm';
 import { MedicineError } from './medicine-error.service';
 import { IUser } from 'src/shared/interface/user.interface';
 import { IParams } from 'src/shared/interface/params.interface';
-import { InventoryMedicine } from '../entities/medicine-role.entities';
+import {
+  InventoryMedicine,
+  InventoryMedicineDetails,
+} from '../entities/medicine-role.entities';
 import { GetByCriteriaInventoryMedicines } from '../api/dto/reponse/inventory-get-by-criteria.dto';
 import { GetByIdInventoryMedicines } from '../api/dto/reponse/inventory-get-by-id.dto';
 
@@ -25,6 +28,8 @@ export class MedicineInventoryService {
     private medicineDetails: Repository<MedicineDetails>,
     @InjectRepository(InventoryMedicine)
     private inventoryMedicineRepository: Repository<InventoryMedicine>,
+    @InjectRepository(InventoryMedicineDetails)
+    private inventoryMedicineDetailsRepository: Repository<InventoryMedicineDetails>,
     private medicineError: MedicineError,
   ) {}
 
@@ -123,5 +128,35 @@ export class MedicineInventoryService {
       );
 
     return { data: new GetByIdInventoryMedicines({ medicine }) };
+  }
+
+  async getInventoriesMedicine(medicineId: number, warehouseId: number) {
+    const medicines = await this.inventoryMedicineDetailsRepository
+      .createQueryBuilder('inventory_medicine_details')
+      .leftJoinAndSelect(
+        'inventory_medicine_details.medicine',
+        'inventory_medicine',
+      )
+      .leftJoinAndSelect('inventory_medicine.inventory', 'inventory')
+      .leftJoinAndSelect('inventory.warehouse', 'warehouse')
+      .leftJoinAndSelect('inventory.manager', 'manager')
+      .leftJoinAndSelect('inventory_medicine.medicine', 'medicine')
+      .where('warehouse.id = :id', { id: warehouseId })
+      .andWhere('inventory_medicine_details.quantity > 0', { quantity: 0 })
+      .andWhere('medicine.id = :medicineId', { medicineId })
+      .select([
+        'inventory_medicine_details.id',
+        'inventory_medicine.id',
+        'medicine.id',
+        'medicine.name',
+        'inventory_medicine.id',
+        'inventory_medicine_details.quantity',
+        'inventory.name',
+        'inventory.phoneNumber',
+        'manager.fullName',
+      ])
+      .getMany();
+
+    return medicines;
   }
 }

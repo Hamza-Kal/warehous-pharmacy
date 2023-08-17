@@ -8,17 +8,17 @@ export class GetByIdMedicineSupplier {
   quantity: number;
   description: string;
   imageUrl: string | null;
+  supplier: string;
   batches: {
     id: number;
     expireDate: Date;
     quantity: number;
   }[];
-  medicineSupplier: string;
-  medicineCategory: string;
   constructor({ supplierMedicine }: { supplierMedicine: SupplierMedicine }) {
     this.id = supplierMedicine.id;
     this.name = supplierMedicine.medicine.name;
     this.category = supplierMedicine.medicine.category.category;
+    this.supplier = supplierMedicine.medicine.supplier.name;
     this.price = supplierMedicine.price;
     this.quantity = supplierMedicine.quantity;
     this.imageUrl = supplierMedicine.medicine?.image?.url;
@@ -40,8 +40,6 @@ export class GetByIdMedicineSupplier {
       });
     }
     this.batches = batches;
-    this.medicineCategory = supplierMedicine.medicine.category.category;
-    this.medicineSupplier = supplierMedicine.medicine.supplier.name;
   }
 
   toObject(): {
@@ -52,7 +50,7 @@ export class GetByIdMedicineSupplier {
     quantity: number;
     imageUrl: string | null;
     description: string;
-
+    supplier: string;
     batches: {
       id: number;
       expireDate: Date;
@@ -66,8 +64,9 @@ export class GetByIdMedicineSupplier {
       price: this.price,
       quantity: this.quantity,
       imageUrl: this.imageUrl,
-      batches: this.batches,
       description: this.description,
+      supplier: this.supplier,
+      batches: this.batches,
     };
   }
 }

@@ -32,6 +32,8 @@ import { IParams } from 'src/shared/interface/params.interface';
 import { WarehouseMedicines } from '../api/dto/reponse/warehouse-medicines-get-by-criteria.dto';
 import { sk } from '@faker-js/faker';
 import { GetInventoriesDistributionsDto } from '../api/response/get-inventories-distributions.dto';
+import { MedicineInventoryService } from './medicine-inventory.service';
+import { InventoryMedicineDetailsDto } from '../api/dto/reponse/inventory-medicine-details.dto';
 
 @Injectable()
 export class WarehouseMedicineService {
@@ -55,6 +57,7 @@ export class WarehouseMedicineService {
     private warehouseMedicineDetailsRepository: Repository<WarehouseMedicineDetails>,
     @InjectRepository(InventoryMedicineDetails)
     private inventoryMedicineDetailsRepository: Repository<InventoryMedicineDetails>,
+    private inventoryMedicineService: MedicineInventoryService,
     private readonly medicineService: MedicineService,
     private deliverService: DeliverService,
     @InjectRepository(Inventory)
@@ -69,6 +72,7 @@ export class WarehouseMedicineService {
         supplier: {
           id: supplierId,
         },
+        price: Not(0),
       },
     });
     const medicines = await this.supplierMedicineRepository
@@ -77,6 +81,7 @@ export class WarehouseMedicineService {
       .leftJoinAndSelect('supplier_medicine.medicine', 'medicine')
       .leftJoinAndSelect('medicine.category', 'category')
       .where('supplier.id = :id', { id: supplierId as number })
+      .andWhere('supplier_medicine.price != 0')
       .leftJoinAndSelect('medicine.image', 'image')
       .select([
         'supplier.id',
@@ -115,7 +120,7 @@ export class WarehouseMedicineService {
         },
       },
     });
-    const mmedicines = await this.warehouseMedicineRepository
+    const medicines = await this.warehouseMedicineRepository
       .createQueryBuilder('warehouse_medicine')
       .leftJoinAndSelect('warehouse_medicine.warehouse', 'warehouse')
       .leftJoinAndSelect('warehouse_medicine.medicine', 'medicine')
@@ -185,7 +190,7 @@ export class WarehouseMedicineService {
     // console.log(mmedicines);
     return {
       totalRecords,
-      data: mmedicines.map((medicine) =>
+      data: medicines.map((medicine) =>
         new WarehouseMedicines({
           medicine,
         }).toObject(),
@@ -237,6 +242,48 @@ export class WarehouseMedicineService {
     };
   }
 
+  //? get all the medicineDetails of the inventories
+  async findAllInventoriesMedicine({ id }: IParams, user: IUser) {
+    const medicine = await this.warehouseMedicineRepository.findOne({
+      where: {
+        id,
+        warehouse: {
+          id: user.warehouseId as number,
+        },
+      },
+      select: {
+        id: true,
+        medicine: {
+          id: true,
+        },
+      },
+      relations: {
+        medicine: true,
+      },
+    });
+
+    if (!medicine) {
+      throw new HttpException(
+        this.medicineError.notEnoughMedicine(),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const inventoryDistribution =
+      await this.inventoryMedicineService.getInventoriesMedicine(
+        medicine.medicine.id,
+        user.warehouseId as number,
+      );
+
+    return {
+      data: inventoryDistribution.map((details) =>
+        new InventoryMedicineDetailsDto({
+          details,
+        }).toObject(),
+      ),
+    };
+  }
+
   async findInventoryDistributions(warehouseMedicineId: number, user: IUser) {
     const { warehouseId } = user;
     const warehouseMedicine = await this.warehouseMedicineRepository.findOne({
@@ -245,6 +292,7 @@ export class WarehouseMedicineService {
         warehouse: {
           id: warehouseId as number,
         },
+        quantity: Not(0),
       },
       relations: {
         medicine: true,
@@ -275,6 +323,7 @@ export class WarehouseMedicineService {
             id: warehouseId as number,
           },
         },
+        quantity: Not(0),
       },
       select: {
         id: true,
@@ -311,6 +360,7 @@ export class WarehouseMedicineService {
           id: user.warehouseId as number,
         },
         id,
+        quantity: Not(0),
       },
       relations: {
         medicine: {
@@ -420,6 +470,7 @@ export class WarehouseMedicineService {
               id: owner.warehouseId as number,
             },
           },
+          quantity: Not(0),
         },
         relations: {
           medicine: {

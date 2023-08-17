@@ -26,6 +26,8 @@ export class OrderWarehouesController {
     return await this.orderService.create(body, user);
   }
 
+  //**********************  AcceptOrder  **********************/
+
   @AuthorizedApi({
     api: Api.PATCH,
     url: '/accept/:id',
@@ -34,6 +36,8 @@ export class OrderWarehouesController {
   async accept(@CurrUser() user: IUser, @Param() param: IParams) {
     return await this.orderService.acceptOrder({ id: +param.id }, user);
   }
+
+  //**********************  DeliverOrder  **********************/
 
   @AuthorizedApi({
     api: Api.PATCH,
@@ -44,22 +48,63 @@ export class OrderWarehouesController {
     return await this.orderService.deliveredOrder({ id: +param.id }, user);
   }
 
+  //**********************  GetDistribution:Id  **********************/
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/distribution/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async findDistribution(@Param() param: IParams, @CurrUser() user: IUser) {
+    return await this.orderService.findDistribution({ id: +param.id }, user);
+  }
+
+  //**********************  GetOutcomingOrder:Id  **********************/
+  @AuthorizedApi({
+    api: Api.GET,
+    url: 'pharmacies',
+    role: [Role.WAREHOUSE],
+  })
+  async findAllOutComing(@Query() query: Pagination, @CurrUser() user: IUser) {
+    const { pagination, criteria } = paginationParser(query);
+    return await this.orderService.findAllOutcoming(
+      { pagination, criteria },
+      user,
+    );
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/pharmacies/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async findOneOutcoming(@Param() param: IParams, @CurrUser() user: IUser) {
+    return await this.orderService.findOneOutcoming({ id: +param.id }, user);
+  }
+
+  //**********************  GetIncomingOrder  **********************/
+
   @AuthorizedApi({
     api: Api.GET,
     url: '/:id',
     role: [Role.WAREHOUSE],
   })
-  async findOne(@Param() param: IParams, @CurrUser() user: IUser) {
-    return await this.orderService.findOne({ id: +param.id }, user);
+  async findOneIncoming(@Param() param: IParams, @CurrUser() user: IUser) {
+    return await this.orderService.findOneIncoming({ id: +param.id }, user);
   }
+
+  //**********************  GetIncomingOrder:Id  **********************/
 
   @AuthorizedApi({
     api: Api.GET,
     url: '',
     role: [Role.WAREHOUSE],
   })
-  async findAll(@Query() query: Pagination, @CurrUser() user: IUser) {
+  async findAllIncoming(@Query() query: Pagination, @CurrUser() user: IUser) {
     const { pagination, criteria } = paginationParser(query);
-    return await this.orderService.findAll({ pagination, criteria }, user);
+    return await this.orderService.findAllIncoming(
+      { pagination, criteria },
+      user,
+    );
   }
 }

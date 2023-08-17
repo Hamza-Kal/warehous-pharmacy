@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './shared/errors/all.http.exceptions';
 import { ValidationPipe } from '@nestjs/common';
 import { config } from 'dotenv';
+import jwtModule from './shared/jwt/jwt.module';
 config();
 
 async function bootstrap() {

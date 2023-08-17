@@ -31,6 +31,8 @@ import { MedicineInventoryService } from './services/medicine-inventory.service'
 import { MedicineInventoryController } from './api/controller/medicine-inventory.controller';
 import { Media } from 'src/media/entities/media.entity';
 import { CategoryController } from './api/controller/medicine-all.controller';
+import { MedicinePharmacyController } from './api/controller/medicine-pharmacy.controller';
+import { PharmacyMedicineService } from './services/medicine-pharmacy.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -55,6 +57,7 @@ import { CategoryController } from './api/controller/medicine-all.controller';
     MedicineController,
     MedicineWarehouseController,
     MedicineInventoryController,
+    MedicinePharmacyController,
     CategoryController,
   ],
   providers: [
@@ -63,6 +66,7 @@ import { CategoryController } from './api/controller/medicine-all.controller';
     MedicineError,
     MedicineService,
     MedicineInventoryService,
+    PharmacyMedicineService,
   ],
   exports: [MedicineService, MedicineError, WarehouseMedicineService],
 })

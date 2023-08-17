@@ -1,4 +1,4 @@
-import { Param } from '@nestjs/common';
+import { Body, Param } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { Role } from 'src/shared/enums/roles';
 import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
@@ -7,6 +7,7 @@ import { IParams } from 'src/shared/interface/params.interface';
 import { AuthenticatedController } from 'src/shared/decorators/authenticated.controller.decorator';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { IUser } from 'src/shared/interface/user.interface';
+import { UpdateUserDto } from '../dtos/update-user.dto';
 
 @AuthenticatedController({
   controller: 'user',
@@ -83,5 +84,19 @@ export class UserDashboardController {
   })
   async getBanned() {
     return this.userService.getBannedUsers();
+  }
+  @AuthorizedApi({
+    api: Api.PATCH,
+    url: 'edit-profile',
+    role: [
+      Role.GUEST,
+      Role.SUPPLIER,
+      Role.WAREHOUSE,
+      Role.INVENTORY,
+      Role.PHARMACY,
+    ],
+  })
+  async editProfile(@Body() body: UpdateUserDto, @CurrUser() user: IUser) {
+    return this.userService.editUser(body, user);
   }
 }

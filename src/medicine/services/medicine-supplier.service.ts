@@ -235,7 +235,7 @@ export class MedicineSupplierService {
     if (!medicine) {
       throw new HttpException(
         this.medicineError.notFoundMedicine(),
-        HttpStatus.BAD_GATEWAY,
+        HttpStatus.NOT_FOUND,
       );
     }
     return {

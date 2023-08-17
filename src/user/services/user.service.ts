@@ -14,6 +14,7 @@ import { Role } from 'src/shared/enums/roles';
 import { IParams } from 'src/shared/interface/params.interface';
 import { GetAllGuestsDto } from '../dtos/response/get-all-guests.dto';
 import { IUser } from 'src/shared/interface/user.interface';
+import { UpdateUserDto } from '../dtos/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -81,7 +82,6 @@ export class UserService {
         role: Not(Role.GUEST),
       },
     });
-
     return !!user;
   }
 
@@ -154,6 +154,22 @@ export class UserService {
     });
     return {
       data: users.map((user) => new GetAllGuestsDto({ user }).toObject()),
+    };
+  }
+
+  async editUser(body: UpdateUserDto, curUser: IUser) {
+    const { id } = curUser;
+    const user = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+    });
+    Object.assign(user, body);
+    await this.userRepository.save(user);
+    return {
+      data: {
+        id: user.id,
+      },
     };
   }
 }

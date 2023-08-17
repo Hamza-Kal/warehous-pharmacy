@@ -30,6 +30,10 @@ import {
   DeliverService,
   RepositoryEnum,
 } from 'src/deliver/service/deliver.service';
+import { GetAllOutcomingWarehouseOrder } from '../api/dto/response/get-by-criteria-warehouse-outcoming-order.dto';
+import { GetByIdWarehouseOutcomingOrder } from '../api/dto/response/get-by-id-warehouse-outcoming-orders.dto';
+import { GetByIdOrderDistribution } from '../api/dto/response/get-by-id-distribution-order.dto';
+import { Inventory } from 'src/inventory/entities/inventory.entity';
 
 @Injectable()
 export class WarehouseOrderService {
@@ -159,7 +163,7 @@ export class WarehouseOrderService {
     const medicines = new Map<
       number,
       {
-        inventoryId: number;
+        inventoryId: number | Inventory;
         batchId: number | MedicineDetails;
         quantity: number;
       }[]
@@ -205,9 +209,17 @@ export class WarehouseOrderService {
       const medicineId = medicine[0];
       const inventoriesMedicines = medicine[1];
       for (const inventoryMedicine of inventoriesMedicines) {
+        await this.deliverService.removeMedicine(
+          RepositoryEnum.WarehouseMedicine,
+          user.warehouseId as number,
+          {
+            medicineId,
+            quantity: inventoryMedicine.quantity,
+          },
+        );
         const medicine = await this.deliverService.removeMedicine(
           RepositoryEnum.InventoryMedicine,
-          inventoryMedicine.inventoryId,
+          inventoryMedicine.inventoryId as number,
           {
             medicineId,
             quantity: inventoryMedicine.quantity,
@@ -234,6 +246,7 @@ export class WarehouseOrderService {
             order: orders[0],
             quantity: distribution.quantity,
             medicineDetails: distribution.batchId as MedicineDetails,
+            inventory: distribution.inventoryId as Inventory,
           },
         );
 
@@ -366,7 +379,7 @@ export class WarehouseOrderService {
     return;
   }
 
-  async findOne({ id }: IParams, user: IUser) {
+  async findOneIncoming({ id }: IParams, user: IUser) {
     const order = await this.warehouseOrderRepository.findOne({
       where: {
         id,
@@ -414,7 +427,111 @@ export class WarehouseOrderService {
     };
   }
 
-  async findAll(
+  async findDistribution({ id }: IParams, user: IUser) {
+    const distributions = await this.pharmacyDistributionRepository.find({
+      where: {
+        order: {
+          id,
+          status: OrderStatus.Accepted,
+          warehouse: {
+            id: user.warehouseId as number,
+          },
+        },
+      },
+      select: {
+        id: true,
+        order: {
+          id: true,
+        },
+        inventory: {
+          name: true,
+        },
+        medicineDetails: {
+          id: true,
+          medicine: {
+            name: true,
+            image: {
+              url: true,
+            },
+          },
+        },
+        quantity: true,
+      },
+      relations: {
+        order: {
+          warehouse: true,
+        },
+        inventory: true,
+        medicineDetails: {
+          medicine: {
+            image: true,
+          },
+        },
+      },
+    });
+
+    if (!distributions.length) {
+      throw new HttpException(
+        this.orderError.notFoundOrder(),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return {
+      data: distributions.map((distribution) =>
+        new GetByIdOrderDistribution({ distribution }).toObject(),
+      ),
+    };
+  }
+
+  async findOneOutcoming({ id }: IParams, user: IUser) {
+    const order = await this.pharmacyOrderRepository.findOne({
+      where: {
+        id,
+        warehouse: {
+          id: user.warehouseId as number,
+        },
+      },
+      select: {
+        id: true,
+        pharmacy: {
+          id: true,
+          name: true,
+          phoneNumber: true,
+          location: true,
+          user: {
+            email: true,
+          },
+        },
+        details: {
+          quantity: true,
+          price: true,
+          medicine: {
+            name: true,
+          },
+        },
+      },
+      relations: {
+        pharmacy: {
+          user: true,
+        },
+        details: {
+          medicine: true,
+        },
+      },
+    });
+
+    if (!order) {
+      throw new HttpException(
+        this.orderError.notFoundOrder(),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return {
+      data: new GetByIdWarehouseOutcomingOrder({ order }).toObject(),
+    };
+  }
+
+  async findAllIncoming(
     { pagination, criteria }: { pagination: Pagination; criteria?: any },
     user: IUser,
   ) {
@@ -456,5 +573,72 @@ export class WarehouseOrderService {
         new GetAllWarehouseOrder({ order }).toObject(),
       ),
     };
+  }
+
+  async findAllOutcoming(
+    { pagination, criteria }: { pagination: Pagination; criteria?: any },
+    user: IUser,
+  ) {
+    const { skip, limit } = pagination;
+    const { warehouseId } = user;
+    const totalRecords = await this.pharmacyOrderRepository.count({
+      where: {
+        ...criteria,
+        warehouse: {
+          id: warehouseId as number,
+        },
+      },
+    });
+    const orders = await this.pharmacyOrderRepository.find({
+      where: {
+        ...criteria,
+        warehouse: {
+          id: warehouseId as number,
+        },
+      },
+      relations: {
+        pharmacy: true,
+      },
+      select: {
+        id: true,
+        status: true,
+        created_at: true,
+        pharmacy: {
+          name: true,
+        },
+        totalPrice: true,
+      },
+      skip,
+      take: limit,
+    });
+    return {
+      totalRecords,
+      data: orders.map((order) =>
+        new GetAllOutcomingWarehouseOrder({ order }).toObject(),
+      ),
+    };
+  }
+
+  async rejectOrder({ id }: IParams, user: IUser) {
+    const order = await this.pharmacyOrderRepository.findOne({
+      where: [
+        {
+          id: id,
+          warehouse: {
+            id: user.warehouseId as number,
+          },
+          status: OrderStatus.Pending,
+        },
+      ],
+    });
+
+    if (!order) {
+      throw new HttpException(
+        this.orderError.notFoundOrder(),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    order.status = OrderStatus.Rejected;
+    await this.pharmacyOrderRepository.save(order);
   }
 }

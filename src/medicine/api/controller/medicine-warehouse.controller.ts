@@ -72,6 +72,19 @@ export class MedicineWarehouseController {
     );
   }
 
+  //**********************  GetInventoriesMedicine:Id  **********************/
+  @AuthorizedApi({
+    api: Api.GET,
+    url: 'inventories/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async findAllOutComing(@Param() param: IParams, @CurrUser() user: IUser) {
+    return await this.warehouseMedicineService.findAllInventoriesMedicine(
+      { id: +param.id },
+      user,
+    );
+  }
+
   // All the medicines that are not distributed to the inventories
   @AuthorizedApi({
     api: Api.GET,

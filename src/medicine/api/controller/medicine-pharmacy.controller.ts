@@ -25,7 +25,7 @@ export class MedicinePharmacyController {
     url: '/warehouse/:id',
     role: [Role.PHARMACY],
   })
-  async create(
+  async findAllWarehouse(
     @Query() query: Pagination,
 
     @Param() param: IParams,
@@ -35,5 +35,14 @@ export class MedicinePharmacyController {
       { pagination, criteria },
       +param.id,
     );
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/warehouse/medicine/:id',
+    role: [Role.PHARMACY],
+  })
+  async findOneWarehouse(@Param() param: IParams) {
+    return await this.medicineService.findOneWarehouse(+param.id);
   }
 }

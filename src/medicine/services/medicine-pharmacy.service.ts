@@ -35,6 +35,7 @@ import { GetInventoriesDistributionsDto } from '../api/response/get-inventories-
 import { MedicineInventoryService } from './medicine-inventory.service';
 import { InventoryMedicineDetailsDto } from '../api/dto/reponse/inventory-medicine-details.dto';
 import { PharmacyGetWarehouseMedicine } from '../api/dto/reponse/pharmacy-get-warehouse-medicines.dto';
+import { PharmacyGetByIdWarehouseMedicine } from '../api/dto/reponse/pharmacy-get-by-id-warehouse-medicine.dto';
 
 @Injectable()
 export class PharmacyMedicineService {
@@ -85,6 +86,35 @@ export class PharmacyMedicineService {
           medicine,
         }).toObject(),
       ),
+    };
+  }
+
+  async findOneWarehouse(medicineId: number) {
+    const medicine = await this.warehouseMedicineRepository
+      .createQueryBuilder('warehouse_medicine')
+      .leftJoinAndSelect('warehouse_medicine.warehouse', 'warehouse')
+      .leftJoinAndSelect('warehouse_medicine.medicine', 'medicine')
+      .leftJoinAndSelect('medicine.category', 'category')
+      .leftJoinAndSelect('medicine.image', 'image')
+      .where('warehouse_medicine.id = :id', { id: medicineId as number })
+      .andWhere('price != 0')
+      .andWhere('quantity != 0')
+      .select([
+        'warehouse.id',
+        'warehouse_medicine.id',
+        'warehouse_medicine.price',
+        'warehouse_medicine.quantity',
+        'medicine.id',
+        'medicine.name',
+        'category.category',
+        'image.url',
+        'medicine.description',
+      ])
+      .getOne();
+    return {
+      data: new PharmacyGetByIdWarehouseMedicine({
+        medicine,
+      }).toObject(),
     };
   }
 }

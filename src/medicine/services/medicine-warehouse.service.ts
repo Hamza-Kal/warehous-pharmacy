@@ -72,6 +72,7 @@ export class WarehouseMedicineService {
         supplier: {
           id: supplierId,
         },
+        price: Not(0),
       },
     });
     const medicines = await this.supplierMedicineRepository
@@ -80,6 +81,7 @@ export class WarehouseMedicineService {
       .leftJoinAndSelect('supplier_medicine.medicine', 'medicine')
       .leftJoinAndSelect('medicine.category', 'category')
       .where('supplier.id = :id', { id: supplierId as number })
+      .andWhere('supplier_medicine.price != 0')
       .leftJoinAndSelect('medicine.image', 'image')
       .select([
         'supplier.id',

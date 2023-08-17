@@ -33,7 +33,7 @@ export class MedicineController {
     role: [Role.SUPPLIER],
   })
   async createBrew(@Body() body: CreateMedicineBrew, @CurrUser() user: IUser) {
-    return await this.medicineService.createMeicineBrew(user, body);
+    return await this.medicineService.createMedicineBrew(user, body);
   }
 
   @AuthorizedApi({

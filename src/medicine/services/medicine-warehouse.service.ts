@@ -130,7 +130,6 @@ export class WarehouseMedicineService {
     }: { criteria?: { category?: string }; pagination: Pagination },
     user: IUser,
   ) {
-    console.log(criteria);
     const { skip, limit } = pagination;
     const totalRecords = await this.warehouseMedicineRepository.count({
       where: {
@@ -142,13 +141,14 @@ export class WarehouseMedicineService {
         warehouse: {
           id: user.warehouseId as number,
         },
+        quantity: Not(0),
         medicineDetails: {
           quantity: Not(0),
         },
       },
     });
 
-    const query = await this.warehouseMedicineRepository
+    const query = this.warehouseMedicineRepository
       .createQueryBuilder('warehouse_medicine')
       .leftJoinAndSelect('warehouse_medicine.warehouse', 'warehouse')
       .leftJoinAndSelect('warehouse_medicine.medicine', 'medicine')

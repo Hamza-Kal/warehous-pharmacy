@@ -83,6 +83,9 @@ export class MedicineInventoryService {
         },
         id,
         quantity: Not(0),
+        medicineDetails: {
+          quantity: Not(0),
+        },
       },
       relations: {
         medicine: {

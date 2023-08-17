@@ -5,7 +5,7 @@ import {
   Medicine,
   MedicineDetails,
 } from '../entities/medicine.entities';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 
 import { MedicineError } from './medicine-error.service';
 import { CreateMedicine } from '../api/dto/create-medicine.dto';
@@ -135,6 +135,7 @@ export class MedicineSupplierService {
           supplier: {
             id: supplierId as number,
           },
+          quantity: Not(0),
         },
       },
       select: {
@@ -162,6 +163,7 @@ export class MedicineSupplierService {
         supplier: {
           id: supplierId,
         },
+        quantity: Not(0),
       },
     });
     const medicines = await this.supplierMedicineRepository
@@ -170,6 +172,7 @@ export class MedicineSupplierService {
       .leftJoinAndSelect('supplier_medicine.medicine', 'medicine')
       .leftJoinAndSelect('medicine.category', 'category')
       .where('supplier.id = :id', { id: supplierId as number })
+      .andWhere('supplier_medicine.quantity > 0')
       .leftJoinAndSelect('medicine.image', 'image')
       .select([
         'supplier.id',
@@ -196,7 +199,14 @@ export class MedicineSupplierService {
 
   async findOne(id: number, user: IUser) {
     const medicine = await this.supplierMedicineRepository.findOne({
-      where: { id, supplier: { id: user.supplierId as number } },
+      where: {
+        id,
+        supplier: { id: user.supplierId as number },
+        quantity: Not(0),
+        medicineDetails: {
+          quantity: Not(0),
+        },
+      },
       relations: {
         medicine: {
           category: true,
@@ -225,7 +235,7 @@ export class MedicineSupplierService {
     if (!medicine) {
       throw new HttpException(
         this.medicineError.notFoundMedicine(),
-        HttpStatus.BAD_GATEWAY,
+        HttpStatus.NOT_FOUND,
       );
     }
     return {

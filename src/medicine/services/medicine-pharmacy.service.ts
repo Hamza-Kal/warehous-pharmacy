@@ -1,47 +1,25 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IUser } from 'src/shared/interface/user.interface';
-import {
-  Category,
-  Medicine,
-  MedicineDetails,
-} from '../entities/medicine.entities';
-import { In, Not, Repository } from 'typeorm';
+import { MedicineDetails } from '../entities/medicine.entities';
+import { Not, Repository } from 'typeorm';
 import { MedicineError } from './medicine-error.service';
-import { WarehouseGetSupplierMedicines } from '../api/response/get-medicines-supplier-for-warehouse.dto';
 import {
-  InventoryMedicine,
-  InventoryMedicineDetails,
-  SupplierMedicine,
+  PharmacyMedicine,
   WarehouseMedicine,
-  WarehouseMedicineDetails,
 } from '../entities/medicine-role.entities';
-import { WarehouseGetMedicines } from '../api/response/warehouse-get-medicines.dto';
-import { UpdatePriceDto } from '../api/dto/warehouseDto/update-medicine-price.dto';
-import { Inventory } from 'src/inventory/entities/inventory.entity';
-import {
-  TransferFromInventoryDto,
-  TransferToInventoryDto,
-} from 'src/warehouse/api/dto/transfer-to-inventory';
-import { MedicineService } from './medicine.service';
-import {
-  DeliverService,
-  RepositoryEnum,
-} from 'src/deliver/service/deliver.service';
+import { PharmacyGetWarehouseMedicine } from '../api/dto/response/pharmacy-get-warehouse-medicines.dto';
+import { PharmacyGetByIdWarehouseMedicine } from '../api/dto/response/pharmacy-get-by-id-warehouse-medicine.dto';
+import { PharmacyGetByCriteriaMedicine } from '../api/dto/response/pharmacy-get-by-criteria.dto';
 import { IParams } from 'src/shared/interface/params.interface';
-import { WarehouseMedicines } from '../api/dto/reponse/warehouse-medicines-get-by-criteria.dto';
-import { sk } from '@faker-js/faker';
-import { GetInventoriesDistributionsDto } from '../api/response/get-inventories-distributions.dto';
-import { MedicineInventoryService } from './medicine-inventory.service';
-import { InventoryMedicineDetailsDto } from '../api/dto/reponse/inventory-medicine-details.dto';
-import { PharmacyGetWarehouseMedicine } from '../api/dto/reponse/pharmacy-get-warehouse-medicines.dto';
-import { PharmacyGetByIdWarehouseMedicine } from '../api/dto/reponse/pharmacy-get-by-id-warehouse-medicine.dto';
 
 @Injectable()
 export class PharmacyMedicineService {
   constructor(
     @InjectRepository(WarehouseMedicine)
     private warehouseMedicineRepository: Repository<WarehouseMedicine>,
+    @InjectRepository(PharmacyMedicine)
+    private pharmacyMedicineRepository: Repository<PharmacyMedicine>,
     @InjectRepository(MedicineDetails)
     private medicineDetails: Repository<MedicineDetails>,
     private medicineError: MedicineError,
@@ -66,11 +44,11 @@ export class PharmacyMedicineService {
       .leftJoinAndSelect('medicine.image', 'image')
       .where('warehouse.id = :id', { id: warehouseId as number })
       .andWhere('price != 0')
+      .andWhere('quantity != 0')
       .select([
         'warehouse.id',
         'warehouse_medicine.id',
         'warehouse_medicine.price',
-        'warehouse_medicine.quantity',
         'medicine.id',
         'medicine.name',
         'category.category',
@@ -86,6 +64,77 @@ export class PharmacyMedicineService {
           medicine,
         }).toObject(),
       ),
+    };
+  }
+
+  async findAll({ criteria, pagination }, user: IUser) {
+    const { skip, limit } = pagination;
+    const totalRecords = await this.pharmacyMedicineRepository.count({
+      where: {
+        ...criteria,
+        pharmacy: {
+          id: user.pharmacyId as number,
+        },
+        quantity: Not(0),
+      },
+    });
+    const medicines = await this.pharmacyMedicineRepository
+      .createQueryBuilder('pharmacy_medicine')
+      .leftJoinAndSelect('pharmacy_medicine.pharmacy', 'pharmacy')
+      .leftJoinAndSelect('pharmacy_medicine.medicine', 'medicine')
+      .leftJoinAndSelect('medicine.category', 'category')
+      .leftJoinAndSelect('medicine.image', 'image')
+      .where('pharmacy.id = :id', { id: user.pharmacyId as number })
+      .andWhere('quantity != 0')
+      .select([
+        'pharmacy_medicine.id',
+        'pharmacy_medicine.price',
+        'medicine.id',
+        'medicine.name',
+        'image.url',
+      ])
+      .take(limit)
+      .skip(skip)
+      .getMany();
+    return {
+      totalRecords,
+      data: medicines.map((medicine) =>
+        new PharmacyGetByCriteriaMedicine({
+          medicine,
+        }).toObject(),
+      ),
+    };
+  }
+
+  async findOne({ id }: IParams, user: IUser) {
+    const medicine = await this.pharmacyMedicineRepository
+      .createQueryBuilder('pharmacy_medicine')
+      .leftJoinAndSelect('pharmacy_medicine.pharmacy', 'pharmacy')
+      .leftJoinAndSelect('pharmacy_medicine.medicine', 'medicine')
+      .leftJoinAndSelect('medicine.category', 'category')
+      .leftJoinAndSelect('medicine.image', 'image')
+      .where('pharmacy_medicine.id = :id', { id })
+      .andWhere('price != 0')
+      .andWhere('pharmacy.id = :id', { id: user.pharmacyId as number })
+      .select([
+        'pharmacy_medicine.id',
+        'pharmacy_medicine.price',
+        'medicine.id',
+        'medicine.name',
+        'image.url',
+        'category.category',
+      ])
+      .getOne();
+    if (!medicine) {
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return {
+      data: new PharmacyGetByCriteriaMedicine({
+        medicine,
+      }).toObject(),
     };
   }
 

@@ -245,7 +245,7 @@ export class MedicineSupplierService {
     };
   }
 
-  async createMeicineBrew(user: IUser, body: CreateMedicineBrew) {
+  async createMedicineBrew(user: IUser, body: CreateMedicineBrew) {
     const { supplierId } = user;
     const { medicineId, productionDate, expireDate, quantity } = body;
     if (productionDate.getTime() > expireDate.getTime()) {

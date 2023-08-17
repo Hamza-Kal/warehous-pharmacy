@@ -18,7 +18,6 @@ export const paginationParser = (reqQuery) => {
     pagination.needPagination === 'false'
       ? false
       : paginationConstant.needPagination;
-
   const criteria = _.omit(reqQuery, fields);
   return { pagination, criteria };
 };

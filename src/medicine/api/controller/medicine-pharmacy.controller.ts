@@ -39,10 +39,29 @@ export class MedicinePharmacyController {
 
   @AuthorizedApi({
     api: Api.GET,
+    url: '',
+    role: [Role.PHARMACY],
+  })
+  async findAll(@Query() query: Pagination, @CurrUser() user: IUser) {
+    const { pagination, criteria } = paginationParser(query);
+    return await this.medicineService.findAll({ pagination, criteria }, user);
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
     url: '/warehouse/medicine/:id',
     role: [Role.PHARMACY],
   })
   async findOneWarehouse(@Param() param: IParams) {
     return await this.medicineService.findOneWarehouse(+param.id);
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/:id',
+    role: [Role.PHARMACY],
+  })
+  async findOne(@Param() param: IParams, @CurrUser() user: IUser) {
+    return await this.medicineService.findOne({ id: +param.id }, user);
   }
 }

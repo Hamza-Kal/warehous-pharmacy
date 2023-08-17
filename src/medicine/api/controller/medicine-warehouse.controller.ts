@@ -14,6 +14,8 @@ import {
   TransferFromInventoryDto,
   TransferToInventoryDto,
 } from 'src/warehouse/api/dto/transfer-to-inventory';
+import { FindAllWarehouseOnly } from '../dto/query/find-all-warehouse-only.dto';
+import { FindAllSuppliers } from '../dto/query/find-all-supplier.dto copy';
 
 @AuthenticatedController({
   controller: 'medicine/warehouse',
@@ -26,8 +28,15 @@ export class MedicineWarehouseController {
     url: '/supplier/:id',
     role: [Role.WAREHOUSE],
   })
-  async findAllSuppliers(@Param() param: IParams, @Query() query: Pagination) {
-    const { criteria, pagination } = paginationParser(query);
+  async findAllSuppliers(
+    @Param() param: IParams,
+    @Query() query: FindAllSuppliers,
+  ) {
+    const { criteria, pagination } = paginationParser(query) as {
+      criteria: { category: string };
+      pagination: Pagination;
+    };
+
     return this.warehouseMedicineService.findAllSuppliers(
       { criteria, pagination },
       +param.id,
@@ -93,9 +102,13 @@ export class MedicineWarehouseController {
   })
   async findAllWarehouseMedicine(
     @CurrUser() user: IUser,
-    @Query() query: Pagination,
+    @Query() query: FindAllWarehouseOnly,
   ) {
-    const { criteria, pagination } = paginationParser(query);
+    const { criteria, pagination } = paginationParser(query) as {
+      pagination: Pagination;
+      criteria: { category?: string };
+    };
+
     return await this.warehouseMedicineService.findAllWarehouse(
       { criteria, pagination },
       user,

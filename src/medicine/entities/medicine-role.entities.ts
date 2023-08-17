@@ -230,6 +230,12 @@ export class PharmacyMedicine {
   })
   warehouseLastPrice: number;
 
+  @Column({
+    type: 'int',
+    default: 0,
+  })
+  price: number;
+
   // ******************** Role ********************
   @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.medicines)
   @JoinColumn()

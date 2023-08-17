@@ -78,8 +78,8 @@ export class User {
   @OneToOne(() => Inventory, (inventory) => inventory.manager)
   inventory: Inventory;
 
-  // @OneToMany(() => Media, (image) => image.user)
-  // image: Media;
+  @OneToMany(() => Media, (image) => image.user)
+  image: Media;
 
   @BeforeInsert()
   async logBeforeInsertOrUpdate() {

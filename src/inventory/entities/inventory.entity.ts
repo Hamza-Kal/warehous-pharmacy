@@ -5,6 +5,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 import {
   Column,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -37,6 +38,9 @@ export class Inventory {
     length: 15,
   })
   phoneNumber: string;
+
+  @DeleteDateColumn()
+  deleted_at: Date;
 
   @OneToOne(() => User, (user) => user.inventory)
   @JoinColumn()

@@ -120,7 +120,18 @@ export class InventoryService {
   async AdminfindOne(id: number) {
     const inventory = await this.inventoryRepository.findOne({
       where: { id },
-      select: ['id', 'location', 'name', 'phoneNumber'],
+      select: {
+        id: true,
+        location: true,
+        phoneNumber: true,
+        name: true,
+        manager: {
+          id: true,
+          email: true,
+          fullName: true,
+          assignedRole: true,
+        },
+      },
       relations: {
         manager: true,
       },

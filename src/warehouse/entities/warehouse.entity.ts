@@ -5,6 +5,7 @@ import {
   OneToOne,
   JoinColumn,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
@@ -40,6 +41,9 @@ export class Warehouse {
     length: 16,
   })
   phoneNumber: string;
+
+  @DeleteDateColumn()
+  deleted_at: Date;
 
   @OneToOne(() => User, (user) => user.warehouse)
   @JoinColumn()

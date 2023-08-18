@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Supplier } from '../entities/supplier.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Admin, FindOptionsWhere, Repository } from 'typeorm';
 import { GetAllSuppliers } from 'src/supplier/api/response/get-all-suppliers.dto';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { IUser } from 'src/shared/interface/user.interface';
@@ -97,6 +97,9 @@ export class SupplierService {
         ...criteria,
       },
       select: ['id', 'location', 'name', 'phoneNumber'],
+      relations: {
+        user: true,
+      },
       take: limit,
       skip,
     });
@@ -116,7 +119,18 @@ export class SupplierService {
   async AdminfindOne(id: number) {
     const supplier = await this.supplierRepository.findOne({
       where: { id },
-      select: ['id', 'location', 'name', 'phoneNumber'],
+      select: {
+        id: true,
+        location: true,
+        phoneNumber: true,
+        name: true,
+        user: {
+          id: true,
+          email: true,
+          fullName: true,
+          assignedRole: true,
+        },
+      },
       relations: {
         user: true,
       },

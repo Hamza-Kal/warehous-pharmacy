@@ -5,6 +5,7 @@ export class AdminGetByIdInventory {
   name: string;
   location: string;
   phoneNumber: string;
+  userId: number;
   userEmail: string;
   userFullName: string;
   constructor({ inventory }: { inventory: Inventory }) {
@@ -12,6 +13,7 @@ export class AdminGetByIdInventory {
     this.name = inventory.name;
     this.location = inventory.location;
     this.phoneNumber = inventory.phoneNumber;
+    this.userId = inventory.manager.id;
     this.userEmail = inventory.manager.email;
     this.userFullName = inventory.manager.fullName;
   }
@@ -22,7 +24,9 @@ export class AdminGetByIdInventory {
     location: string;
     phoneNumber: string;
     userEmail: string;
+    userId: number;
     userFullName: string;
+    status: string;
   } {
     return {
       id: this.id,
@@ -30,7 +34,9 @@ export class AdminGetByIdInventory {
       location: this.location,
       phoneNumber: this.phoneNumber,
       userEmail: this.userEmail,
+      userId: this.userId,
       userFullName: this.userFullName,
+      status: 'active',
     };
   }
 }

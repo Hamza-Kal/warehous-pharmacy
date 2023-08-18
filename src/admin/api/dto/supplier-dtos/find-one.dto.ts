@@ -6,12 +6,14 @@ export class AdminGetByIdSupplier {
   location: string;
   phoneNumber: string;
   userFullName: string;
+  userId: number;
   userEmail: string;
   constructor({ supplier }: { supplier: Supplier }) {
     this.id = supplier.id;
     this.name = supplier.name;
     this.location = supplier.location;
     this.phoneNumber = supplier.phoneNumber;
+    this.userId = supplier.user.id;
     this.userEmail = supplier.user.email;
     this.userFullName = supplier.user.fullName;
   }
@@ -22,6 +24,7 @@ export class AdminGetByIdSupplier {
     location: string;
     phoneNumber: string;
     userFullName: string;
+    userId: number;
     userEmail: string;
   } {
     return {
@@ -29,6 +32,7 @@ export class AdminGetByIdSupplier {
       name: this.name,
       location: this.location,
       phoneNumber: this.phoneNumber,
+      userId: this.userId,
       userEmail: this.userEmail,
       userFullName: this.userFullName,
     };

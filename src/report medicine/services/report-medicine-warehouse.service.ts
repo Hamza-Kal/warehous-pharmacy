@@ -21,7 +21,7 @@ import {
 } from '../entities/report-medicine.entities';
 import { ReportMedicineError } from './report-medicine-error.service';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
-import { GetByCriteraReportMedicine } from '../api/dto/response/get-warehouse-report-medicine.dto';
+import { GetByCriteriaReportMedicine } from '../api/dto/response/get-warehouse-report-medicine.dto';
 
 @Injectable()
 export class WarehouseReportMedicineService {
@@ -209,7 +209,7 @@ export class WarehouseReportMedicineService {
     return {
       totalRecords,
       data: reports.map((report) =>
-        new GetByCriteraReportMedicine({
+        new GetByCriteriaReportMedicine({
           reportMedicine: report,
         }).toObject(),
       ),

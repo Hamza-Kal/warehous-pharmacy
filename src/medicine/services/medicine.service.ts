@@ -11,6 +11,7 @@ import { MoveMedicineDto } from '../api/dto/update-Brew.dto';
 import {
   InventoryMedicine,
   InventoryMedicineDetails,
+  PharmacyMedicineDetails,
   SupplierMedicine,
   SupplierMedicineDetails,
   WarehouseMedicine,
@@ -43,10 +44,38 @@ export class MedicineService {
     private inventoryMedicineDetailsRepository: Repository<InventoryMedicineDetails>,
     @InjectRepository(SupplierMedicineDetails)
     private supplierMedicineDetailsRepository: Repository<SupplierMedicineDetails>,
+    @InjectRepository(PharmacyMedicineDetails)
+    private pharmacyMedicineDetailsRepository: Repository<PharmacyMedicineDetails>,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
     private medicineError: MedicineError,
   ) {}
+
+  async getPharmacyMedicineDetails(id: number) {
+    const medicineDetails =
+      await this.pharmacyMedicineDetailsRepository.findOne({
+        where: {
+          id,
+        },
+        relations: {
+          medicineDetails: true,
+        },
+        select: {
+          quantity: true,
+          medicineDetails: {
+            id: true,
+          },
+        },
+      });
+    if (!medicineDetails) {
+      throw new HttpException(
+        this.medicineError.notEnoughMedicine(),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return medicineDetails;
+  }
 
   async getInventoriesMedicines(warehouseId: number, medicineId: number) {
     const date = new Date();

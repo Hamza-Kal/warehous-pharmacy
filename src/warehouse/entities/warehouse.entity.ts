@@ -80,4 +80,13 @@ export class Warehouse {
     onDelete: 'CASCADE',
   })
   pharmacyOrder: PharmacyOrder[];
+
+  // @OneToMany(
+  //   () => PharmacyReturnOrder,
+  //   (pharmacyOrder) => pharmacyOrder.warehouse,
+  //   {
+  //     onDelete: 'CASCADE',
+  //   },
+  // )
+  // pharmacyReturnOrder: PharmacyReturnOrder[];
 }

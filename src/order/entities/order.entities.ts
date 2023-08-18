@@ -4,6 +4,7 @@ import {
   MedicineDetails,
 } from 'src/medicine/entities/medicine.entities';
 import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
+import { PharmacyReportMedicine } from 'src/report medicine/entities/report-medicine.entities';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 import {
@@ -179,6 +180,12 @@ export class PharmacyOrder {
     (distributionPharmacyOrder) => distributionPharmacyOrder.order,
   )
   distribution: DistributionPharmacyOrder[];
+
+  @OneToMany(
+    () => PharmacyReportMedicine,
+    (reportPharmacyOrder) => reportPharmacyOrder.order,
+  )
+  report: PharmacyReportMedicine[];
 }
 
 @Entity()

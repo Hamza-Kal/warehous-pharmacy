@@ -13,7 +13,7 @@ import { paginationParser } from 'src/shared/pagination/pagination';
 @AuthenticatedController({
   controller: '/report-medicine/warehouse',
 })
-export class ReportMedicineWarehouesController {
+export class ReportMedicineWarehouseController {
   constructor(private reportMedicineService: WarehouseReportMedicineService) {}
 
   @AuthorizedApi({

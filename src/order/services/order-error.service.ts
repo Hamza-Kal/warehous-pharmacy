@@ -18,6 +18,11 @@ export class OrderError {
     message: 'not found distribution for the order',
   };
 
+  quantityOverTheOrderQuantity = {
+    code: errorsCode.quantityOverOrder,
+    message: 'the quantity is over the order quantity',
+  };
+
   notEnoughMedicine() {
     return this.notEnoughMedicineError;
   }

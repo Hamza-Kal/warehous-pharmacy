@@ -151,6 +151,12 @@ export class UserService {
       where: {
         deleted_at: Not(IsNull()),
       },
+      relations: {
+        warehouse: true,
+        supplier: true,
+        inventory: true,
+        pharmacy: true,
+      },
     });
     return {
       data: users.map((user) => new GetAllGuestsDto({ user }).toObject()),

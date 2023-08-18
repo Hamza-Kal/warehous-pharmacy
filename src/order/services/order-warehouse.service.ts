@@ -380,7 +380,7 @@ export class WarehouseOrderService {
   }
 
   async findOneIncoming({ id }: IParams, user: IUser) {
-    const order = await this.warehouseOrderRepository.findOne({
+    const [order] = await this.warehouseOrderRepository.find({
       where: {
         id,
         warehouse: {

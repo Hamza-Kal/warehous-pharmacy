@@ -6,7 +6,8 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, LessThan, Repository } from 'typeorm';
+import { DataSource, LessThan } from 'typeorm';
+import { Repository } from 'typeorm';
 import { IUser } from 'src/shared/interface/user.interface';
 import {
   ReturnOrderStatus,
@@ -14,19 +15,13 @@ import {
 } from '../entities/returnOrder.entities';
 import { IParams } from 'src/shared/interface/params.interface';
 import { MedicineService } from 'src/medicine/services/medicine.service';
-import {
-  WarehouseMedicine,
-  WarehouseMedicineDetails,
-} from 'src/medicine/entities/medicine-role.entities';
-import { Supplier } from 'src/supplier/entities/supplier.entity';
-import { or } from 'sequelize';
 import { ReturnOrderError } from './returnOrder-error.service';
-import { OrderStatus } from 'src/order/entities/order.entities';
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
 import {
   DeliverService,
   RepositoryEnum,
 } from 'src/deliver/service/deliver.service';
+import { GetWarehouseReturnOrdersForSupplierDto } from '../api/dto/response/get-all-warehouseReturnOrders-forSupplier.dto';
 
 @Injectable()
 export class SupplierReturnOrderService {
@@ -68,6 +63,45 @@ export class SupplierReturnOrderService {
   //?         }
   //?     ]
   //? }
+  async findPendingOrders(user: IUser) {
+    const { supplierId } = user;
+    const pendingOrders = await this.warehouseReturnOrderRepository.find({
+      where: {
+        supplier: {
+          id: supplierId as number,
+        },
+        status: ReturnOrderStatus.Pending,
+      },
+      select: {
+        id: true,
+        created_at: true,
+        reason: true,
+        status: true,
+        totalPrice: true,
+        details: {
+          id: true,
+          quantity: true,
+          price: true,
+        },
+        medicine: {
+          name: true,
+        },
+        warehouse: {
+          name: true,
+        },
+      },
+      relations: {
+        medicine: true,
+        warehouse: true,
+        details: true,
+      },
+    });
+    return {
+      data: pendingOrders.map((returnOrder) =>
+        new GetWarehouseReturnOrdersForSupplierDto({ returnOrder }).toObject(),
+      ),
+    };
+  }
   async acceptReturnOrder({ id }: IParams, user: IUser) {
     const returnOrderRepo = await this.warehouseReturnOrderRepository.find({
       where: {

@@ -8,6 +8,7 @@ export class GetByIdMedicineSupplier {
   quantity: number;
   description: string;
   imageUrl: string | null;
+  imageId: number | null;
   supplier: string;
   batches: {
     id: number;
@@ -23,6 +24,7 @@ export class GetByIdMedicineSupplier {
     this.quantity = supplierMedicine.quantity;
     this.imageUrl = supplierMedicine.medicine?.image?.url;
     this.description = supplierMedicine.medicine.description;
+    this.imageId = supplierMedicine.medicine.image.id;
     const batches: {
       id: number;
       expireDate: Date;
@@ -49,6 +51,7 @@ export class GetByIdMedicineSupplier {
     price: number;
     quantity: number;
     imageUrl: string | null;
+    imageId: number | null;
     description: string;
     supplier: string;
     batches: {
@@ -64,6 +67,7 @@ export class GetByIdMedicineSupplier {
       price: this.price,
       quantity: this.quantity,
       imageUrl: this.imageUrl,
+      imageId: this.imageId,
       description: this.description,
       supplier: this.supplier,
       batches: this.batches,

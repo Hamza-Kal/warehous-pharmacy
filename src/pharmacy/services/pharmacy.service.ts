@@ -95,7 +95,18 @@ export class PharmacyService {
   async AdminfindOne(id: number) {
     const pharmacy = await this.pharmacyRepository.findOne({
       where: { id },
-      select: ['id', 'location', 'name', 'phoneNumber'],
+      select: {
+        id: true,
+        location: true,
+        phoneNumber: true,
+        name: true,
+        user: {
+          id: true,
+          email: true,
+          fullName: true,
+          assignedRole: true,
+        },
+      },
       relations: {
         user: true,
       },

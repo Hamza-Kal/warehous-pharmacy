@@ -5,6 +5,7 @@ import {
   OneToOne,
   JoinColumn,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { PharmacyMedicine } from 'src/medicine/entities/medicine-role.entities';
@@ -36,6 +37,9 @@ export class Pharmacy {
     length: 15,
   })
   phoneNumber: string;
+
+  @DeleteDateColumn()
+  deleted_at: Date;
 
   @OneToOne(() => User, (user) => user.pharmacy, { cascade: true })
   @JoinColumn()

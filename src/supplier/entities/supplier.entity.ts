@@ -11,7 +11,7 @@ import { Medicine } from 'src/medicine/entities/medicine.entities';
 import { WarehouseOrder } from 'src/order/entities/order.entities';
 import { SupplierMedicine } from 'src/medicine/entities/medicine-role.entities';
 import { WarehouseReturnOrder } from 'src/return order/entities/returnOrder.entities';
-
+import { DeleteDateColumn } from 'typeorm';
 @Entity()
 export class Supplier {
   @PrimaryGeneratedColumn({
@@ -38,7 +38,10 @@ export class Supplier {
   })
   phoneNumber: string;
 
-  @OneToOne(() => User, (user) => user.supplier, { cascade: true })
+  @DeleteDateColumn()
+  deleted_at: Date;
+
+  @OneToOne(() => User, (user) => user.supplier, { cascade: ['soft-remove'] })
   @JoinColumn()
   user: User;
 

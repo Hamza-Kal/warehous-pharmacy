@@ -192,7 +192,18 @@ export class WarehouseService {
   async AdminfindOne(id: number) {
     const warehouse = await this.warehouseRepository.findOne({
       where: { id },
-      select: ['id', 'location', 'name', 'phoneNumber'],
+      select: {
+        id: true,
+        location: true,
+        phoneNumber: true,
+        name: true,
+        owner: {
+          id: true,
+          email: true,
+          fullName: true,
+          assignedRole: true,
+        },
+      },
       relations: {
         owner: true,
       },

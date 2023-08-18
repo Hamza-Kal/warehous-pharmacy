@@ -5,7 +5,7 @@ import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 
-export class GetAllGuestsDto {
+export class GetBannedUsersDto {
   id: number;
   email: string;
   assignedRole: Role;
@@ -27,6 +27,7 @@ export class GetAllGuestsDto {
   toObject(): {
     id: number;
     email: string;
+    status: string;
     assignedRole: Role;
     fullName: string;
     property: Warehouse | Supplier | Inventory | Pharmacy | null;
@@ -37,6 +38,7 @@ export class GetAllGuestsDto {
       fullName: this.fullName,
       assignedRole: this.assignedRole,
       property: this.property,
+      status: 'banned',
     };
   }
 }

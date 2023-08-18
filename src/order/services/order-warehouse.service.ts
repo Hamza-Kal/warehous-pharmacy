@@ -428,54 +428,42 @@ export class WarehouseOrderService {
   }
 
   async findDistribution({ id }: IParams, user: IUser) {
-    const distributions = await this.pharmacyDistributionRepository.find({
-      where: {
-        order: {
-          id,
-          status: OrderStatus.Accepted,
-          warehouse: {
-            id: user.warehouseId as number,
-          },
-        },
-      },
-      select: {
-        id: true,
-        order: {
-          id: true,
-        },
-        inventory: {
-          name: true,
-        },
-        medicineDetails: {
-          id: true,
-          medicine: {
-            name: true,
-            image: {
-              url: true,
-            },
-          },
-        },
-        quantity: true,
-      },
-      relations: {
-        order: {
-          warehouse: true,
-        },
-        inventory: true,
-        medicineDetails: {
-          medicine: {
-            image: true,
-          },
-        },
-      },
-    });
+    const distributions = await this.pharmacyDistributionRepository
+      .createQueryBuilder('distributions')
+      .leftJoinAndSelect('distributions.order', 'order')
+      .leftJoinAndSelect('order.warehouse', 'warehouse')
+      .leftJoinAndSelect('distributions.inventory', 'inventory')
+      .leftJoinAndSelect('distributions.medicineDetails', 'medicineDetails')
+      .leftJoinAndSelect('medicineDetails.medicine', 'medicine')
+      .leftJoinAndSelect('medicine.image', 'image')
+      .where('order.id = :orderId', { orderId: id })
+      .andWhere('order.status = :status', {
+        status: OrderStatus.Accepted,
+      })
+      .andWhere('warehouse.id = :warehouseId', {
+        warehouseId: user.warehouseId as number,
+      })
+      .addGroupBy('inventory_id')
+      .select([
+        'order.id',
+        'inventory.name',
+        'medicineDetails.id',
+        'medicine.name',
+        'image.url',
+        'warehouse.id',
+        'distributions.quantity',
+      ])
 
+      .getRawMany();
+
+    return distributions;
     if (!distributions.length) {
       throw new HttpException(
         this.orderError.notFoundOrder(),
         HttpStatus.NOT_FOUND,
       );
     }
+
     return {
       data: distributions.map((distribution) =>
         new GetByIdOrderDistribution({ distribution }).toObject(),
@@ -493,6 +481,7 @@ export class WarehouseOrderService {
       },
       select: {
         id: true,
+        status: true,
         pharmacy: {
           id: true,
           name: true,

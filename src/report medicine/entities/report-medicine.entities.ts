@@ -6,6 +6,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Generated,
   JoinColumn,
   ManyToOne,
   OneToOne,
@@ -78,6 +79,10 @@ export class PharmacyReportMedicine {
     default: ReportMedicineStatus.Pending,
   })
   status: ReportMedicineStatus;
+
+  @Column()
+  @Generated('uuid')
+  uuid: string;
 
   @ManyToOne(() => PharmacyOrder, (pharmacyOrder) => pharmacyOrder.report)
   @JoinColumn()

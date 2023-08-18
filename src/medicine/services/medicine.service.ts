@@ -24,6 +24,7 @@ import {
 } from '../api/dto/create-medicine.dto';
 import { CreateWarehouseDto } from 'src/warehouse/api/dto/create-warehouse.dto';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
+import { IUser } from 'src/shared/interface/user.interface';
 
 @Injectable()
 export class MedicineService {
@@ -51,25 +52,36 @@ export class MedicineService {
     private medicineError: MedicineError,
   ) {}
 
-  async getPharmacyMedicineDetails(id: number) {
+  async getPharmacyMedicineDetails(id: number, user: IUser) {
     const medicineDetails =
       await this.pharmacyMedicineDetailsRepository.findOne({
         where: {
           id,
+          medicine: {
+            pharmacy: {
+              id: user.pharmacyId as number,
+            },
+          },
         },
         relations: {
-          medicineDetails: true,
+          medicineDetails: {
+            medicine: true,
+          },
         },
         select: {
+          id: true,
           quantity: true,
           medicineDetails: {
             id: true,
+            medicine: {
+              id: true,
+            },
           },
         },
       });
     if (!medicineDetails) {
       throw new HttpException(
-        this.medicineError.notEnoughMedicine(),
+        this.medicineError.notFoundMedicine(),
         HttpStatus.NOT_FOUND,
       );
     }

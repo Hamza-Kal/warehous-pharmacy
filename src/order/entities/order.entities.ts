@@ -114,6 +114,9 @@ export class DistributionWarehouseOrder {
   @JoinColumn()
   order: WarehouseOrder;
 
+  @CreateDateColumn()
+  created_at: Date;
+
   @Column({
     type: 'int',
     nullable: false,

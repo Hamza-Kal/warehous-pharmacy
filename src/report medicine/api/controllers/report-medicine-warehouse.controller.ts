@@ -30,6 +30,36 @@ export class ReportMedicineWarehouseController {
 
   @AuthorizedApi({
     api: Api.PATCH,
+    url: 'accept-pharmacy/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async acceptPharmacyReportMedicine(
+    @Param() param: IParams,
+    @CurrUser() user: IUser,
+  ) {
+    return this.reportMedicineService.acceptPharmacyReportOrder(
+      { id: +param.id },
+      user,
+    );
+  }
+
+  @AuthorizedApi({
+    api: Api.PATCH,
+    url: 'reject-pharmacy/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async rejectPharmacyReportMedicine(
+    @Param() param: IParams,
+    @CurrUser() user: IUser,
+  ) {
+    return this.reportMedicineService.rejectPharmacyReportOrder(
+      { id: +param.id },
+      user,
+    );
+  }
+
+  @AuthorizedApi({
+    api: Api.PATCH,
     url: 'reject/:id',
     role: [Role.WAREHOUSE],
   })
@@ -47,5 +77,18 @@ export class ReportMedicineWarehouseController {
   async findAll(@Query() query: Pagination, @CurrUser() user: IUser) {
     const { criteria, pagination } = paginationParser(query);
     return this.reportMedicineService.findAll({ pagination, criteria }, user);
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: 'pharmacy',
+    role: [Role.WAREHOUSE],
+  })
+  async findAllPharmacy(@Query() query: Pagination, @CurrUser() user: IUser) {
+    const { criteria, pagination } = paginationParser(query);
+    return this.reportMedicineService.findAllPharmacy(
+      { pagination, criteria },
+      user,
+    );
   }
 }

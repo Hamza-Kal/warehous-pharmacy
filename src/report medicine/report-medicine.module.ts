@@ -18,6 +18,10 @@ import { ReportMedicineInventoryController } from './api/controllers/report-medi
 import { ReportMedicineError } from './services/report-medicine-error.service';
 import { InventoryReportMedicineService } from './services/report-medicine-inventory.service';
 import { WarehouseReportMedicineService } from './services/report-medicine-warehouse.service';
+import { PharmacyReportMedicineController } from './api/controllers/report-medicine-pharmacy.controller';
+import { PharmacyReportMedicineService } from './services/report-medicine-pharmacy.service';
+import { OrderService } from 'src/order/services/order.service';
+import { OrderModule } from 'src/order/order.module';
 
 @Module({
   imports: [
@@ -25,14 +29,17 @@ import { WarehouseReportMedicineService } from './services/report-medicine-wareh
     MedicineModule,
     SupplierModule,
     forwardRef(() => DeliverModule),
+    OrderModule,
   ],
   controllers: [
     ReportMedicineWarehouseController,
     ReportMedicineInventoryController,
+    PharmacyReportMedicineController,
   ],
   providers: [
     InventoryReportMedicineService,
     WarehouseReportMedicineService,
+    PharmacyReportMedicineService,
     ReportMedicineError,
   ],
 })

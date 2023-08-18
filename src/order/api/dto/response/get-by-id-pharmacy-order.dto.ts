@@ -1,28 +1,19 @@
-import { or } from 'sequelize';
 import {
   OrderStatus,
   PharmacyOrder,
   WarehouseOrder,
 } from 'src/order/entities/order.entities';
 
-export class GetByIdWarehouseOutcomingOrder {
-  //     "details": [
-  //         {
-  //             "quantity": 99,
-  //             "price": 247500,
-  //             "medicine": {
-  //                 "name": "vitamen c"
-  //             }
-  //         }
-  //     ]
+export class GetByIdPharmacyOrder {
   id: number;
   orderDate: Date;
-  pharmacy: {
+  warehouse: {
     name: string;
     phoneNumber: string;
     location: string;
     email: string;
   };
+  totalPrice: number;
   status: OrderStatus;
   medicines: {
     name: string;
@@ -31,13 +22,13 @@ export class GetByIdWarehouseOutcomingOrder {
   }[];
   constructor({ order }: { order: PharmacyOrder }) {
     this.id = order.id;
-    this.status = order.status;
     this.orderDate = order.created_at;
-    this.pharmacy = {
-      name: order.pharmacy.name,
-      email: order.pharmacy.user.email,
-      phoneNumber: order.pharmacy.phoneNumber,
-      location: order.pharmacy.location,
+    this.totalPrice = order.totalPrice;
+    this.warehouse = {
+      name: order.warehouse.name,
+      email: order.warehouse.owner.email,
+      phoneNumber: order.warehouse.phoneNumber,
+      location: order.warehouse.location,
     };
     const medicines: {
       name: string;
@@ -56,22 +47,25 @@ export class GetByIdWarehouseOutcomingOrder {
 
   toObject(): {
     id: number;
-    pharmacy: {
+    warehouse: {
       name: string;
       phoneNumber: string;
       location: string;
       email: string;
     };
+
     medicines: {
       name: string;
       price: number;
       quantity: number;
     }[];
+    totalPrice: number;
   } {
     return {
       id: this.id,
-      pharmacy: this.pharmacy,
+      warehouse: this.warehouse,
       medicines: this.medicines,
+      totalPrice: this.totalPrice,
     };
   }
 }

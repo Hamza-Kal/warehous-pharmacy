@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { IUser } from 'src/shared/interface/user.interface';
 import { SupplierService } from 'src/supplier/service/supplier.service';
 import {
+  OrderStatus,
   PharmacyOrder,
   PharmacyOrderDetails,
 } from '../entities/order.entities';
@@ -32,15 +33,38 @@ export class OrderService {
     orderId: number,
     medicineDetailsId: number,
     quantity: number,
+    user: IUser,
   ) {
     const order = await this.pharmacyOrderRepository.findOne({
       where: {
+        pharmacy: {
+          id: user.pharmacyId as number,
+        },
         id: orderId,
+        status: OrderStatus.Delivered,
         distribution: {
           medicineDetails: {
             id: medicineDetailsId,
           },
-          quantity,
+        },
+      },
+      select: {
+        distribution: {
+          id: true,
+          quantity: true,
+          medicineDetails: {
+            id: true,
+            medicine: {
+              id: true,
+            },
+          },
+        },
+      },
+      relations: {
+        distribution: {
+          medicineDetails: {
+            medicine: true,
+          },
         },
       },
     });

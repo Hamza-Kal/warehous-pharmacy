@@ -20,6 +20,7 @@ import { GetByIdWarehouse } from '../api/dto/response/get-by-id-warehouse.dto';
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
 import { AdminGetAllWarehouses } from 'src/admin/api/dto/warehouse-dtos/find-all.dto';
 import { AdminGetByIdWarehouse } from 'src/admin/api/dto/warehouse-dtos/find-one.dto';
+import { WarehouseError } from './warehouse-error.service';
 
 @Injectable()
 export class WarehouseService {
@@ -30,8 +31,25 @@ export class WarehouseService {
     private userRepo: Repository<User>,
     @InjectRepository(Inventory)
     private inventoryRepository: Repository<Inventory>,
-    private errorsService: MedicineError,
+    private warehouseError: WarehouseError,
   ) {}
+
+  async findOneOrFail(id: number) {
+    const warehouse = await this.warehouseRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!warehouse) {
+      throw new HttpException(
+        this.warehouseError.notFoundWarehouse(),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return warehouse;
+  }
 
   async findByUser(id: number) {
     return await this.warehouseRepository.findOne({
@@ -134,7 +152,7 @@ export class WarehouseService {
     });
     if (!warehouse)
       throw new HttpException(
-        this.errorsService.notFoundWarehouse(),
+        this.warehouseError.notFoundWarehouse(),
         HttpStatus.NOT_FOUND,
       );
     return {
@@ -181,7 +199,7 @@ export class WarehouseService {
     });
     if (!warehouse)
       throw new HttpException(
-        this.errorsService.notFoundWarehouse(),
+        this.warehouseError.notFoundWarehouse(),
         HttpStatus.NOT_FOUND,
       );
     return {

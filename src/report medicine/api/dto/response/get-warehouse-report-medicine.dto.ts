@@ -3,7 +3,7 @@ import {
   ReportMedicineStatus,
 } from 'src/report medicine/entities/report-medicine.entities';
 
-export class GetByCriteraReportMedicine {
+export class GetByCriteriaReportMedicine {
   id: number;
   reportDate: Date;
   status: ReportMedicineStatus;

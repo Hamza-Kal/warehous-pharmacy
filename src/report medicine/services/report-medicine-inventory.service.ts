@@ -7,7 +7,7 @@ import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
 import { InventoryReportMedicine } from '../entities/report-medicine.entities';
 import { ReportMedicineError } from './report-medicine-error.service';
-import { GetByCriteraReportMedicine } from '../api/dto/response/get-warehouse-report-medicine.dto';
+import { GetByCriteriaReportMedicine } from '../api/dto/response/get-warehouse-report-medicine.dto';
 import { CreateReportMedicineDto } from '../api/dto/create-warehouse-report-medicine.dto';
 import { MedicineService } from 'src/medicine/services/medicine.service';
 
@@ -134,7 +134,7 @@ export class InventoryReportMedicineService {
     return {
       totalRecords,
       data: reportOrders.map((reportOrder) =>
-        new GetByCriteraReportMedicine({
+        new GetByCriteriaReportMedicine({
           reportMedicine: reportOrder,
         }).toObject(),
       ),

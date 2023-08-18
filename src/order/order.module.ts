@@ -11,13 +11,14 @@ import {
 } from './entities/order.entities';
 import { MedicineModule } from 'src/medicine/medicine.module';
 import { SupplierModule } from 'src/supplier/supplier.module';
-import { OrderWarehouesController } from './api/controllers/order-warehouse.controller';
+import { OrderWarehouseController } from './api/controllers/order-warehouse.controller';
 import { OrderSupplierController } from './api/controllers/order-supplier.controller';
 import { SupplierOrderService } from './services/order-supplier.service';
 import { OrderError } from './services/order-error.service';
 import { DeliverModule } from 'src/deliver/deliver.module';
 import { PharmacyOrderService } from './services/order-pharmacy.service';
 import { OrderPharmacyController } from './api/controllers/order-pharmacy.controller';
+import { OrderService } from './services/order.service';
 
 @Module({
   imports: [
@@ -34,13 +35,14 @@ import { OrderPharmacyController } from './api/controllers/order-pharmacy.contro
     DeliverModule,
   ],
   controllers: [
-    OrderWarehouesController,
+    OrderWarehouseController,
     OrderSupplierController,
     OrderPharmacyController,
   ],
   providers: [
     WarehouseOrderService,
     SupplierOrderService,
+    OrderService,
     OrderError,
     PharmacyOrderService,
   ],

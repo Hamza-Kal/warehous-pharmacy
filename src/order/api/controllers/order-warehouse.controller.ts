@@ -15,7 +15,7 @@ import { IParams } from 'src/shared/interface/params.interface';
 @AuthenticatedController({
   controller: '/order/warehouse',
 })
-export class OrderWarehouesController {
+export class OrderWarehouseController {
   constructor(private orderService: WarehouseOrderService) {}
   @AuthorizedApi({
     api: Api.POST,

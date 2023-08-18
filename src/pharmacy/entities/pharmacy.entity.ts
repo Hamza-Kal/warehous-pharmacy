@@ -9,6 +9,7 @@ import {
 import { User } from 'src/user/entities/user.entity';
 import { PharmacyMedicine } from 'src/medicine/entities/medicine-role.entities';
 import { PharmacyOrder } from 'src/order/entities/order.entities';
+import { PharmacyReportMedicine } from 'src/report medicine/entities/report-medicine.entities';
 
 @Entity()
 export class Pharmacy {
@@ -52,4 +53,13 @@ export class Pharmacy {
     onDelete: 'CASCADE',
   })
   pharmacyOrder: PharmacyOrder[];
+
+  @OneToMany(
+    () => PharmacyReportMedicine,
+    (pharmacyOrder) => pharmacyOrder.pharmacy,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
+  returnOrder: PharmacyReportMedicine[];
 }

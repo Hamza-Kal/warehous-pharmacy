@@ -107,27 +107,86 @@ export class WarehouseReturnOrderDetails {
 }
 
 // @Entity()
-// export class PharmacyReturnOrders {
+// export class PharmacyReturnOrder {
 //   @PrimaryGeneratedColumn({
 //     type: 'int',
 //   })
 //   id: number;
 
-//   @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyReturnOrder, {
+//   @CreateDateColumn()
+//   created_at: Date;
+
+//   @ManyToOne(() => Warehouse, (warehouse) => warehouse.returnOrder, {
 //     onDelete: 'CASCADE',
 //   })
-// @JoinColumn()
+//   @JoinColumn()
+//   warehouse: Warehouse;
+
+//   @Column({
+//     type: 'enum',
+//     enum: ReturnOrderStatus,
+//     default: ReturnOrderStatus.Pending,
+//   })
+//   status: ReturnOrderStatus;
+
+//   @Column({
+//     type: 'int',
+//   })
+//   totalPrice: number;
+
+//   @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.returnOrder, {
+//     onDelete: 'CASCADE',
+//   })
+//   @JoinColumn()
 //   pharmacy: Pharmacy;
+
+//   @ManyToOne(() => Medicine, (medicine) => medicine.warehouseReturnOrder)
+//   @JoinColumn()
+//   medicine: Medicine;
+
+//   @OneToMany(
+//     () => WarehouseReturnOrderDetails,
+//     (warehouseReturnOrderDetails) =>
+//       warehouseReturnOrderDetails.warehouseReturnOrder,
+//     {
+//       onDelete: 'CASCADE',
+//       onUpdate: 'CASCADE',
+//     },
+//   )
+//   details: WarehouseReturnOrderDetails[];
 // }
 
 // @Entity()
-// export class PharmacyReturnOrders {
+// export class WarehouseReturnOrderDetails {
 //   @PrimaryGeneratedColumn({
 //     type: 'int',
 //   })
 //   id: number;
 
-//   @ManyToOne(() => PharmacyReturnOrders)
-// @JoinColumn()
-//   phrmacyReturnOrder: PharmacyReturnOrders;
+//   @ManyToOne(
+//     () => WarehouseReturnOrder,
+//     (warehouseReturnOrder) => warehouseReturnOrder.details,
+//     {
+//       onDelete: 'CASCADE',
+//     },
+//   )
+//   @JoinColumn()
+//   warehouseReturnOrder: WarehouseReturnOrder;
+
+//   @ManyToOne(
+//     () => MedicineDetails,
+//     (medicineDetails) => medicineDetails.warehouseReturnOrderDetails,
+//   )
+//   @JoinColumn()
+//   medicineDetails: MedicineDetails;
+
+//   @Column({
+//     type: 'int',
+//   })
+//   quantity: number;
+
+//   @Column({
+//     type: 'int',
+//   })
+//   price: number;
 // }

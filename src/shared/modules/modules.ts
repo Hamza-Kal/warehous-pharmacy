@@ -40,7 +40,10 @@ import {
   WarehouseReturnOrderDetails,
 } from 'src/return order/entities/returnOrder.entities';
 import { ReturnOrderModule } from 'src/return order/returnOrder.module';
-import { InventoryReportMedicine } from 'src/report medicine/entities/report-medicine.entities';
+import {
+  InventoryReportMedicine,
+  PharmacyReportMedicine,
+} from 'src/report medicine/entities/report-medicine.entities';
 import { ReportMedicineModule } from 'src/report medicine/report-medicine.module';
 import { MediaModule } from 'src/media/media.module';
 import { Media } from 'src/media/entities/media.entity';
@@ -88,4 +91,5 @@ export const entities = [
   PharmacyOrder,
   PharmacyOrderDetails,
   DistributionPharmacyOrder,
+  PharmacyReportMedicine,
 ];

@@ -9,8 +9,11 @@ import {
   WarehouseMedicineDetails,
 } from 'src/medicine/entities/medicine-role.entities';
 import { DeliverModule } from 'src/deliver/deliver.module';
-import { InventoryReportMedicine } from './entities/report-medicine.entities';
-import { ReportMedicineWarehouesController } from './api/controllers/report-medicine-warehouse.controller';
+import {
+  InventoryReportMedicine,
+  PharmacyReportMedicine,
+} from './entities/report-medicine.entities';
+import { ReportMedicineWarehouseController } from './api/controllers/report-medicine-warehouse.controller';
 import { ReportMedicineInventoryController } from './api/controllers/report-medicine-inventory.controller';
 import { ReportMedicineError } from './services/report-medicine-error.service';
 import { InventoryReportMedicineService } from './services/report-medicine-inventory.service';
@@ -18,13 +21,13 @@ import { WarehouseReportMedicineService } from './services/report-medicine-wareh
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([InventoryReportMedicine]),
+    TypeOrmModule.forFeature([InventoryReportMedicine, PharmacyReportMedicine]),
     MedicineModule,
     SupplierModule,
     forwardRef(() => DeliverModule),
   ],
   controllers: [
-    ReportMedicineWarehouesController,
+    ReportMedicineWarehouseController,
     ReportMedicineInventoryController,
   ],
   providers: [

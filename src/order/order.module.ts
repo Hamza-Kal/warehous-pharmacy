@@ -46,5 +46,6 @@ import { OrderService } from './services/order.service';
     OrderError,
     PharmacyOrderService,
   ],
+  exports: [OrderService],
 })
 export class OrderModule {}

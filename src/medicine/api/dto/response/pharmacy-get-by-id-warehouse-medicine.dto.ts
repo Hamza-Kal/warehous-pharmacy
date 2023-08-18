@@ -18,6 +18,7 @@ export class PharmacyGetByIdWarehouseMedicine {
     this.category = medicine.medicine.category.category;
     this.price = medicine.price;
     this.description = medicine.medicine.description;
+    this.imageUrl = medicine.medicine.image?.url || null;
   }
 
   toObject(): {

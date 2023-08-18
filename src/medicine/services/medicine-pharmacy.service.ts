@@ -114,7 +114,6 @@ export class PharmacyMedicineService {
       .leftJoinAndSelect('medicine.category', 'category')
       .leftJoinAndSelect('medicine.image', 'image')
       .where('pharmacy_medicine.id = :id', { id })
-      .andWhere('price != 0')
       .andWhere('pharmacy.id = :id', { id: user.pharmacyId as number })
       .select([
         'pharmacy_medicine.id',

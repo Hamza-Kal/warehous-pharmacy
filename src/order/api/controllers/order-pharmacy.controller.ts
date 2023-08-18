@@ -30,22 +30,31 @@ export class OrderPharmacyController {
     return await this.orderService.create(body, user);
   }
 
-  //   @AuthorizedApi({
-  //     api: Api.GET,
-  //     url: '/:id',
-  //     role: [Role.WAREHOUSE],
-  //   })
-  //   async findOne(@Param() param: IParams, @CurrUser() user: IUser) {
-  //     return await this.orderService.findOne({ id: +param.id }, user);
-  //   }
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/details/:id',
+    role: [Role.PHARMACY],
+  })
+  async findDetails(@Param() param: IParams, @CurrUser() user: IUser) {
+    return await this.orderService.findDetails({ id: +param.id }, user);
+  }
 
-  //   @AuthorizedApi({
-  //     api: Api.GET,
-  //     url: '',
-  //     role: [Role.WAREHOUSE],
-  //   })
-  //   async findAll(@Query() query: Pagination, @CurrUser() user: IUser) {
-  //     const { pagination, criteria } = paginationParser(query);
-  //     return await this.orderService.findAll({ pagination, criteria }, user);
-  //   }
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/:id',
+    role: [Role.PHARMACY],
+  })
+  async findOne(@Param() param: IParams, @CurrUser() user: IUser) {
+    return await this.orderService.findOne({ id: +param.id }, user);
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '',
+    role: [Role.PHARMACY],
+  })
+  async findAll(@Query() query: Pagination, @CurrUser() user: IUser) {
+    const { pagination, criteria } = paginationParser(query);
+    return await this.orderService.findAll({ pagination, criteria }, user);
+  }
 }

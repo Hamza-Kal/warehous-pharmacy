@@ -17,6 +17,13 @@ import { PharmacyOrderService } from 'src/order/services/order-pharmacy.service'
 import { OrderService } from 'src/order/services/order.service';
 import { IParams } from 'src/shared/interface/params.interface';
 import { CreateReportMedicine } from '../api/dto/create-return-order.dto';
+import {
+  DeliverService,
+  RepositoryEnum,
+} from 'src/deliver/service/deliver.service';
+import { Role } from 'src/shared/enums/roles';
+import { report } from 'process';
+import { GetByCriteriaPharmacyReportMedicine } from '../api/dto/response/get-by-criteria-pharmacy-report-order.dto';
 
 @Injectable()
 export class PharmacyReportMedicineService {
@@ -26,12 +33,14 @@ export class PharmacyReportMedicineService {
     private readonly medicineError: MedicineError,
     private readonly medicineService: MedicineService,
     private readonly orderService: OrderService,
+    private readonly deliverService: DeliverService,
   ) {}
 
   async create(body: CreateReportMedicine, user: IUser, { id }: IParams) {
+    // id is order id
     const { batchId, quantity } = body;
     const medicineDetailsId =
-      await this.medicineService.getPharmacyMedicineDetails(batchId);
+      await this.medicineService.getPharmacyMedicineDetails(batchId, user);
 
     if (medicineDetailsId.quantity < quantity) {
       throw new HttpException(
@@ -39,71 +48,111 @@ export class PharmacyReportMedicineService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const order = this.orderService.findMedicineDetailsOrder(
+
+    const order = await this.orderService.findMedicineDetailsOrder(
       id,
       medicineDetailsId.medicineDetails.id,
       quantity,
+      user,
     );
 
     // //* batches can be for a different medicines so we don't need to check
     // //* to be the same medicine id for all batches
     // //? validate the order
+    const medicine = await this.deliverService.removeMedicine(
+      RepositoryEnum.PharmacyMedicine,
+      user.pharmacyId as number,
+      {
+        medicineId: medicineDetailsId.medicineDetails.medicine.id,
+        quantity,
+      },
+    );
 
-    // if (batch.quantity > inventoryMedicineDetails.quantity) {
-    //   throw new HttpException(
-    //     this.medicineError.notEnoughMedicine(),
-    //     HttpStatus.BAD_REQUEST,
-    //   );
-    // }
+    await this.deliverService.removeMedicineDetails(
+      RepositoryEnum.PharmacyMedicineDetails,
+      {
+        medicineDetails: medicineDetailsId.medicineDetails.id,
+        medicineId: medicine.id,
+        quantity,
+      },
+    );
+    const reportOrder = this.pharmacyReportOrderRepository.create({
+      created_at: new Date(),
+      medicineDetails: medicineDetailsId.medicineDetails,
+      pharmacy: {
+        id: user.pharmacyId as number,
+      },
+      quantity,
+      reason: body.reason,
+      order,
+    });
 
-    // const reportOrder = this.inventoryReportOrderRepository.create({
-    //   created_at: new Date(),
-    //   medicineDetails: inventoryMedicineDetails.medicineDetails,
-    //   inventory: {
-    //     id: inventoryId as number,
-    //   },
-    //   quantity: batch.quantity,
-    //   reason: body.reason,
-    // });
-
-    // await this.inventoryReportOrderRepository.save(reportOrder);
+    await this.pharmacyReportOrderRepository.save(reportOrder);
 
     return {
       data: {
-        // id: reportOrder.id,
+        id: reportOrder.id,
       },
     };
   }
 
-  // async findOne({ id }: IParams, user: IUser) {
-  //   const reportOrder = await this.warehouseReportOrderRepository.findOne({
-  //     where: {
-  //       id,
-  //     },
-  //     select: {
-  //       id: true,
-  //       details: {
-  //         quantity: true,
-  //         // medicine: {
-  //         //   name: true,
-  //         // },
-  //       },
-  //     },
-  //     relations: {
-  //       details: {
-  //         // medicine: true,
-  //       },
-  //     },
-  //   });
+  async findAll(
+    { pagination, criteria }: { pagination: Pagination; criteria: any },
+    user: IUser,
+  ) {
+    const { limit, skip } = pagination;
+    const totalRecords = await this.pharmacyReportOrderRepository.count({
+      where: {
+        pharmacy: {
+          id: user.pharmacyId as number,
+        },
+      },
+    });
+    const reportOrders = await this.pharmacyReportOrderRepository.find({
+      where: {
+        pharmacy: {
+          id: user.pharmacyId as number,
+        },
+      },
+      select: {
+        id: true,
+        reason: true,
+        created_at: true,
+        status: true,
+        quantity: true,
+        medicineDetails: {
+          medicine: {
+            id: true,
+          },
+          endDate: true,
+        },
+        order: {
+          warehouse: {
+            name: true,
+            location: true,
+            phoneNumber: true,
+          },
+        },
+      },
+      relations: {
+        order: {
+          warehouse: true,
+        },
+        medicineDetails: {
+          medicine: true,
+        },
+      },
+      skip,
+      take: limit,
+    });
 
-  //   if (!reportOrder) {
-  //     throw new HttpException(
-  //       this.reportOrderError.notFoundReportMedicine(),
-  //       HttpStatus.NOT_FOUND,
-  //     );
-  //   }
-  //   return {
-  //     // data: new GetByIdWarehouseReportOrder({ reportOrder }).toObject(),
-  //   };
-  // }
+    // return reportOrders;
+
+    return {
+      totalRecords,
+      data: reportOrders.map((reportMedicine) =>
+        new GetByCriteriaPharmacyReportMedicine({ reportMedicine }).toObject(),
+      ),
+    };
+  }
 }

@@ -197,7 +197,7 @@ export class MedicineDetails {
       cascade: true,
     },
   )
-  supplierMedicine: SupplierMedicineDetails;
+  supplierMedicine: SupplierMedicineDetails[];
 
   @OneToMany(
     () => WarehouseMedicineDetails,
@@ -206,7 +206,7 @@ export class MedicineDetails {
       cascade: true,
     },
   )
-  warehouseMedicine: WarehouseMedicineDetails;
+  warehouseMedicine: WarehouseMedicineDetails[];
 
   @OneToMany(
     () => InventoryMedicineDetails,
@@ -215,7 +215,7 @@ export class MedicineDetails {
       cascade: true,
     },
   )
-  inventoryMedicine: InventoryMedicineDetails;
+  inventoryMedicine: InventoryMedicineDetails[];
 
   @OneToMany(
     () => PharmacyMedicineDetails,
@@ -224,7 +224,7 @@ export class MedicineDetails {
       cascade: true,
     },
   )
-  pharmacyMedicine: PharmacyMedicineDetails;
+  pharmacyMedicine: PharmacyMedicineDetails[];
 
   //*********************************** Distribution ***********************************
 

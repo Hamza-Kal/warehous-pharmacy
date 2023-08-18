@@ -117,6 +117,36 @@ export class MedicineWarehouseController {
 
   @AuthorizedApi({
     api: Api.GET,
+    url: '/details/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async findMedicineDetails(@CurrUser() user: IUser, @Param() param: IParams) {
+    return await this.warehouseMedicineService.findMedicineDetails(
+      { id: +param.id },
+      user,
+    );
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/inventory/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async findInventoryMedicines(
+    @Query() query: Pagination,
+    @CurrUser() user: IUser,
+    @Param() param: IParams,
+  ) {
+    const { pagination, criteria } = paginationParser(query);
+    return await this.warehouseMedicineService.findAllInventoryMedicines(
+      { pagination, criteria },
+      { id: +param.id },
+      user,
+    );
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
     url: '/:id',
     role: [Role.WAREHOUSE],
   })

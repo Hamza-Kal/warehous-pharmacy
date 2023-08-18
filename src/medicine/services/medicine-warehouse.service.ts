@@ -35,6 +35,8 @@ import { GetInventoriesDistributionsDto } from '../api/response/get-inventories-
 import { MedicineInventoryService } from './medicine-inventory.service';
 import { InventoryMedicineDetailsDto } from '../api/dto/response/inventory-medicine-details.dto';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
+import { WarehouseGetBatches } from '../api/response/get-warehouse-batches.dto';
+import { InventoryMedicinesDto } from '../api/dto/response/warehouse-get-by-id-inventory-medicine.dto';
 
 @Injectable()
 export class WarehouseMedicineService {
@@ -244,6 +246,69 @@ export class WarehouseMedicineService {
     };
   }
 
+  async findAllInventoryMedicines(
+    { pagination, criteria }: { pagination: Pagination; criteria: any },
+    { id }: IParams,
+    user: IUser,
+  ) {
+    const { skip, limit } = pagination;
+    const totalRecords = await this.inventoryMedicineRepository.count({
+      where: {
+        inventory: {
+          id,
+          warehouse: {
+            id: user.warehouseId as number,
+          },
+        },
+      },
+    });
+    const medicines = await this.inventoryMedicineRepository.find({
+      where: {
+        inventory: {
+          id,
+          warehouse: {
+            id: user.warehouseId as number,
+          },
+        },
+      },
+      select: {
+        id: true,
+        medicineDetails: {
+          quantity: true,
+          id: true,
+          medicineDetails: {
+            endDate: true,
+          },
+        },
+        medicine: {
+          id: true,
+          image: {
+            url: true,
+          },
+        },
+      },
+      relations: {
+        medicineDetails: {
+          medicineDetails: true,
+        },
+        medicine: {
+          image: true,
+        },
+      },
+      skip,
+      take: limit,
+    });
+
+    return {
+      totalRecords,
+      data: medicines.map((medicine) =>
+        new InventoryMedicinesDto({
+          medicine,
+        }).toObject(),
+      ),
+    };
+  }
+
   //? get all the medicineDetails of the inventories
   async findAllInventoriesMedicine({ id }: IParams, user: IUser) {
     const medicine = await this.warehouseMedicineRepository.findOne({
@@ -377,6 +442,31 @@ export class WarehouseMedicineService {
       data: new WarehouseGetMedicines({
         warehouseMedicine: medicine,
       }).toObject(),
+    };
+  }
+
+  async findMedicineDetails({ id }: IParams, user: IUser) {
+    const batches = await this.warehouseMedicineDetailsRepository.find({
+      where: {
+        medicine: {
+          id,
+          warehouse: {
+            id: user.warehouseId as number,
+          },
+        },
+        quantity: Not(0),
+      },
+      select: {
+        id: true,
+        quantity: true,
+      },
+    });
+    return {
+      data: batches.map((batch) =>
+        new WarehouseGetBatches({
+          warehouseBatches: batch,
+        }).toObject(),
+      ),
     };
   }
 

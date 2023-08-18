@@ -37,7 +37,7 @@ export class WarehouseReturnOrderService {
 
   async create(body: CreateWarehouseReturnOrderDto, owner: IUser) {
     const { warehouseId } = owner;
-    const { batches } = body;
+    const { batches, returnReason } = body;
 
     const batchQuantity = new Map<number, number>();
     const batchesIds = [];
@@ -118,6 +118,7 @@ export class WarehouseReturnOrderService {
       supplier: {
         id: supplierId,
       },
+      reason: returnReason,
       created_at: new Date(),
       warehouse: {
         id: warehouseId as number,

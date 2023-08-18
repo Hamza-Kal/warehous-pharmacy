@@ -29,6 +29,15 @@ export class ReturnOrderSupplierController {
     role: [Role.SUPPLIER],
   })
   async rejectReturnOrder(@Param() param: IParams, @CurrUser() user: IUser) {
-    // return this.returnOrderService.rejectReturnOrder({ id: +param.id }, user);
+    return this.returnOrderService.rejectReturnOrder(param, user);
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: 'get-pending',
+    role: [Role.SUPPLIER],
+  })
+  async findPendingOrders(@CurrUser() user: IUser) {
+    return this.returnOrderService.findPendingOrders(user);
   }
 }

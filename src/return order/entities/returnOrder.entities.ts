@@ -2,7 +2,6 @@ import {
   Medicine,
   MedicineDetails,
 } from 'src/medicine/entities/medicine.entities';
-import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 import {
@@ -36,6 +35,12 @@ export class WarehouseReturnOrder {
   })
   @JoinColumn()
   warehouse: Warehouse;
+
+  @Column({
+    type: 'varchar',
+    length: 255,
+  })
+  reason: string;
 
   @Column({
     type: 'enum',

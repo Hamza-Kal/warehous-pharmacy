@@ -9,11 +9,13 @@ export class GetAllGuestsDto {
   id: number;
   email: string;
   assignedRole: Role;
+  fullName: string;
   property: Warehouse | Supplier | Inventory | Pharmacy | null;
   constructor({ user }: { user: User }) {
     this.id = user.id;
     this.email = user.email;
     this.assignedRole = user.assignedRole;
+    this.fullName = user.fullName;
     // if (user.warehouse) this.property = user.warehouse;
     // if (user.supplier) this.property = user.supplier;
     // if (user.inventory) this.property = user.inventory;
@@ -25,14 +27,18 @@ export class GetAllGuestsDto {
   toObject(): {
     id: number;
     email: string;
+    status: string;
     assignedRole: Role;
+    fullName: string;
     property: Warehouse | Supplier | Inventory | Pharmacy | null;
   } {
     return {
       id: this.id,
       email: this.email,
+      fullName: this.fullName,
       assignedRole: this.assignedRole,
       property: this.property,
+      status: 'banned',
     };
   }
 }

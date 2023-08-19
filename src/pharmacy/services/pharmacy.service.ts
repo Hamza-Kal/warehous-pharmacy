@@ -1,13 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Pharmacy } from '../entities/pharmacy.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { GetAllPharmacies } from 'src/pharmacy/api/dtos/response/get-all-pharmacies.dto';
 import { GetByIdPharmacy } from '../api/dtos/response/get-by-id-pharmacy.dto';
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
 import { AdminGetAllPharmacies } from 'src/admin/api/dto/pharmacy-dtos/find-all.dto';
 import { AdminGetByIdPharmacy } from 'src/admin/api/dto/pharmacy-dtos/find-one.dto';
+import { filter } from 'rxjs';
 
 @Injectable()
 export class PharmacyService {
@@ -16,6 +17,18 @@ export class PharmacyService {
     private pharmacyRepository: Repository<Pharmacy>,
     private errorsService: MedicineError,
   ) {}
+
+  getCriteria(queryCriteria: { name: string }) {
+    let criteria: any = {};
+    if (queryCriteria.name) {
+      criteria = {
+        ...criteria,
+        name: ILike(`%${queryCriteria.name}%`),
+      };
+    }
+    return criteria;
+  }
+
   async findAll({
     pagination,
     criteria,
@@ -68,21 +81,19 @@ export class PharmacyService {
     criteria,
   }: {
     pagination?: Pagination;
-    criteria?: FindOptionsWhere<Pharmacy> | FindOptionsWhere<Pharmacy>[];
+    criteria?: { name: string };
   }) {
     const { skip, limit } = pagination;
+    const filteringCriteria = this.getCriteria(criteria);
+
     const pharmacies = await this.pharmacyRepository.find({
-      where: {
-        ...criteria,
-      },
+      where: filteringCriteria,
       select: ['id', 'location', 'name', 'phoneNumber'],
       take: limit,
       skip,
     });
     const totalRecords = await this.pharmacyRepository.count({
-      where: {
-        ...criteria,
-      },
+      where: filteringCriteria,
     });
     return {
       totalRecords,

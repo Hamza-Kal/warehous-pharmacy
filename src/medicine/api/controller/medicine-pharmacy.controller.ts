@@ -8,11 +8,9 @@ import { Pagination } from '../../../shared/pagination/pagination.validation';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { paginationParser } from 'src/shared/pagination/pagination';
 import { IUser } from 'src/shared/interface/user.interface';
-import { CreateMedicineBrew } from '../dto/create-medicine-brew.dto';
-import { MedicineSupplierService } from 'src/medicine/services/medicine-supplier.service';
 import { IParams } from 'src/shared/interface/params.interface';
-import { UpdateMedicineDto } from '../dto/update-medicine.dto';
 import { PharmacyMedicineService } from 'src/medicine/services/medicine-pharmacy.service';
+import { FindAllPharmacy } from '../dto/query/find-all-pharmacy.dto';
 
 @AuthenticatedController({
   controller: '/medicine/pharmacy',
@@ -42,7 +40,7 @@ export class MedicinePharmacyController {
     url: '',
     role: [Role.PHARMACY],
   })
-  async findAll(@Query() query: Pagination, @CurrUser() user: IUser) {
+  async findAll(@Query() query: FindAllPharmacy, @CurrUser() user: IUser) {
     const { pagination, criteria } = paginationParser(query);
     return await this.medicineService.findAll({ pagination, criteria }, user);
   }

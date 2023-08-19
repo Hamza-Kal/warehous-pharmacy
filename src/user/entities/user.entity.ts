@@ -3,6 +3,7 @@ import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { Media } from 'src/media/entities/media.entity';
 import {
   PaymentAccount,
+  PaymentClaim,
   PaymentTransaction,
 } from 'src/payment/entities/payment.entities';
 import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
@@ -92,6 +93,12 @@ export class User {
 
   @OneToMany(() => PaymentTransaction, (transaction) => transaction.sender)
   outcomingPayments: PaymentTransaction[];
+
+  @OneToMany(() => PaymentClaim, (claim) => claim.debtor)
+  sender: PaymentClaim[];
+
+  @OneToMany(() => PaymentClaim, (claim) => claim.debtor)
+  cl: PaymentClaim[];
 
   @OneToMany(() => PaymentTransaction, (transaction) => transaction.receiver)
   incomingPayments: PaymentTransaction[];

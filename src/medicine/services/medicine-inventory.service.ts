@@ -145,7 +145,7 @@ export class MedicineInventoryService {
       .leftJoinAndSelect('inventory.manager', 'manager')
       .leftJoinAndSelect('inventory_medicine.medicine', 'medicine')
       .where('warehouse.id = :id', { id: warehouseId })
-      .andWhere('inventory_medicine_details.quantity > 0', { quantity: 0 })
+      .andWhere('inventory_medicine_details.quantity > 0')
       .andWhere('medicine.id = :medicineId', { medicineId })
       .select([
         'inventory_medicine_details.id',

@@ -167,6 +167,7 @@ export class WarehouseMedicineService {
       )
       .where('warehouse.id = :id', { id: user.warehouseId })
       .andWhere('warehouse_medicine.quantity > 0', { quantity: 0 })
+      .andWhere('outerMedicineDetails.quantity > 0')
       .select([
         'warehouse_medicine.id',
         'medicine.id',

@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 import { CreateInventoryDto } from '../dtos/create-inventory.dto';
 import { Inventory } from '../entities/inventory.entity';
 
@@ -11,6 +11,7 @@ import { GetByIdInventory } from '../dtos/response/get-by-id-inventory.dto';
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
 import { AdminGetByIdInventory } from 'src/admin/api/dto/inventory-dtos/find-one.dto';
 import { AdminGetAllInventories } from 'src/admin/api/dto/inventory-dtos/find-all.dto';
+import { fi } from '@faker-js/faker';
 
 @Injectable()
 export class InventoryService {
@@ -19,6 +20,17 @@ export class InventoryService {
     private inventoryRepository: Repository<Inventory>,
     private errorsService: MedicineError,
   ) {}
+
+  getCriteria(queryCriteria: { name: string }) {
+    let criteria: any = {};
+    if (queryCriteria.name) {
+      criteria = {
+        ...criteria,
+        name: ILike(`%${queryCriteria.name}%`),
+      };
+    }
+    return criteria;
+  }
 
   async create(
     { name, phoneNumber, location, manager }: CreateInventoryDto,
@@ -90,21 +102,19 @@ export class InventoryService {
     criteria,
   }: {
     pagination?: Pagination;
-    criteria?: FindOptionsWhere<Inventory> | FindOptionsWhere<Inventory>[];
+    criteria?: { name: string };
   }) {
     const { skip, limit } = pagination;
+    const filteringCriteria = this.getCriteria(criteria);
+
     const inventories = await this.inventoryRepository.find({
-      where: {
-        ...criteria,
-      },
+      where: filteringCriteria,
       select: ['id', 'location', 'name', 'phoneNumber'],
       take: limit,
       skip,
     });
     const totalRecords = await this.inventoryRepository.count({
-      where: {
-        ...criteria,
-      },
+      where: filteringCriteria,
       select: ['id', 'location', 'name', 'phoneNumber'],
       take: limit,
       skip,

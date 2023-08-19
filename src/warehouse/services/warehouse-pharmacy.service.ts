@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Warehouse } from '../entities/warehouse.entity';
 import { CreateWarehouseDto } from '../api/dto/create-warehouse.dto';
 import { IUser } from 'src/shared/interface/user.interface';
@@ -21,6 +21,17 @@ export class WarehousePharmacyService {
     private warehouseRepository: Repository<Warehouse>,
   ) {}
 
+  getCriteria(queryCriteria: { name: string }) {
+    let criteria: any = {};
+    if (queryCriteria.name) {
+      criteria = {
+        ...criteria,
+        name: ILike(`%${queryCriteria.name}%`),
+      };
+    }
+    return criteria;
+  }
+
   async findAll({
     pagination,
     criteria,
@@ -29,18 +40,16 @@ export class WarehousePharmacyService {
     criteria?: any;
   }) {
     const { skip, limit } = pagination;
+    const filteringCriteria = this.getCriteria(criteria);
+
     const warehouses = await this.warehouseRepository.find({
-      where: {
-        ...criteria,
-      },
+      where: filteringCriteria,
       select: ['id', 'location', 'name', 'phoneNumber'],
       take: limit,
       skip,
     });
     const totalRecords = await this.warehouseRepository.count({
-      where: {
-        ...criteria,
-      },
+      where: filteringCriteria,
     });
     return {
       totalRecords,

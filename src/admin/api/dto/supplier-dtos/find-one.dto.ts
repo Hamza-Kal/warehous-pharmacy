@@ -26,6 +26,7 @@ export class AdminGetByIdSupplier {
     userFullName: string;
     userId: number;
     userEmail: string;
+    status: string;
   } {
     return {
       id: this.id,
@@ -35,6 +36,7 @@ export class AdminGetByIdSupplier {
       userId: this.userId,
       userEmail: this.userEmail,
       userFullName: this.userFullName,
+      status: 'active',
     };
   }
 }

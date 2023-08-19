@@ -180,7 +180,6 @@ export class WarehouseOrderService {
       let wholeQuantity = quantity;
 
       for (const { medicineDetails, inventory } of inventoriesMedicines) {
-        console.log('detailssss,', medicineDetails);
         for (const details of medicineDetails) {
           if (!wholeQuantity) break;
           const batchQuantity = Math.min(details.quantity, wholeQuantity);
@@ -428,7 +427,7 @@ export class WarehouseOrderService {
   }
 
   async findDistribution({ id }: IParams, user: IUser) {
-    const distributions = await this.pharmacyDistributionRepository
+    const distributions = (await this.pharmacyDistributionRepository
       .createQueryBuilder('distributions')
       .leftJoinAndSelect('distributions.order', 'order')
       .leftJoinAndSelect('order.warehouse', 'warehouse')
@@ -443,20 +442,20 @@ export class WarehouseOrderService {
       .andWhere('warehouse.id = :warehouseId', {
         warehouseId: user.warehouseId as number,
       })
-      .addGroupBy('inventory_id')
+
       .select([
+        'inventory.id',
         'order.id',
         'inventory.name',
         'medicineDetails.id',
         'medicine.name',
+        'medicineDetails.endDate',
         'image.url',
         'warehouse.id',
         'distributions.quantity',
       ])
+      .getMany()) as DistributionPharmacyOrder[];
 
-      .getRawMany();
-
-    return distributions;
     if (!distributions.length) {
       throw new HttpException(
         this.orderError.notFoundOrder(),
@@ -464,8 +463,63 @@ export class WarehouseOrderService {
       );
     }
 
+    const map = new Map<
+      number,
+      {
+        expireDate: Date;
+        quantity: number;
+        name: string;
+        imageUrl: string | null;
+      }[]
+    >();
+
+    for (const distribution of distributions) {
+      const inventoryId = distribution.inventory.id;
+      let inventoryMedicine = [];
+      if (map.has(inventoryId)) {
+        inventoryMedicine = map.get(inventoryId);
+        continue;
+      }
+      inventoryMedicine.push({
+        expireDate: distribution.medicineDetails.endDate,
+        quantity: distribution.quantity,
+        name: distribution.medicineDetails.medicine.name,
+        imageUrl: distribution.medicineDetails.medicine.image?.url || null,
+      });
+
+      map.set(inventoryId, inventoryMedicine);
+    }
+
+    const distributed = new Map<number, boolean>();
+
+    const response: {
+      id: number;
+      name: string;
+      location: string;
+      medicine: {
+        expireDate: Date;
+        quantity: number;
+        name: string;
+        imageUrl: string | null;
+      }[];
+    }[] = [];
+
+    for (const distribution of distributions) {
+      const inventoryId = distribution.inventory.id;
+      if (distributed.has(inventoryId)) {
+        continue;
+      }
+      const inventoryMedicine = map.get(inventoryId);
+      distributed.set(inventoryId, true);
+      response.push({
+        id: inventoryId,
+        name: distribution.inventory.name,
+        location: distribution.inventory.location,
+        medicine: inventoryMedicine,
+      });
+    }
     return {
-      data: distributions.map((distribution) =>
+      data: response.map((distribution) =>
         new GetByIdOrderDistribution({ distribution }).toObject(),
       ),
     };

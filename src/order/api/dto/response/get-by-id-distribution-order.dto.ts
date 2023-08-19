@@ -7,35 +7,46 @@ import {
 //! maybe adding medicineDetails name
 export class GetByIdOrderDistribution {
   id: number;
-  quantity: number;
-  imageUrl: string | null;
-  inventoryName: string;
-  medicineName: string;
-  medicineDetails: number;
-  constructor({ distribution }: { distribution: DistributionPharmacyOrder }) {
+  name: string;
+  location: string;
+  medicine: {
+    expireDate: Date;
+    quantity: number;
+    name: string;
+    imageUrl: string | null;
+  }[];
+  constructor({ distribution }: { distribution: any }) {
     this.id = distribution.id;
-    this.quantity = distribution.quantity;
-    this.imageUrl = distribution.medicineDetails.medicine.image?.url || null;
-    this.inventoryName = distribution.inventory.name;
-    this.medicineName = distribution.medicineDetails.medicine.name;
-    this.medicineDetails = distribution.medicineDetails.id;
+    this.name = distribution.name;
+    this.location = distribution.location;
+    const medicines = [];
+    for (const medicine of distribution.medicine) {
+      medicines.push({
+        expireDate: medicine.expireDate,
+        quantity: medicine.quantity,
+        name: medicine.name,
+        imageUrl: medicine.imageUrl,
+      });
+    }
+    this.medicine = medicines;
   }
 
   toObject(): {
     id: number;
-    inventory: string;
-    medicine: string;
-    batchId: number;
-    quantity: number;
-    imageUrl: string;
+    name: string;
+    location: string;
+    medicines: {
+      name: string;
+      quantity: number;
+      imageUrl: string | null;
+      expireDate: Date;
+    }[];
   } {
     return {
       id: this.id,
-      inventory: this.inventoryName,
-      medicine: this.medicineName,
-      batchId: this.medicineDetails,
-      quantity: this.quantity,
-      imageUrl: this.imageUrl,
+      name: this.name,
+      location: this.location,
+      medicines: this.medicine,
     };
   }
 }

@@ -63,8 +63,11 @@ export class UserService {
         pharmacy: true,
       },
     });
+    const guestUsers = users.map((user: User) =>
+      new GetAllGuestsDto({ user }).toObject(),
+    );
     return {
-      data: users.map((user: User) => new GetAllGuestsDto({ user }).toObject()),
+      data: guestUsers.filter((user) => user.property),
     };
   }
 

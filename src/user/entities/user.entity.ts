@@ -1,5 +1,10 @@
+import { Transaction } from 'sequelize';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { Media } from 'src/media/entities/media.entity';
+import {
+  PaymentAccount,
+  PaymentTransaction,
+} from 'src/payment/entities/payment.entities';
 import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
 import { Role } from 'src/shared/enums/roles';
 import { hashPassword } from 'src/shared/utils/bcrypt';
@@ -13,6 +18,7 @@ import {
   Column,
   DeleteDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -80,6 +86,15 @@ export class User {
 
   @OneToMany(() => Media, (image) => image.user)
   image: Media;
+
+  @OneToOne(() => PaymentAccount, (payment) => payment.user)
+  payment: PaymentAccount;
+
+  @OneToMany(() => PaymentTransaction, (transaction) => transaction.sender)
+  outcomingPayments: PaymentTransaction[];
+
+  @OneToMany(() => PaymentTransaction, (transaction) => transaction.receiver)
+  incomingPayments: PaymentTransaction[];
 
   @BeforeInsert()
   async logBeforeInsertOrUpdate() {

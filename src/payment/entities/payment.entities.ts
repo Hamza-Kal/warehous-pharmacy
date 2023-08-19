@@ -64,11 +64,11 @@ export class PaymentClaim {
   @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
-  @ManyToOne(() => User, (user) => user.outcomingPayments)
+  @ManyToOne(() => User, (user) => user.debt)
   @JoinColumn()
   debtor: User;
 
-  @ManyToOne(() => User, (user) => user.incomingPayments)
+  @ManyToOne(() => User, (user) => user.receive)
   @JoinColumn()
   receiver: User;
 

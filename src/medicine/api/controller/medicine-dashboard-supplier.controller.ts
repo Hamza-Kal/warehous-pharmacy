@@ -12,6 +12,7 @@ import { CreateMedicineBrew } from '../dto/create-medicine-brew.dto';
 import { MedicineSupplierService } from 'src/medicine/services/medicine-supplier.service';
 import { IParams } from 'src/shared/interface/params.interface';
 import { UpdateMedicineDto } from '../dto/update-medicine.dto';
+import { FindAllSuppliers } from '../dto/query/find-all-supplier.dto copy';
 
 @AuthenticatedController({
   controller: '/medicine/supplier',
@@ -50,7 +51,7 @@ export class MedicineController {
     url: '/',
     role: [Role.SUPPLIER],
   })
-  async getAll(@Query() query: Pagination, @CurrUser() user: IUser) {
+  async getAll(@Query() query: FindAllSuppliers, @CurrUser() user: IUser) {
     const parsingResult = paginationParser(query);
     return this.medicineService.findAll(parsingResult, user);
   }

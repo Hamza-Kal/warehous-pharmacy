@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IUser } from 'src/shared/interface/user.interface';
 import { MedicineDetails } from '../entities/medicine.entities';
-import { Not, Repository } from 'typeorm';
+import { ILike, Not, Repository, SelectQueryBuilder } from 'typeorm';
 import { MedicineError } from './medicine-error.service';
 import {
   PharmacyMedicine,
@@ -25,6 +25,34 @@ export class PharmacyMedicineService {
     private medicineError: MedicineError,
   ) {}
 
+  AddCriteria(
+    dbQuery: SelectQueryBuilder<PharmacyMedicine>,
+    queryParams: { name?: string; category?: string },
+  ) {
+    let criteriaObject: any = {};
+    if (queryParams.name) {
+      dbQuery.andWhere('medicine.name LIKE :name', {
+        name: `%${queryParams.name}%`,
+      });
+      criteriaObject = {
+        ...criteriaObject,
+        name: ILike(`%${queryParams.name}%`),
+      };
+    }
+    if (queryParams.category) {
+      dbQuery.andWhere('category.category = :category', {
+        category: queryParams.category,
+      });
+      criteriaObject = {
+        ...criteriaObject,
+        category: queryParams.category,
+      };
+    }
+    return {
+      dbQuery,
+      criteriaObject,
+    };
+  }
   async findAllWarehouse({ criteria, pagination }, warehouseId: number) {
     const { skip, limit } = pagination;
     const totalRecords = await this.warehouseMedicineRepository.count({
@@ -69,16 +97,7 @@ export class PharmacyMedicineService {
 
   async findAll({ criteria, pagination }, user: IUser) {
     const { skip, limit } = pagination;
-    const totalRecords = await this.pharmacyMedicineRepository.count({
-      where: {
-        ...criteria,
-        pharmacy: {
-          id: user.pharmacyId as number,
-        },
-        quantity: Not(0),
-      },
-    });
-    const medicines = await this.pharmacyMedicineRepository
+    const medicinesQuery = this.pharmacyMedicineRepository
       .createQueryBuilder('pharmacy_medicine')
       .leftJoinAndSelect('pharmacy_medicine.pharmacy', 'pharmacy')
       .leftJoinAndSelect('pharmacy_medicine.medicine', 'medicine')
@@ -94,8 +113,26 @@ export class PharmacyMedicineService {
         'image.url',
       ])
       .take(limit)
-      .skip(skip)
-      .getMany();
+      .skip(skip);
+    const { dbQuery, criteriaObject } = this.AddCriteria(
+      medicinesQuery,
+      criteria,
+    );
+    const medicines = await dbQuery.getMany();
+    const totalRecords = await this.pharmacyMedicineRepository.count({
+      where: {
+        medicine: {
+          category: {
+            category: criteriaObject.category,
+          },
+          name: criteriaObject.name,
+        },
+        pharmacy: {
+          id: user.pharmacyId as number,
+        },
+        quantity: Not(0),
+      },
+    });
     return {
       totalRecords,
       data: medicines.map((medicine) =>

@@ -8,6 +8,7 @@ import { IUser } from 'src/shared/interface/user.interface';
 import { paginationParser } from 'src/shared/pagination/pagination';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { WarehousePharmacyService } from 'src/warehouse/services/warehouse-pharmacy.service';
+import { FindAllForPharmacyDto } from '../dto/query/find-all-for-pharmacies.dto';
 
 @AuthenticatedController({
   controller: 'warehouse/pharmacy',
@@ -20,8 +21,11 @@ export class PharmacyWarehouseController {
     role: [Role.PHARMACY],
     url: '',
   })
-  async findAll(@Query() query: Pagination, @CurrUser() user: IUser) {
-    const { pagination, criteria } = paginationParser(query);
-    return await this.pharmacyWarehouseService.findAll({ pagination });
+  async findAll(
+    @Query() query: FindAllForPharmacyDto,
+    @CurrUser() user: IUser,
+  ) {
+    const parsingResult = paginationParser(query);
+    return await this.pharmacyWarehouseService.findAll(parsingResult);
   }
 }

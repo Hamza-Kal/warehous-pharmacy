@@ -6,7 +6,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 import { Warehouse } from '../entities/warehouse.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
@@ -33,6 +33,17 @@ export class WarehouseService {
     private inventoryRepository: Repository<Inventory>,
     private warehouseError: WarehouseError,
   ) {}
+
+  getCriteria(queryCriteria: { name: string }) {
+    let criteria: any = {};
+    if (queryCriteria.name) {
+      criteria = {
+        ...criteria,
+        name: ILike(`%${queryCriteria.name}%`),
+      };
+    }
+    return criteria;
+  }
 
   async findOneOrFail(id: number) {
     const warehouse = await this.warehouseRepository.findOne({
@@ -165,21 +176,19 @@ export class WarehouseService {
     criteria,
   }: {
     pagination?: Pagination;
-    criteria?: FindOptionsWhere<Warehouse> | FindOptionsWhere<Warehouse>[];
+    criteria?: { name: string };
   }) {
     const { skip, limit } = pagination;
+
+    const filteringCriteria = this.getCriteria(criteria);
     const warehouses = await this.warehouseRepository.find({
-      where: {
-        ...criteria,
-      },
+      where: filteringCriteria,
       select: ['id', 'location', 'name', 'phoneNumber'],
       take: limit,
       skip,
     });
     const totalRecrods = await this.warehouseRepository.count({
-      where: {
-        ...criteria,
-      },
+      where: filteringCriteria,
     });
     return {
       totalRecrods,

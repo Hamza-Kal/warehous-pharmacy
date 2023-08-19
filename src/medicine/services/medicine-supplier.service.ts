@@ -5,7 +5,13 @@ import {
   Medicine,
   MedicineDetails,
 } from '../entities/medicine.entities';
-import { Not, Repository } from 'typeorm';
+import {
+  FindOperator,
+  ILike,
+  Not,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 
 import { MedicineError } from './medicine-error.service';
 import { CreateMedicine } from '../api/dto/create-medicine.dto';
@@ -22,6 +28,7 @@ import {
 import { Media } from 'src/media/entities/media.entity';
 import { UpdateMedicineDto } from '../api/dto/update-medicine.dto';
 import { GetMedicineBathesDto } from '../api/response/get-medicine-batches.dto';
+import { Equals } from 'class-validator';
 
 @Injectable()
 export class MedicineSupplierService {
@@ -40,6 +47,35 @@ export class MedicineSupplierService {
     @InjectRepository(Media) private mediaRepository: Repository<Media>,
   ) {}
 
+  AddCriteria(
+    dbQuery: SelectQueryBuilder<SupplierMedicine>,
+    queryParams: { name?: string; category?: string },
+  ) {
+    console.log(queryParams);
+    let criteriaObject: any = {};
+    if (queryParams.name) {
+      dbQuery.andWhere('medicine.name LIKE :name', {
+        name: `%${queryParams.name}%`,
+      });
+      criteriaObject = {
+        ...criteriaObject,
+        name: ILike(`%${queryParams.name}%`),
+      };
+    }
+    if (queryParams.category) {
+      dbQuery.andWhere('category.category = :category', {
+        category: queryParams.category,
+      });
+      criteriaObject = {
+        ...criteriaObject,
+        category: queryParams.category,
+      };
+    }
+    return {
+      dbQuery,
+      criteriaObject,
+    };
+  }
   async create(user: IUser, body: CreateMedicine) {
     const { name, description, categoryId, price, imageId } = body;
     const category = this.categoryRepository.findOne({
@@ -157,16 +193,7 @@ export class MedicineSupplierService {
   async findAll({ criteria, pagination }, user: IUser) {
     const { skip, limit } = pagination;
     const { supplierId } = user;
-    const totalRecords = await this.supplierMedicineRepository.count({
-      where: {
-        ...criteria,
-        supplier: {
-          id: supplierId,
-        },
-        quantity: Not(0),
-      },
-    });
-    const medicines = await this.supplierMedicineRepository
+    const medicinesQuery = this.supplierMedicineRepository
       .createQueryBuilder('supplier_medicine')
       .leftJoinAndSelect('supplier_medicine.supplier', 'supplier')
       .leftJoinAndSelect('supplier_medicine.medicine', 'medicine')
@@ -186,9 +213,26 @@ export class MedicineSupplierService {
         'image.url',
       ])
       .take(limit)
-      .skip(skip)
-      .getMany();
-
+      .skip(skip);
+    const { dbQuery, criteriaObject } = this.AddCriteria(
+      medicinesQuery,
+      criteria,
+    );
+    const medicines = await dbQuery.getMany();
+    const totalRecords = await this.supplierMedicineRepository.count({
+      where: {
+        medicine: {
+          category: {
+            category: criteriaObject.category,
+          },
+          name: criteriaObject.name,
+        },
+        supplier: {
+          id: supplierId as number,
+        },
+        quantity: Not(0),
+      },
+    });
     return {
       totalRecords,
       data: medicines.map((medicine) =>

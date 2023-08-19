@@ -15,12 +15,25 @@ import { IParams } from 'src/shared/interface/params.interface';
 import { GetAllGuestsDto } from '../dtos/response/get-all-guests.dto';
 import { IUser } from 'src/shared/interface/user.interface';
 import { UpdateUserDto } from '../dtos/update-user.dto';
+import { Supplier } from 'src/supplier/entities/supplier.entity';
+import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
+import { Inventory } from 'src/inventory/entities/inventory.entity';
+import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
+import { GetBannedUsersDto } from '../dtos/response/get-banned-users.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Supplier)
+    private supplierRepository: Repository<Supplier>,
+    @InjectRepository(Warehouse)
+    private warehouseRepository: Repository<Warehouse>,
+    @InjectRepository(Inventory)
+    private inventoryRepository: Repository<Inventory>,
+    @InjectRepository(Pharmacy)
+    private pharmacyRepostiory: Repository<Pharmacy>,
   ) {}
 
   async findActive() {
@@ -122,9 +135,22 @@ export class UserService {
       where: {
         id,
       },
+      relations: {
+        supplier: true,
+        warehouse: true,
+        inventory: true,
+        pharmacy: true,
+      },
     });
     if (!user) throw new NotFoundException('user not found');
     const bannedUser = await this.userRepository.softRemove(user);
+
+    if (user.supplier) await this.supplierRepository.softRemove(user.supplier);
+    if (user.warehouse)
+      await this.warehouseRepository.softRemove(user.warehouse);
+    if (user.inventory)
+      await this.inventoryRepository.softRemove(user.inventory);
+    if (user.pharmacy) await this.pharmacyRepostiory.softRemove(user.pharmacy);
     return {
       data: new GetAllGuestsDto({ user: bannedUser }).toObject(),
     };
@@ -135,11 +161,21 @@ export class UserService {
       where: {
         id,
       },
+      relations: {
+        supplier: true,
+        warehouse: true,
+        inventory: true,
+        pharmacy: true,
+      },
     });
     if (!user) throw new NotFoundException('user not found');
     if (user.deleted_at === null)
       throw new BadRequestException('this user is not banned');
     const restoredUser = await this.userRepository.recover(user);
+    if (user.supplier) await this.supplierRepository.recover(user.supplier);
+    if (user.warehouse) await this.warehouseRepository.recover(user.warehouse);
+    if (user.inventory) await this.inventoryRepository.recover(user.inventory);
+    if (user.pharmacy) await this.pharmacyRepostiory.recover(user.pharmacy);
     return {
       data: new GetAllGuestsDto({ user: restoredUser }).toObject(),
     };
@@ -159,7 +195,7 @@ export class UserService {
       },
     });
     return {
-      data: users.map((user) => new GetAllGuestsDto({ user }).toObject()),
+      data: users.map((user) => new GetBannedUsersDto({ user }).toObject()),
     };
   }
 

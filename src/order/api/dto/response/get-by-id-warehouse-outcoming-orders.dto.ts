@@ -56,6 +56,7 @@ export class GetByIdWarehouseOutcomingOrder {
 
   toObject(): {
     id: number;
+    status: OrderStatus;
     pharmacy: {
       name: string;
       phoneNumber: string;
@@ -70,6 +71,7 @@ export class GetByIdWarehouseOutcomingOrder {
   } {
     return {
       id: this.id,
+      status: this.status,
       pharmacy: this.pharmacy,
       medicines: this.medicines,
     };

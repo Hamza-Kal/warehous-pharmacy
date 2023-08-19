@@ -48,6 +48,11 @@ import { ReportMedicineModule } from 'src/report medicine/report-medicine.module
 import { MediaModule } from 'src/media/media.module';
 import { Media } from 'src/media/entities/media.entity';
 import { AdminModule } from 'src/admin/admin.module';
+import {
+  PaymentAccount,
+  PaymentTransaction,
+  TransactionDetails,
+} from 'src/payment/entities/payment.entities';
 
 export const Modules = [
   WarehouseModule,
@@ -92,4 +97,7 @@ export const entities = [
   PharmacyOrderDetails,
   DistributionPharmacyOrder,
   PharmacyReportMedicine,
+  PaymentAccount,
+  PaymentTransaction,
+  TransactionDetails,
 ];

@@ -282,6 +282,7 @@ export class WarehouseMedicineService {
         },
         medicine: {
           id: true,
+
           image: {
             url: true,
           },
@@ -322,6 +323,7 @@ export class WarehouseMedicineService {
         id: true,
         medicine: {
           id: true,
+          name: true,
         },
       },
       relations: {

@@ -72,6 +72,7 @@ export class PharmacyOrderService {
     pharmacyOrder.totalPrice = totalPrice;
 
     await this.pharmacyOrderRepository.save(pharmacyOrder);
+
     // creating the order details
     for (const detail of details) {
       const pharmacyOrderDetails = new PharmacyOrderDetails();
@@ -199,10 +200,10 @@ export class PharmacyOrderService {
     const { pharmacyId } = user;
     const totalRecords = await this.pharmacyOrderRepository.count({
       where: {
-        ...criteria,
         pharmacy: {
           id: pharmacyId as number,
         },
+        ...criteria,
       },
     });
     const orders = await this.pharmacyOrderRepository.find({

@@ -20,6 +20,7 @@ import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
 import { GetBannedUsersDto } from '../dtos/response/get-banned-users.dto';
+import { UserError } from './user-error.service';
 
 @Injectable()
 export class UserService {
@@ -34,6 +35,7 @@ export class UserService {
     private inventoryRepository: Repository<Inventory>,
     @InjectRepository(Pharmacy)
     private pharmacyRepostiory: Repository<Pharmacy>,
+    private readonly userError: UserError,
   ) {}
 
   async findActive() {
@@ -213,5 +215,18 @@ export class UserService {
         id: user.id,
       },
     };
+  }
+
+  async findUser(id: number) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!user) {
+      this.userError.notFoundUser();
+    }
+    return user;
   }
 }

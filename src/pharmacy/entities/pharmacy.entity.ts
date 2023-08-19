@@ -53,9 +53,7 @@ export class Pharmacy {
 
   //******************** Orders ********************
 
-  @OneToMany(() => PharmacyOrder, (pharmacyOrder) => pharmacyOrder.pharmacy, {
-    onDelete: 'CASCADE',
-  })
+  @OneToMany(() => PharmacyOrder, (pharmacyOrder) => pharmacyOrder.pharmacy)
   pharmacyOrder: PharmacyOrder[];
 
   @OneToMany(

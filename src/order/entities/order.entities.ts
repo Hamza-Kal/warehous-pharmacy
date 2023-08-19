@@ -166,9 +166,7 @@ export class PharmacyOrder {
   })
   totalPrice: number;
 
-  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyOrder, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyOrder)
   @JoinColumn()
   pharmacy: Pharmacy;
 

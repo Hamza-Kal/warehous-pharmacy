@@ -191,11 +191,10 @@ export class WarehouseOrderService {
             batchId: details.medicineDetails.id,
             quantity: batchQuantity,
           });
-          console.log('hererere', medicineKey);
+
           medicines.set(medicine.id, medicineKey);
         }
       }
-      console.log('medicinesss', medicines);
 
       if (wholeQuantity)
         throw new HttpException(
@@ -261,8 +260,8 @@ export class WarehouseOrderService {
           status: OrderStatus.Accepted,
         },
       );
-      return;
     }
+    return;
   }
 
   //! price is not assigned here so when making payment table
@@ -427,7 +426,7 @@ export class WarehouseOrderService {
   }
 
   async findDistribution({ id }: IParams, user: IUser) {
-    const distributions = (await this.pharmacyDistributionRepository
+    const distributions = await this.pharmacyDistributionRepository
       .createQueryBuilder('distributions')
       .leftJoinAndSelect('distributions.order', 'order')
       .leftJoinAndSelect('order.warehouse', 'warehouse')
@@ -442,7 +441,6 @@ export class WarehouseOrderService {
       .andWhere('warehouse.id = :warehouseId', {
         warehouseId: user.warehouseId as number,
       })
-
       .select([
         'inventory.id',
         'order.id',
@@ -454,7 +452,7 @@ export class WarehouseOrderService {
         'warehouse.id',
         'distributions.quantity',
       ])
-      .getMany()) as DistributionPharmacyOrder[];
+      .getMany();
 
     if (!distributions.length) {
       throw new HttpException(

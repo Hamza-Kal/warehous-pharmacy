@@ -50,6 +50,7 @@ import { Media } from 'src/media/entities/media.entity';
 import { AdminModule } from 'src/admin/admin.module';
 import {
   PaymentAccount,
+  PaymentClaim,
   PaymentTransaction,
   TransactionDetails,
 } from 'src/payment/entities/payment.entities';
@@ -100,4 +101,5 @@ export const entities = [
   PaymentAccount,
   PaymentTransaction,
   TransactionDetails,
+  PaymentClaim,
 ];

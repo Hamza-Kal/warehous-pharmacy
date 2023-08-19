@@ -10,6 +10,7 @@ import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
+import { UserError } from './services/user-error.service';
 
 @Module({
   imports: [
@@ -25,6 +26,6 @@ import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
   ],
   exports: [UserService],
   controllers: [UserDashboardController],
-  providers: [UserService, JwtStrategy],
+  providers: [UserService, JwtStrategy, UserError],
 })
 export class UserModule {}

@@ -69,7 +69,7 @@ export class MedicineWarehouseController {
     url: '/transfer-to-inventory/:id',
     role: [Role.WAREHOUSE],
   })
-  transterToInventory(
+  transferToInventory(
     @Body() body: TransferToInventoryDto,
     @CurrUser() user: IUser,
     @Param() param: IParams,

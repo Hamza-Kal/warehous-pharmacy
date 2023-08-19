@@ -1,4 +1,5 @@
 export const errorsCode = {
+  notFoundUser: 10001,
   notFoundSupplier: 40001,
   notFoundMedicine: 50001,
   notFoundCategory: 60001,
@@ -12,4 +13,5 @@ export const errorsCode = {
   notFoundPharmacy: 120000,
   notFoundImage: 130000,
   notFoundWarehouse: 140000,
+  notAllowedToMakePayment: 150000,
 };

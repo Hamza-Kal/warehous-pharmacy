@@ -391,7 +391,7 @@ export class WarehouseOrderService {
   }
 
   async findOneIncoming({ id }: IParams, user: IUser) {
-    const [order] = await this.warehouseOrderRepository.find({
+    const order = await this.warehouseOrderRepository.findOne({
       where: {
         id,
         warehouse: {
@@ -414,6 +414,10 @@ export class WarehouseOrderService {
           price: true,
           medicine: {
             name: true,
+            image: {
+              id: true,
+              url: true,
+            },
           },
         },
       },
@@ -422,7 +426,9 @@ export class WarehouseOrderService {
           user: true,
         },
         details: {
-          medicine: true,
+          medicine: {
+            image: true,
+          },
         },
       },
     });
@@ -537,7 +543,7 @@ export class WarehouseOrderService {
   }
 
   async findOneOutcoming({ id }: IParams, user: IUser) {
-    const [order] = await this.pharmacyOrderRepository.find({
+    const order = await this.pharmacyOrderRepository.findOne({
       where: {
         id,
         warehouse: {
@@ -561,6 +567,10 @@ export class WarehouseOrderService {
           price: true,
           medicine: {
             name: true,
+            image: {
+              id: true,
+              url: true,
+            },
           },
         },
       },
@@ -569,7 +579,9 @@ export class WarehouseOrderService {
           user: true,
         },
         details: {
-          medicine: true,
+          medicine: {
+            image: true,
+          },
         },
       },
     });

@@ -23,6 +23,7 @@ export class GetByIdWarehouseOrder {
     name: string;
     price: number;
     quantity: number;
+    imageUrl: string | null;
   }[];
   constructor({ order }: { order: WarehouseOrder }) {
     this.id = order.id;
@@ -37,12 +38,14 @@ export class GetByIdWarehouseOrder {
       name: string;
       price: number;
       quantity: number;
+      imageUrl: string | null;
     }[] = [];
     for (const detail of order.details) {
       medicines.push({
         name: detail.medicine.name,
         price: detail.price,
         quantity: detail.quantity,
+        imageUrl: detail.medicine?.image?.url,
       });
     }
     this.medicines = medicines;
@@ -60,6 +63,7 @@ export class GetByIdWarehouseOrder {
       name: string;
       price: number;
       quantity: number;
+      imageUrl: string | null;
     }[];
   } {
     return {

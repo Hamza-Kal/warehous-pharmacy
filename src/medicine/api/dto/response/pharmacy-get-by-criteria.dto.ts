@@ -1,9 +1,4 @@
-import {
-  InventoryMedicine,
-  InventoryMedicineDetails,
-  PharmacyMedicine,
-  WarehouseMedicine,
-} from 'src/medicine/entities/medicine-role.entities';
+import { PharmacyMedicine } from 'src/medicine/entities/medicine-role.entities';
 
 export class PharmacyGetByCriteriaMedicine {
   id: number;

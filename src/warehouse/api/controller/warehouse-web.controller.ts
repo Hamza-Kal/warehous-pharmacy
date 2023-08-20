@@ -1,4 +1,4 @@
-import { Body, Param } from '@nestjs/common';
+import { Body, Param, Query } from '@nestjs/common';
 import { CreateWarehouseDto } from '../dto/create-warehouse.dto';
 import { WarehouseWebService } from '../../services/warehouse-web.service';
 import { AuthenticatedController } from 'src/shared/decorators/authenticated.controller.decorator';
@@ -10,6 +10,10 @@ import { IUser } from 'src/shared/interface/user.interface';
 import { WarehouseService } from 'src/warehouse/services/warehouse.service';
 import { IParams } from 'src/shared/interface/params.interface';
 import { UpdateWareHouseDto } from '../dto/update-warehouse.dto';
+import { FindAllSuppliers } from 'src/medicine/api/dto/query/find-all-supplier.dto copy';
+import { FindAllSuppliersForWarehouseDto } from '../dto/query/find-all-suppliers-for-warehouse.dto';
+import { paginationParser } from 'src/shared/pagination/pagination';
+import { FindAllInventoriesForWarehouseDto } from '../dto/query/find-all-inventories-for-warehouse.dto';
 
 @AuthenticatedController({
   controller: 'warehouse',
@@ -55,8 +59,11 @@ export class WarehouseController {
     role: [Role.WAREHOUSE],
     url: '/inventories',
   })
-  async getAllInventories(@CurrUser() user: IUser) {
-    return await this.warehouseService.getAllInventories(user);
+  async getAllInventories(
+    @Query() query: FindAllInventoriesForWarehouseDto,
+    @CurrUser() user: IUser,
+  ) {
+    return await this.warehouseService.getAllInventories(query, user);
   }
 
   @AuthorizedApi({
@@ -64,10 +71,8 @@ export class WarehouseController {
     url: '/get-suppliers',
     role: [Role.WAREHOUSE],
   })
-  async getSuppliers() {
-    //@Query() query: Pagination
-    // const parsingResult = paginationParser(query);
-    return this.warehouseWebService.getAllSuppliers(); //parsingResult
+  async getSuppliers(@Query() query: FindAllSuppliersForWarehouseDto) {
+    return this.warehouseWebService.getAllSuppliers(query);
   }
 
   @AuthorizedApi({

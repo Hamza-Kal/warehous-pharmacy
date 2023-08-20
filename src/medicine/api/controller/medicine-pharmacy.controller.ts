@@ -24,7 +24,7 @@ export class MedicinePharmacyController {
     role: [Role.PHARMACY],
   })
   async findAllWarehouse(
-    @Query() query: Pagination,
+    @Query() query: FindAllPharmacy,
 
     @Param() param: IParams,
   ) {

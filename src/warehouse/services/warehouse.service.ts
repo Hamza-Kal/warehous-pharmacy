@@ -102,7 +102,6 @@ export class WarehouseService {
 
   async getWarehouseInfo(user: IUser) {
     const warehouseId = user.warehouseId as number;
-
     const warehouse = await this.warehouseRepository.findOne({
       where: {
         id: warehouseId,
@@ -114,7 +113,7 @@ export class WarehouseService {
     };
   }
 
-  async getAllInventories(user: IUser) {
+  async getAllInventories(criteria: { name?: string }, user: IUser) {
     const warehouse = await this.warehouseRepository.findOne({
       where: {
         id: user.warehouseId as number,
@@ -144,10 +143,15 @@ export class WarehouseService {
     if (!warehouse) {
       return [];
     }
-
+    let inventories = warehouse.inventories;
+    if (criteria.name) {
+      inventories = inventories.filter((inventory) =>
+        inventory.name.includes(criteria.name),
+      );
+    }
     return {
       totalRecords: warehouse.inventories.length,
-      data: warehouse.inventories.map((inventory) =>
+      data: inventories.map((inventory) =>
         new GetAllInventories({ inventory }).toObject(),
       ),
     };

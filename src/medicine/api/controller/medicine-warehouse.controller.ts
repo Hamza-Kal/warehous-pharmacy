@@ -16,6 +16,7 @@ import {
 } from 'src/warehouse/api/dto/transfer-to-inventory';
 import { FindAllWarehouseOnly } from '../dto/query/find-all-warehouse-only.dto';
 import { FindAllSuppliers } from '../dto/query/find-all-supplier.dto copy';
+import { FindAllWarehouseQueryDto } from '../dto/query/find-all-warehouse.dto';
 
 @AuthenticatedController({
   controller: 'medicine/warehouse',
@@ -33,7 +34,7 @@ export class MedicineWarehouseController {
     @Query() query: FindAllSuppliers,
   ) {
     const { criteria, pagination } = paginationParser(query) as {
-      criteria: { category: string };
+      criteria?: { name?: string; category?: string };
       pagination: Pagination;
     };
 
@@ -174,7 +175,10 @@ export class MedicineWarehouseController {
     url: '',
     role: [Role.WAREHOUSE],
   })
-  async findAll(@CurrUser() user: IUser, @Query() query: Pagination) {
+  async findAll(
+    @CurrUser() user: IUser,
+    @Query() query: FindAllWarehouseQueryDto,
+  ) {
     const { criteria, pagination } = paginationParser(query);
     return await this.warehouseMedicineService.findAll(
       { criteria, pagination },

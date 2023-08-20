@@ -11,6 +11,7 @@ import { User } from 'src/user/entities/user.entity';
 import { PharmacyMedicine } from 'src/medicine/entities/medicine-role.entities';
 import { PharmacyOrder } from 'src/order/entities/order.entities';
 import { PharmacyReportMedicine } from 'src/report medicine/entities/report-medicine.entities';
+import { PharmacyComplaint } from 'src/complaint/entities/role-complaint.entities';
 
 @Entity()
 export class Pharmacy {
@@ -64,4 +65,9 @@ export class Pharmacy {
     },
   )
   returnOrder: PharmacyReportMedicine[];
+
+  // ********************** Complaints ****************** //
+
+  @OneToMany(() => PharmacyComplaint, (complaint) => complaint.pharmacy)
+  complaints: PharmacyComplaint[];
 }

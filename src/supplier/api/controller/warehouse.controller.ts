@@ -16,7 +16,7 @@ export class SupplierWarehouseController {
 
   @AuthorizedApi({
     api: Api.PATCH,
-    url: 'rate-supplier/:id',
+    url: 'rate-supplier',
     role: [Role.WAREHOUSE],
   })
   rateWarehouse(@Body() body: RateSupplierDto) {

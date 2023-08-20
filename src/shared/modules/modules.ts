@@ -55,6 +55,12 @@ import {
   PaymentTransaction,
   TransactionDetails,
 } from 'src/payment/entities/payment.entities';
+import {
+  InventoryComplaint,
+  PharmacyComplaint,
+  SupplierComplaint,
+  WarehouseComplaint,
+} from 'src/complaint/entities/role-complaint.entities';
 
 export const Modules = [
   WarehouseModule,
@@ -104,4 +110,8 @@ export const entities = [
   TransactionDetails,
   PaymentClaim,
   PaymentClaimDetails,
+  WarehouseComplaint,
+  SupplierComplaint,
+  InventoryComplaint,
+  PharmacyComplaint,
 ];

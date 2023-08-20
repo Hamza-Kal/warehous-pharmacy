@@ -12,6 +12,7 @@ import { WarehouseOrder } from 'src/order/entities/order.entities';
 import { SupplierMedicine } from 'src/medicine/entities/medicine-role.entities';
 import { WarehouseReturnOrder } from 'src/return order/entities/returnOrder.entities';
 import { DeleteDateColumn } from 'typeorm';
+import { SupplierComplaint } from 'src/complaint/entities/role-complaint.entities';
 @Entity()
 export class Supplier {
   @PrimaryGeneratedColumn({
@@ -70,4 +71,9 @@ export class Supplier {
 
   @OneToMany(() => WarehouseReturnOrder, (returnOrder) => returnOrder.supplier)
   warehouseReturnOrder: WarehouseReturnOrder[];
+
+  // ******************** Complaints ********************
+
+  @OneToMany(() => SupplierComplaint, (complaint) => complaint.supplier)
+  complaints: SupplierComplaint[];
 }

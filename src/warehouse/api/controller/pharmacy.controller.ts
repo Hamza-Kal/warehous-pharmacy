@@ -42,7 +42,7 @@ export class PharmacyWarehouseController {
 
   @AuthorizedApi({
     api: Api.PATCH,
-    url: 'rate-warehouse/:id',
+    url: 'rate-warehouse',
     role: [Role.PHARMACY],
   })
   rateWarehouse(@Body() body: RateWarehouseDto) {

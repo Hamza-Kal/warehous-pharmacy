@@ -15,6 +15,7 @@ import {
 } from 'src/order/entities/order.entities';
 import { WarehouseMedicine } from 'src/medicine/entities/medicine-role.entities';
 import { WarehouseReturnOrder } from 'src/return order/entities/returnOrder.entities';
+import { WarehouseComplaint } from 'src/complaint/entities/role-complaint.entities';
 
 @Entity()
 export class Warehouse {
@@ -105,4 +106,9 @@ export class Warehouse {
   //   },
   // )
   // pharmacyReturnOrder: PharmacyReturnOrder[];
+
+  // ********************** Complaints **************** //
+
+  @OneToMany(() => WarehouseComplaint, (complaint) => complaint.warehouse)
+  complaints: WarehouseComplaint[];
 }

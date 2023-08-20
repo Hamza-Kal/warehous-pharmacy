@@ -85,6 +85,7 @@ export class PharmacyReportMedicineService {
       quantity,
       reason: body.reason,
       order,
+      price: order.details[0].price * quantity,
     });
 
     await this.pharmacyReportOrderRepository.save(reportOrder);

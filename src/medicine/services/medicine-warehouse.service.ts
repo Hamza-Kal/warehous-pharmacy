@@ -6,7 +6,7 @@ import {
   Medicine,
   MedicineDetails,
 } from '../entities/medicine.entities';
-import { In, Not, Repository } from 'typeorm';
+import { ILike, In, Not, Repository, SelectQueryBuilder } from 'typeorm';
 import { MedicineError } from './medicine-error.service';
 import { WarehouseGetSupplierMedicines } from '../api/response/get-medicines-supplier-for-warehouse.dto';
 import {
@@ -67,28 +67,51 @@ export class WarehouseMedicineService {
     private inventoryRepository: Repository<Inventory>,
   ) {}
 
+  AddCriteriaWarehouseMedicine(
+    dbQuery: SelectQueryBuilder<WarehouseMedicine>,
+    queryParams: { name?: string; category?: string },
+  ) {
+    if (queryParams.name) {
+      dbQuery.andWhere('medicine.name LIKE :name', {
+        name: `%${queryParams.name}%`,
+      });
+    }
+    if (queryParams.category) {
+      dbQuery.andWhere('category.category = :category', {
+        category: queryParams.category,
+      });
+    }
+    return dbQuery;
+  }
+
+  AddCriteriaSupplierMedicine(
+    dbQuery: SelectQueryBuilder<SupplierMedicine>,
+    queryParams: { name?: string; category?: string },
+  ) {
+    if (queryParams.name) {
+      dbQuery.andWhere('medicine.name LIKE :name', {
+        name: `%${queryParams.name}%`,
+      });
+    }
+    if (queryParams.category) {
+      dbQuery.andWhere('category.category = :category', {
+        category: queryParams.category,
+      });
+    }
+    return dbQuery;
+  }
   async findAllSuppliers(
     {
       criteria,
       pagination,
-    }: { criteria: { category: string }; pagination: Pagination },
+    }: {
+      criteria: { name?: string; category?: string };
+      pagination: Pagination;
+    },
     supplierId: number,
   ) {
     const { skip, limit } = pagination;
-    const totalRecords = await this.supplierMedicineRepository.count({
-      where: {
-        medicine: {
-          category: {
-            category: criteria.category,
-          },
-        },
-        supplier: {
-          id: supplierId,
-        },
-        price: Not(0),
-      },
-    });
-    const query = this.supplierMedicineRepository
+    const medicinesQuery = this.supplierMedicineRepository
       .createQueryBuilder('supplier_medicine')
       .leftJoinAndSelect('supplier_medicine.supplier', 'supplier')
       .leftJoinAndSelect('supplier_medicine.medicine', 'medicine')
@@ -109,14 +132,10 @@ export class WarehouseMedicineService {
       ])
       .take(limit)
       .skip(skip);
-    if (criteria.category) {
-      query.andWhere('category.category = :category', {
-        category: criteria.category,
-      });
-    }
-    const medicines = await query.getMany();
+    const dbQuery = this.AddCriteriaSupplierMedicine(medicinesQuery, criteria);
+    const medicines = await dbQuery.getMany();
     return {
-      totalRecords,
+      totalRecords: await dbQuery.getCount(),
       data: medicines.map((medicine) =>
         new WarehouseGetSupplierMedicines({
           supplierMedicine: medicine,
@@ -203,17 +222,18 @@ export class WarehouseMedicineService {
     };
   }
 
-  async findAll({ criteria, pagination }, user: IUser) {
+  async findAll(
+    {
+      criteria,
+      pagination,
+    }: {
+      pagination: Pagination;
+      criteria?: { name?: string; category?: string };
+    },
+    user: IUser,
+  ) {
     const { skip, limit } = pagination;
-    const totalRecords = await this.warehouseMedicineRepository.count({
-      where: {
-        ...criteria,
-        warehouse: {
-          id: user.warehouseId,
-        },
-      },
-    });
-    const medicines = await this.warehouseMedicineRepository
+    const medicinesQuery = this.warehouseMedicineRepository
       .createQueryBuilder('warehouse_medicine')
       .leftJoinAndSelect('warehouse_medicine.warehouse', 'warehouse')
       .leftJoinAndSelect('warehouse_medicine.medicine', 'medicine')
@@ -234,11 +254,11 @@ export class WarehouseMedicineService {
         'supplier.name',
       ])
       .take(limit)
-      .skip(skip)
-      .getMany();
-
+      .skip(skip);
+    const dbQuery = this.AddCriteriaWarehouseMedicine(medicinesQuery, criteria);
+    const medicines = await dbQuery.getMany();
     return {
-      totalRecords,
+      totalRecords: await dbQuery.getCount(),
       data: medicines.map((medicine) =>
         new WarehouseGetMedicines({
           warehouseMedicine: medicine,

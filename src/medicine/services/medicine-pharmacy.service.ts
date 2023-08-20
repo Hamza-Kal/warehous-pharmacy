@@ -12,6 +12,7 @@ import { PharmacyGetWarehouseMedicine } from '../api/dto/response/pharmacy-get-w
 import { PharmacyGetByIdWarehouseMedicine } from '../api/dto/response/pharmacy-get-by-id-warehouse-medicine.dto';
 import { PharmacyGetByCriteriaMedicine } from '../api/dto/response/pharmacy-get-by-criteria.dto';
 import { IParams } from 'src/shared/interface/params.interface';
+import { Pagination } from 'src/shared/pagination/pagination.validation';
 
 @Injectable()
 export class PharmacyMedicineService {
@@ -25,46 +26,52 @@ export class PharmacyMedicineService {
     private medicineError: MedicineError,
   ) {}
 
-  AddCriteria(
+  AddCriteriaPharmacyMedicine(
     dbQuery: SelectQueryBuilder<PharmacyMedicine>,
     queryParams: { name?: string; category?: string },
   ) {
-    let criteriaObject: any = {};
     if (queryParams.name) {
       dbQuery.andWhere('medicine.name LIKE :name', {
         name: `%${queryParams.name}%`,
       });
-      criteriaObject = {
-        ...criteriaObject,
-        name: ILike(`%${queryParams.name}%`),
-      };
     }
     if (queryParams.category) {
       dbQuery.andWhere('category.category = :category', {
         category: queryParams.category,
       });
-      criteriaObject = {
-        ...criteriaObject,
-        category: queryParams.category,
-      };
     }
-    return {
-      dbQuery,
-      criteriaObject,
-    };
+    return dbQuery;
   }
-  async findAllWarehouse({ criteria, pagination }, warehouseId: number) {
+
+  AddCriteriaWarehouseMedicine(
+    dbQuery: SelectQueryBuilder<WarehouseMedicine>,
+    queryParams: { name?: string; category?: string },
+  ) {
+    if (queryParams.name) {
+      dbQuery.andWhere('medicine.name LIKE :name', {
+        name: `%${queryParams.name}%`,
+      });
+    }
+    if (queryParams.category) {
+      dbQuery.andWhere('category.category = :category', {
+        category: queryParams.category,
+      });
+    }
+    return dbQuery;
+  }
+
+  async findAllWarehouse(
+    {
+      criteria,
+      pagination,
+    }: {
+      pagination: Pagination;
+      criteria?: { name?: string; category?: string };
+    },
+    warehouseId: number,
+  ) {
     const { skip, limit } = pagination;
-    const totalRecords = await this.warehouseMedicineRepository.count({
-      where: {
-        ...criteria,
-        warehouse: {
-          id: warehouseId,
-        },
-        price: Not(0),
-      },
-    });
-    const medicines = await this.warehouseMedicineRepository
+    const medicinesQuery = this.warehouseMedicineRepository
       .createQueryBuilder('warehouse_medicine')
       .leftJoinAndSelect('warehouse_medicine.warehouse', 'warehouse')
       .leftJoinAndSelect('warehouse_medicine.medicine', 'medicine')
@@ -83,10 +90,13 @@ export class PharmacyMedicineService {
         'image.url',
       ])
       .take(limit)
-      .skip(skip)
-      .getMany();
+      .skip(skip);
+
+    const dbQuery = this.AddCriteriaWarehouseMedicine(medicinesQuery, criteria);
+    const medicines = await dbQuery.getMany();
+
     return {
-      totalRecords,
+      totalRecords: await dbQuery.getCount(),
       data: medicines.map((medicine) =>
         new PharmacyGetWarehouseMedicine({
           medicine,
@@ -114,27 +124,11 @@ export class PharmacyMedicineService {
       ])
       .take(limit)
       .skip(skip);
-    const { dbQuery, criteriaObject } = this.AddCriteria(
-      medicinesQuery,
-      criteria,
-    );
+    const dbQuery = this.AddCriteriaPharmacyMedicine(medicinesQuery, criteria);
     const medicines = await dbQuery.getMany();
-    const totalRecords = await this.pharmacyMedicineRepository.count({
-      where: {
-        medicine: {
-          category: {
-            category: criteriaObject.category,
-          },
-          name: criteriaObject.name,
-        },
-        pharmacy: {
-          id: user.pharmacyId as number,
-        },
-        quantity: Not(0),
-      },
-    });
+
     return {
-      totalRecords,
+      totalRecords: await dbQuery.getCount(),
       data: medicines.map((medicine) =>
         new PharmacyGetByCriteriaMedicine({
           medicine,

@@ -64,17 +64,30 @@ export class PaymentClaim {
   @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
-  @ManyToOne(() => User, (user) => user.outcomingPayments)
+  @ManyToOne(() => User, (user) => user.debt)
   @JoinColumn()
   debtor: User;
 
-  @ManyToOne(() => User, (user) => user.incomingPayments)
+  @ManyToOne(() => User, (user) => user.receive)
   @JoinColumn()
   receiver: User;
 
   @Column({ type: 'int', default: 0 })
   amount: number;
 
-  @OneToMany(() => TransactionDetails, (details) => details.transaction)
-  details: TransactionDetails[];
+  @OneToMany(() => PaymentClaimDetails, (details) => details.claim)
+  details: PaymentClaimDetails[];
+}
+
+@Entity()
+export class PaymentClaimDetails {
+  @PrimaryGeneratedColumn({ type: 'int' })
+  id: number;
+
+  @ManyToOne(() => PaymentClaim, (claim) => claim.details)
+  @JoinColumn()
+  claim: PaymentClaim;
+
+  @Column({ type: 'int', default: 0 })
+  amount: number;
 }

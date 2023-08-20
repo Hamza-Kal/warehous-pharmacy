@@ -80,9 +80,8 @@ export class PharmacyReportMedicine {
   })
   status: ReportMedicineStatus;
 
-  @Column()
-  @Generated('uuid')
-  uuid: string;
+  @Column({ type: 'int', default: 0 })
+  price: number;
 
   @ManyToOne(() => PharmacyOrder, (pharmacyOrder) => pharmacyOrder.report)
   @JoinColumn()

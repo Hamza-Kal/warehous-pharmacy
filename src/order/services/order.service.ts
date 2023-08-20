@@ -49,6 +49,7 @@ export class OrderService {
         },
       },
       select: {
+        details: true,
         distribution: {
           id: true,
           quantity: true,
@@ -61,6 +62,7 @@ export class OrderService {
         },
       },
       relations: {
+        details: true,
         distribution: {
           medicineDetails: {
             medicine: true,

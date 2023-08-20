@@ -16,7 +16,7 @@ export class PaymentController {
 
   @AuthorizedApi({
     api: Api.POST,
-    url: '',
+    url: '/:id',
     role: [Role.PHARMACY, Role.SUPPLIER, Role.WAREHOUSE],
   })
   async makePayment(

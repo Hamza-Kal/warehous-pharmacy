@@ -18,6 +18,7 @@ import { WarehouseMedicineDetails } from 'src/medicine/entities/medicine-role.en
 import { In } from 'typeorm/find-options/operator/In';
 import { SupplierError } from 'src/supplier/service/supplier-error.service';
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
+import { PaymentService } from 'src/payment/services/payment.service';
 
 @Injectable()
 export class WarehouseReturnOrderService {
@@ -33,6 +34,7 @@ export class WarehouseReturnOrderService {
     private SupplierError: SupplierError,
     @InjectRepository(WarehouseMedicineDetails)
     private warehouseMedicineDetailsRepository: Repository<WarehouseMedicineDetails>,
+    private paymentService: PaymentService,
   ) {}
 
   async create(body: CreateWarehouseReturnOrderDto, owner: IUser) {

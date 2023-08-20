@@ -24,7 +24,7 @@ import { UserError } from './services/user-error.service';
     ]),
     JwtModule,
   ],
-  exports: [UserService],
+  exports: [UserService, UserError],
   controllers: [UserDashboardController],
   providers: [UserService, JwtStrategy, UserError],
 })

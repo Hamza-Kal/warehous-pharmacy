@@ -22,6 +22,7 @@ import {
   RepositoryEnum,
 } from 'src/deliver/service/deliver.service';
 import { GetWarehouseReturnOrdersForSupplierDto } from '../api/dto/response/get-all-warehouseReturnOrders-forSupplier.dto';
+import { PaymentService } from 'src/payment/services/payment.service';
 
 @Injectable()
 export class SupplierReturnOrderService {
@@ -33,7 +34,7 @@ export class SupplierReturnOrderService {
     private medicineService: MedicineService,
     @Inject(forwardRef(() => DeliverService))
     private deliverService: DeliverService,
-    private dataSource: DataSource,
+    private paymentService: PaymentService,
   ) {}
 
   //? returnOrders[0] example
@@ -112,7 +113,9 @@ export class SupplierReturnOrderService {
         status: ReturnOrderStatus.Pending,
       },
       relations: {
-        warehouse: true,
+        warehouse: {
+          owner: true,
+        },
         details: {
           medicineDetails: {
             medicine: true,
@@ -122,6 +125,9 @@ export class SupplierReturnOrderService {
       select: {
         warehouse: {
           id: true,
+          owner: {
+            id: true,
+          },
         },
         id: true,
         totalPrice: true,
@@ -144,7 +150,7 @@ export class SupplierReturnOrderService {
       );
     }
     const returnOrder = returnOrderRepo[0];
-    const warehoouseId = returnOrder.warehouse.id;
+    const warehouseId = returnOrder.warehouse.id;
     const medicineDetailsIds: number[] = [],
       quantities: number[] = [],
       medicineIds = [];
@@ -166,7 +172,7 @@ export class SupplierReturnOrderService {
     for (let i = 0; i < medicineDetailsIds.length; ++i) {
       const warehouseMedicine = await this.deliverService.removeMedicine(
         RepositoryEnum.WarehouseMedicine,
-        warehoouseId,
+        warehouseId,
         { medicineId: medicineIds[i], quantity: quantities[i] },
       );
       await this.deliverService.removeMedicineDetails(
@@ -205,6 +211,13 @@ export class SupplierReturnOrderService {
         status: ReturnOrderStatus.Accepted,
       },
     );
+
+    await this.paymentService.createDept(
+      user.id,
+      returnOrder.warehouse.owner.id,
+      returnOrder.totalPrice,
+    );
+
     return;
   }
 
@@ -226,6 +239,13 @@ export class SupplierReturnOrderService {
       );
     }
     returnOrder.status = ReturnOrderStatus.Rejected;
+    await this.paymentService.createDept(
+      user.id,
+      returnOrder.warehouse.owner.id,
+      returnOrder.totalPrice,
+    );
     await this.warehouseReturnOrderRepository.save(returnOrder);
   }
+
+  
 }

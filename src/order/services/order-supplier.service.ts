@@ -22,6 +22,7 @@ import {
   DeliverService,
   RepositoryEnum,
 } from 'src/deliver/service/deliver.service';
+import { PaymentService } from 'src/payment/services/payment.service';
 
 @Injectable()
 export class SupplierOrderService {
@@ -33,7 +34,7 @@ export class SupplierOrderService {
     private medicineService: MedicineService,
     private readonly orderError: OrderError,
     private deliverService: DeliverService,
-    private dataSource: DataSource,
+    private paymentService: PaymentService,
   ) {}
 
   async findAll(
@@ -263,7 +264,9 @@ export class SupplierOrderService {
         status: OrderStatus.Accepted,
       },
       relations: {
-        warehouse: true,
+        warehouse: {
+          owner: true,
+        },
         supplier: true,
       },
       select: {
@@ -274,6 +277,9 @@ export class SupplierOrderService {
         totalPrice: true,
         warehouse: {
           id: true,
+          owner: {
+            id: true,
+          },
         },
         status: true,
       },
@@ -374,6 +380,11 @@ export class SupplierOrderService {
         distribution.price,
       );
     }
+    await this.paymentService.createDept(
+      order.warehouse.owner.id,
+      user.id,
+      order.totalPrice,
+    );
 
     await this.warehouseOrderRepository.save(order);
 

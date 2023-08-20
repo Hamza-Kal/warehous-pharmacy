@@ -51,6 +51,7 @@ import { AdminModule } from 'src/admin/admin.module';
 import {
   PaymentAccount,
   PaymentClaim,
+  PaymentClaimDetails,
   PaymentTransaction,
   TransactionDetails,
 } from 'src/payment/entities/payment.entities';
@@ -102,4 +103,5 @@ export const entities = [
   PaymentTransaction,
   TransactionDetails,
   PaymentClaim,
+  PaymentClaimDetails,
 ];

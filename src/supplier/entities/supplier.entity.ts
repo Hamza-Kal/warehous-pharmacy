@@ -27,6 +27,18 @@ export class Supplier {
   name: string;
 
   @Column({
+    type: 'float',
+    precision: 2,
+    default: 0,
+  })
+  rating: number;
+
+  @Column({
+    type: 'int',
+  })
+  rateCount: number;
+
+  @Column({
     type: 'varchar',
     length: 255,
   })

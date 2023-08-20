@@ -5,7 +5,7 @@ import { errorsCode } from 'src/shared/Types/errorsCode';
 export class WarehouseError {
   private notFoundWarehouseError = {
     code: errorsCode.notFoundWarehouse,
-    message: 'Image not found',
+    message: 'Warehouse not found',
   };
 
   notFoundWarehouse() {

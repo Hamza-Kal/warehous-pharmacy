@@ -8,11 +8,13 @@ export class GetAllSuppliers {
   id: number;
   name: string;
   location: string;
+  rating: number;
   phoneNumber: string;
   constructor({ supplier }: { supplier: Supplier }) {
     this.id = supplier.id;
     this.name = supplier.name;
     this.location = supplier.location;
+    this.rating = Math.round(supplier.rating);
     this.phoneNumber = supplier.phoneNumber;
   }
 
@@ -20,12 +22,14 @@ export class GetAllSuppliers {
     id: number;
     name: string;
     location: string;
+    rating: number;
     phoneNumber: string;
   } {
     return {
       id: this.id,
       name: this.name,
       location: this.location,
+      rating: this.rating,
       phoneNumber: this.phoneNumber,
     };
   }

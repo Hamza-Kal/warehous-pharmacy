@@ -107,4 +107,13 @@ export class OrderWarehouseController {
       user,
     );
   }
+  //**********************  RejectPharmacyOrderById  **********************//
+  @AuthorizedApi({
+    api: Api.PATCH,
+    url: 'reject/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async rejectPharmacyOrder(@Param() params: IParams, @CurrUser() user: IUser) {
+    return this.orderService.rejectOrder({ id: +params.id }, user);
+  }
 }

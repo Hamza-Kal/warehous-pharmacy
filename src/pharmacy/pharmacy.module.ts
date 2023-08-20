@@ -6,9 +6,9 @@ import { Pharmacy } from './entities/pharmacy.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PharmacyService } from './services/pharmacy.service';
 import { MedicineModule } from 'src/medicine/medicine.module';
-import { WarehousePharmacyController } from './api/controller/warehouse.controller';
-import { PharmacyWarehouseService } from './services/pharmacy.warehouse.service';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
+import { PharmacyWarehouseController } from './api/controller/warehouse.controller';
+import { PharmacyWarehouseService } from './services/warehouse.service';
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
     UserModule,
     MedicineModule,
   ],
-  controllers: [PharmacyController, WarehousePharmacyController],
+  controllers: [PharmacyController, PharmacyWarehouseController],
   providers: [PharmacyWebService, PharmacyService, PharmacyWarehouseService],
   exports: [PharmacyService],
 })

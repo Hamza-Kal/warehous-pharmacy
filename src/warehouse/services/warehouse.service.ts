@@ -102,7 +102,6 @@ export class WarehouseService {
 
   async getWarehouseInfo(user: IUser) {
     const warehouseId = user.warehouseId as number;
-
     const warehouse = await this.warehouseRepository.findOne({
       where: {
         id: warehouseId,

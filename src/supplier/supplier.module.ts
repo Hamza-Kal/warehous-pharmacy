@@ -7,10 +7,17 @@ import { UserModule } from 'src/user/user.module';
 import { SupplierService } from './service/supplier.service';
 import { MedicineModule } from 'src/medicine/medicine.module';
 import { SupplierError } from './service/supplier-error.service';
+import { SupplierWarehouseController } from './api/controller/warehouse.controller';
+import { SupplierWarehouseService } from './service/supplier-warehouse.service';
 
 @Module({
-  controllers: [SupplierController],
-  providers: [SupplierDashboardService, SupplierService, SupplierError],
+  controllers: [SupplierController, SupplierWarehouseController],
+  providers: [
+    SupplierDashboardService,
+    SupplierService,
+    SupplierError,
+    SupplierWarehouseService,
+  ],
   imports: [TypeOrmModule.forFeature([Supplier]), UserModule, MedicineModule],
   exports: [SupplierService, SupplierError],
 })

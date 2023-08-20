@@ -7,7 +7,6 @@ import { Role } from 'src/shared/enums/roles';
 import { CreatePharmacyDto } from '../dtos/create-pharmacy.dto';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { IUser } from 'src/shared/interface/user.interface';
-import { IParams } from 'src/shared/interface/params.interface';
 import { PharmacyService } from 'src/pharmacy/services/pharmacy.service';
 
 @AuthenticatedController({

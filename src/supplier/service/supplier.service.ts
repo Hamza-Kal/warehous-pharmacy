@@ -36,7 +36,7 @@ export class SupplierService {
     const filteringCriteria = this.getCriteria(criteria);
     const suppliers = await this.supplierRepository.find({
       where: filteringCriteria,
-      select: ['id', 'location', 'name', 'phoneNumber'],
+      select: ['id', 'location', 'name', 'phoneNumber', 'rating'],
     });
     const totalRecords = await this.supplierRepository.count({
       where: filteringCriteria,

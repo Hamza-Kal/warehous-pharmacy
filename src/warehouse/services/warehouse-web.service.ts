@@ -11,6 +11,7 @@ import { MedicineError } from 'src/medicine/services/medicine-error.service';
 import { WarehouseMedicineService } from 'src/medicine/services/medicine-warehouse.service';
 import { UpdateWareHouseDto } from '../api/dto/update-warehouse.dto';
 import { WarehouseError } from './warehouse-error.service';
+import { Pagination } from 'src/shared/pagination/pagination.validation';
 
 @Injectable()
 export class WarehouseWebService {
@@ -67,9 +68,8 @@ export class WarehouseWebService {
     );
   }
 
-  async getAllSuppliers() {
-    // { pagination, criteria }
-    return await this.supplierService.findAll({});
+  async getAllSuppliers(criteria: { name?: string }) {
+    return await this.supplierService.findAll(criteria);
   }
 
   async getSupplierById(id: number) {

@@ -51,30 +51,17 @@ export class MedicineSupplierService {
     dbQuery: SelectQueryBuilder<SupplierMedicine>,
     queryParams: { name?: string; category?: string },
   ) {
-    console.log(queryParams);
-    let criteriaObject: any = {};
     if (queryParams.name) {
       dbQuery.andWhere('medicine.name LIKE :name', {
         name: `%${queryParams.name}%`,
       });
-      criteriaObject = {
-        ...criteriaObject,
-        name: ILike(`%${queryParams.name}%`),
-      };
     }
     if (queryParams.category) {
       dbQuery.andWhere('category.category = :category', {
         category: queryParams.category,
       });
-      criteriaObject = {
-        ...criteriaObject,
-        category: queryParams.category,
-      };
     }
-    return {
-      dbQuery,
-      criteriaObject,
-    };
+    return dbQuery;
   }
   async create(user: IUser, body: CreateMedicine) {
     const { name, description, categoryId, price, imageId } = body;
@@ -214,27 +201,10 @@ export class MedicineSupplierService {
       ])
       .take(limit)
       .skip(skip);
-    const { dbQuery, criteriaObject } = this.AddCriteria(
-      medicinesQuery,
-      criteria,
-    );
+    const dbQuery = this.AddCriteria(medicinesQuery, criteria);
     const medicines = await dbQuery.getMany();
-    const totalRecords = await this.supplierMedicineRepository.count({
-      where: {
-        medicine: {
-          category: {
-            category: criteriaObject.category,
-          },
-          name: criteriaObject.name,
-        },
-        supplier: {
-          id: supplierId as number,
-        },
-        quantity: Not(0),
-      },
-    });
     return {
-      totalRecords,
+      totalRecords: await dbQuery.getCount(),
       data: medicines.map((medicine) =>
         new GetAllMedicinesSupplier({ supplierMedicine: medicine }).toObject(),
       ),

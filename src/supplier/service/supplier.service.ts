@@ -12,6 +12,7 @@ import { MedicineError } from 'src/medicine/services/medicine-error.service';
 import { AdminGetAllSuppliers } from 'src/admin/api/dto/supplier-dtos/find-all.dto';
 import { AdminGetByIdSupplier } from 'src/admin/api/dto/supplier-dtos/find-one.dto';
 import { ILike } from 'typeorm';
+import { filter } from 'rxjs';
 @Injectable()
 export class SupplierService {
   constructor(
@@ -21,7 +22,7 @@ export class SupplierService {
     private errorsService: MedicineError,
   ) {}
 
-  getCriteria(queryCriteria: { name: string }) {
+  getCriteria(queryCriteria: { name?: string }) {
     let criteria: any = {};
     if (queryCriteria.name) {
       criteria = {
@@ -31,30 +32,14 @@ export class SupplierService {
     }
     return criteria;
   }
-  async findAll({
-    pagination,
-    criteria,
-  }: {
-    pagination?: Pagination;
-    criteria?: FindOptionsWhere<Supplier> | FindOptionsWhere<Supplier>[];
-  }) {
-    let limit: number, skip: number;
-    if (pagination) {
-      limit = pagination.limit;
-      skip = pagination.skip;
-    }
+  async findAll(criteria: { name?: string }) {
+    const filteringCriteria = this.getCriteria(criteria);
     const suppliers = await this.supplierRepository.find({
-      where: {
-        ...criteria,
-      },
+      where: filteringCriteria,
       select: ['id', 'location', 'name', 'phoneNumber'],
-      skip,
-      take: limit,
     });
     const totalRecords = await this.supplierRepository.count({
-      where: {
-        ...criteria,
-      },
+      where: filteringCriteria,
     });
     return {
       totalRecords,

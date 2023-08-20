@@ -25,6 +25,7 @@ import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { GetByCriteriaReportMedicine } from '../api/dto/response/get-warehouse-report-medicine.dto';
 import { GetByCriteriaPharmacyReportMedicine } from '../api/dto/response/get-by-criteria-pharmacy-report-order.dto';
 import { GetByCriteriaPharmacyReportMedicineWarehouse } from '../api/dto/response/get-all-warehouse-pharmacy-report-medicine.dto';
+import { PaymentService } from 'src/payment/services/payment.service';
 
 @Injectable()
 export class WarehouseReportMedicineService {
@@ -38,6 +39,7 @@ export class WarehouseReportMedicineService {
     private medicineService: MedicineService,
     @Inject(forwardRef(() => DeliverService))
     private deliverService: DeliverService,
+    private paymentService: PaymentService,
   ) {}
 
   async acceptReportOrder({ id }: IParams, user: IUser) {
@@ -152,10 +154,18 @@ export class WarehouseReportMedicineService {
         medicineDetails: {
           medicine: true,
         },
+        pharmacy: {
+          user: true,
+        },
       },
       select: {
         id: true,
-
+        pharmacy: {
+          id: true,
+          user: {
+            id: true,
+          },
+        },
         quantity: true,
         medicineDetails: {
           id: true,
@@ -202,6 +212,12 @@ export class WarehouseReportMedicineService {
       {
         status: ReportMedicineStatus.Accepted,
       },
+    );
+
+    await this.paymentService.createDept(
+      user.id,
+      reportOrder.pharmacy.user.id,
+      reportOrder.price,
     );
     return;
   }

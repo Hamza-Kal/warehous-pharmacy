@@ -22,6 +22,7 @@ import { PharmacyReportMedicineController } from './api/controllers/report-medic
 import { PharmacyReportMedicineService } from './services/report-medicine-pharmacy.service';
 import { OrderService } from 'src/order/services/order.service';
 import { OrderModule } from 'src/order/order.module';
+import { PaymentModule } from 'src/payment/payment.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { OrderModule } from 'src/order/order.module';
     SupplierModule,
     forwardRef(() => DeliverModule),
     OrderModule,
+    PaymentModule,
   ],
   controllers: [
     ReportMedicineWarehouseController,

@@ -15,7 +15,7 @@ import { WarehouseReturnOrderService } from 'src/return order/services/returnOrd
 @AuthenticatedController({
   controller: '/returnOrder/warehouse',
 })
-export class ReturnOrderWarehouesController {
+export class ReturnOrderWarehouseController {
   constructor(private returnOrderService: WarehouseReturnOrderService) {}
   @AuthorizedApi({
     api: Api.POST,

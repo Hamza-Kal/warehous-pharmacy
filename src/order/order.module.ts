@@ -19,6 +19,7 @@ import { DeliverModule } from 'src/deliver/deliver.module';
 import { PharmacyOrderService } from './services/order-pharmacy.service';
 import { OrderPharmacyController } from './api/controllers/order-pharmacy.controller';
 import { OrderService } from './services/order.service';
+import { PaymentModule } from 'src/payment/payment.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { OrderService } from './services/order.service';
     MedicineModule,
     SupplierModule,
     DeliverModule,
+    PaymentModule,
   ],
   controllers: [
     OrderWarehouseController,

@@ -34,6 +34,7 @@ import { GetAllOutcomingWarehouseOrder } from '../api/dto/response/get-by-criter
 import { GetByIdWarehouseOutcomingOrder } from '../api/dto/response/get-by-id-warehouse-outcoming-orders.dto';
 import { GetByIdOrderDistribution } from '../api/dto/response/get-by-id-distribution-order.dto';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
+import { PaymentService } from 'src/payment/services/payment.service';
 
 @Injectable()
 export class WarehouseOrderService {
@@ -48,6 +49,7 @@ export class WarehouseOrderService {
     @InjectRepository(DistributionPharmacyOrder)
     private pharmacyDistributionRepository: Repository<DistributionPharmacyOrder>,
     private supplierService: SupplierService,
+    private readonly paymentService: PaymentService,
     private readonly medicineService: MedicineService,
     private readonly orderError: OrderError,
     private readonly deliverService: DeliverService,
@@ -276,7 +278,9 @@ export class WarehouseOrderService {
       },
       relations: {
         warehouse: true,
-        pharmacy: true,
+        pharmacy: {
+          user: true,
+        },
       },
       select: {
         id: true,
@@ -286,6 +290,9 @@ export class WarehouseOrderService {
         totalPrice: true,
         pharmacy: {
           id: true,
+          user: {
+            id: true,
+          },
         },
         status: true,
       },
@@ -371,6 +378,12 @@ export class WarehouseOrderService {
         },
       );
     }
+
+    await this.paymentService.createDept(
+      order.pharmacy.user.id,
+      user.id,
+      order.totalPrice,
+    );
 
     await this.pharmacyOrderRepository.save(order);
 

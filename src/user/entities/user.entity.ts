@@ -95,10 +95,10 @@ export class User {
   outcomingPayments: PaymentTransaction[];
 
   @OneToMany(() => PaymentClaim, (claim) => claim.debtor)
-  sender: PaymentClaim[];
+  debt: PaymentClaim[];
 
-  @OneToMany(() => PaymentClaim, (claim) => claim.debtor)
-  cl: PaymentClaim[];
+  @OneToMany(() => PaymentClaim, (claim) => claim.receiver)
+  receive: PaymentClaim[];
 
   @OneToMany(() => PaymentTransaction, (transaction) => transaction.receiver)
   incomingPayments: PaymentTransaction[];

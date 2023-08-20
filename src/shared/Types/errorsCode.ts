@@ -14,4 +14,5 @@ export const errorsCode = {
   notFoundImage: 130000,
   notFoundWarehouse: 140000,
   notAllowedToMakePayment: 150000,
+  notTransactionFound: 150001,
 };

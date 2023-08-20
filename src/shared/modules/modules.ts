@@ -55,6 +55,7 @@ import {
   PaymentTransaction,
   TransactionDetails,
 } from 'src/payment/entities/payment.entities';
+import { PaymentModule } from 'src/payment/payment.module';
 import {
   InventoryComplaint,
   PharmacyComplaint,
@@ -75,6 +76,7 @@ export const Modules = [
   ReportMedicineModule,
   AdminModule,
   MediaModule,
+  PaymentModule,
 ];
 
 export const entities = [

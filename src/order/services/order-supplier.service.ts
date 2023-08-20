@@ -23,6 +23,7 @@ import {
   RepositoryEnum,
 } from 'src/deliver/service/deliver.service';
 import { PaymentService } from 'src/payment/services/payment.service';
+import { GetWarehouseSupplierOrderDetails } from '../api/dto/response/get-by-id-supplier-warehouse-order.dto';
 
 @Injectable()
 export class SupplierOrderService {
@@ -78,6 +79,48 @@ export class SupplierOrderService {
       totalRecords,
       data: orders.map((order) => new GetByCriteraOrder({ order }).toObject()),
     };
+  }
+
+  async findOne(user: IUser, { id }: IParams) {
+    const [order] = await this.warehouseOrderRepository.find({
+      where: {
+        id,
+        supplier: {
+          id: user.supplierId as number,
+        },
+      },
+      select: {
+        id: true,
+        created_at: true,
+        warehouse: {
+          name: true,
+          phoneNumber: true,
+          location: true,
+        },
+        details: {
+          quantity: true,
+          medicine: {
+            name: true,
+          },
+          price: true,
+        },
+        totalPrice: true,
+      },
+      relations: {
+        warehouse: true,
+        details: {
+          medicine: true,
+        },
+      },
+    });
+
+    if (!order) {
+      throw new HttpException(
+        this.orderError.notFoundOrder,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return { data: new GetWarehouseSupplierOrderDetails({ order }).toObject() };
   }
 
   //? orders[0] example

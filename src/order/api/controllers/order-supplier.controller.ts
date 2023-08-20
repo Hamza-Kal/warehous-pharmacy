@@ -1,12 +1,10 @@
-import { Body, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Param, Query } from '@nestjs/common';
 import { AuthenticatedController } from 'src/shared/decorators/authenticated.controller.decorator';
 import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
 import { Api } from 'src/shared/enums/API';
 import { Role } from 'src/shared/enums/roles';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { IUser } from 'src/shared/interface/user.interface';
-import { WarehouseOrderService } from 'src/order/services/order-warehouse.service';
-import { CreateWarehouseOrderDto } from '../dto/create-warehouse-order.dto';
 import { SupplierOrderService } from 'src/order/services/order-supplier.service';
 import { IParams } from 'src/shared/interface/params.interface';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
@@ -26,6 +24,15 @@ export class OrderSupplierController {
   async findAll(@Query() query: Pagination, @CurrUser() user: IUser) {
     const { pagination, criteria } = paginationParser(query);
     return await this.orderService.findAll({ pagination, criteria }, user);
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/:id',
+    role: [Role.SUPPLIER],
+  })
+  async findOne(@Param() param: IParams, @CurrUser() user: IUser) {
+    return await this.orderService.findOne(user, { id: +param.id });
   }
 
   @AuthorizedApi({

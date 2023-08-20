@@ -232,4 +232,26 @@ export class UserService {
     }
     return user;
   }
+  async findRole(id: number) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        supplier: true,
+        pharmacy: true,
+        warehouse: true,
+      },
+      select: {
+        supplier: { name: true },
+        warehouse: { name: true },
+        pharmacy: { name: true },
+      },
+    });
+
+    if (!user) {
+      this.userError.notFoundUser();
+    }
+    return user;
+  }
 }

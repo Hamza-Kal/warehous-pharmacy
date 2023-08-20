@@ -1,4 +1,4 @@
-import { Body, Param } from '@nestjs/common';
+import { Body, Param, Query } from '@nestjs/common';
 import { AuthenticatedController } from 'src/shared/decorators/authenticated.controller.decorator';
 import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
@@ -9,6 +9,8 @@ import { IUser } from 'src/shared/interface/user.interface';
 import { User } from 'src/user/entities/user.entity';
 import { MakePaymentDto } from '../dto/make-payment.dto';
 import { PaymentService } from 'src/payment/services/payment.service';
+import { Pagination } from 'src/shared/pagination/pagination.validation';
+import { paginationParser } from 'src/shared/pagination/pagination';
 
 @AuthenticatedController({ controller: 'payment' })
 export class PaymentController {
@@ -26,5 +28,40 @@ export class PaymentController {
   ) {
     const transaction = await this.paymentService.create(+param.id, user.id);
     await this.paymentService.makePayment(transaction, body);
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: 'get-me-paid/:id',
+    role: [Role.PHARMACY, Role.SUPPLIER, Role.WAREHOUSE],
+  })
+  async getMePaid(
+    @CurrUser() user: IUser,
+    @Param() param: IParams,
+    @Query() query: Pagination,
+  ) {
+    const { pagination, criteria } = paginationParser(query);
+    return await this.paymentService.getMyPaidDetails(user, +param.id, {
+      pagination,
+      criteria,
+    });
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: 'total-balance/:id',
+    role: [Role.PHARMACY, Role.SUPPLIER, Role.WAREHOUSE],
+  })
+  async totalBalance(@CurrUser() user: IUser, @Param() param: IParams) {
+    return await this.paymentService.getTotal(user, +param.id as number);
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: ':id',
+    role: [Role.PHARMACY, Role.SUPPLIER, Role.WAREHOUSE],
+  })
+  async getPayment(@CurrUser() user: IUser, @Param() param: IParams) {
+    return await this.paymentService.getPayment(user, +param.id as number);
   }
 }

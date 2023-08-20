@@ -55,6 +55,7 @@ import {
   PaymentTransaction,
   TransactionDetails,
 } from 'src/payment/entities/payment.entities';
+import { PaymentModule } from 'src/payment/payment.module';
 
 export const Modules = [
   WarehouseModule,
@@ -69,6 +70,7 @@ export const Modules = [
   ReportMedicineModule,
   AdminModule,
   MediaModule,
+  PaymentModule,
 ];
 
 export const entities = [

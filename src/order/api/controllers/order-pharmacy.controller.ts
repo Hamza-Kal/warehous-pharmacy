@@ -15,6 +15,7 @@ import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { paginationParser } from 'src/shared/pagination/pagination';
 import { IParams } from 'src/shared/interface/params.interface';
 import { PharmacyOrderService } from 'src/order/services/order-pharmacy.service';
+import { GetOrder } from '../dto/get-order-request-by-criteria.dto';
 
 @AuthenticatedController({
   controller: '/order/pharmacy',
@@ -53,7 +54,7 @@ export class OrderPharmacyController {
     url: '',
     role: [Role.PHARMACY],
   })
-  async findAll(@Query() query: Pagination, @CurrUser() user: IUser) {
+  async findAll(@Query() query: GetOrder, @CurrUser() user: IUser) {
     const { pagination, criteria } = paginationParser(query);
     return await this.orderService.findAll({ pagination, criteria }, user);
   }

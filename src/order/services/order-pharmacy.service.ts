@@ -193,11 +193,15 @@ export class PharmacyOrderService {
   }
 
   async findAll(
-    { pagination, criteria }: { pagination: Pagination; criteria?: any },
+    {
+      pagination,
+      criteria,
+    }: { pagination: Pagination; criteria?: { status: OrderStatus } },
     user: IUser,
   ) {
     const { skip, limit } = pagination;
     const { pharmacyId } = user;
+    console.log(criteria);
     const totalRecords = await this.pharmacyOrderRepository.count({
       where: {
         pharmacy: {

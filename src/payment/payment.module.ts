@@ -10,6 +10,7 @@ import {
 import { UserModule } from 'src/user/user.module';
 import { PaymentService } from './services/payment.service';
 import { PaymentError } from './services/payment-error.service';
+import { PaymentController } from './api/controllers/payment.controller';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PaymentError } from './services/payment-error.service';
     ]),
     UserModule,
   ],
+  controllers: [PaymentController],
   providers: [PaymentService, PaymentError],
   exports: [PaymentService],
 })

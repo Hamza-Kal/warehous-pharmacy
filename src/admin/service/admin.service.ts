@@ -2,17 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InventoryService } from 'src/inventory/services/inventory.service';
 import { PharmacyService } from 'src/pharmacy/services/pharmacy.service';
 import { SupplierService } from 'src/supplier/service/supplier.service';
-import { GetAllSuppliers } from 'src/supplier/api/response/get-all-suppliers.dto';
 import { WarehouseService } from 'src/warehouse/services/warehouse.service';
-import { GetByIdSupplier } from 'src/supplier/api/response/get-by-id-supplier.dto';
-import { abort } from 'process';
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
-import { FindOptionsWhere } from 'typeorm';
-import { Supplier } from 'src/supplier/entities/supplier.entity';
-import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
-import { Inventory } from 'src/inventory/entities/inventory.entity';
-import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 
 @Injectable()
 export class AdminService {
@@ -23,12 +15,13 @@ export class AdminService {
     private pharmacyService: PharmacyService,
     private errorService: MedicineError,
   ) {}
+
   async findAllSuppliers({
     pagination,
     criteria,
   }: {
     pagination?: Pagination;
-    criteria?: FindOptionsWhere<Supplier> | FindOptionsWhere<Supplier>[];
+    criteria?: { name: string };
   }) {
     const suppliers = await this.supplierService.AdminfindAll({
       pagination,
@@ -41,7 +34,7 @@ export class AdminService {
     criteria,
   }: {
     pagination?: Pagination;
-    criteria?: FindOptionsWhere<Warehouse> | FindOptionsWhere<Warehouse>[];
+    criteria?: { name: string };
   }) {
     const warehouses = await this.warehouseService.AdminfindAll({
       pagination,
@@ -54,7 +47,7 @@ export class AdminService {
     criteria,
   }: {
     pagination?: Pagination;
-    criteria?: FindOptionsWhere<Inventory> | FindOptionsWhere<Inventory>[];
+    criteria?: { name: string };
   }) {
     const inventories = await this.inventoryService.AdminfindAll({
       pagination,
@@ -67,7 +60,7 @@ export class AdminService {
     criteria,
   }: {
     pagination?: Pagination;
-    criteria?: FindOptionsWhere<Pharmacy> | FindOptionsWhere<Pharmacy>[];
+    criteria?: { name: string };
   }) {
     const pharmacies = await this.pharmacyService.AdminfindAll({
       pagination,

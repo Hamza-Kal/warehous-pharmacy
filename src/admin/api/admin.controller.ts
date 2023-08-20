@@ -7,6 +7,7 @@ import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { Param, Query } from '@nestjs/common';
 import { paginationParser } from 'src/shared/pagination/pagination';
 import { IParams } from 'src/shared/interface/params.interface';
+import { AdminQueryDto } from './dto/querty-dtos/admin.query.dto';
 
 @AuthenticatedController({
   controller: '/admin',
@@ -19,7 +20,7 @@ export class AdminController {
     api: Api.GET,
     role: [Role.ADMIN],
   })
-  async findAllSuppliers(@Query() query: Pagination) {
+  async findAllSuppliers(@Query() query: AdminQueryDto) {
     const parsingResult = paginationParser(query);
     return this.adminService.findAllSuppliers(parsingResult);
   }
@@ -29,7 +30,7 @@ export class AdminController {
     api: Api.GET,
     role: [Role.ADMIN],
   })
-  async findAllWarehouses(@Query() query: Pagination) {
+  async findAllWarehouses(@Query() query: AdminQueryDto) {
     const parsingResult = paginationParser(query);
     return this.adminService.findAllWarehousehouses(parsingResult);
   }
@@ -39,7 +40,7 @@ export class AdminController {
     api: Api.GET,
     role: [Role.ADMIN],
   })
-  async findAllinventories(@Query() query: Pagination) {
+  async findAllinventories(@Query() query: AdminQueryDto) {
     const parsingResult = paginationParser(query);
     return this.adminService.findAllInventories(parsingResult);
   }
@@ -49,7 +50,7 @@ export class AdminController {
     api: Api.GET,
     role: [Role.ADMIN],
   })
-  async findAllPharmacies(@Query() query: Pagination) {
+  async findAllPharmacies(@Query() query: AdminQueryDto) {
     const parsingResult = paginationParser(query);
     return this.adminService.findAllPharmacies(parsingResult);
   }

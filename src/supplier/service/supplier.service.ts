@@ -11,7 +11,7 @@ import { GetByIdSupplier } from 'src/supplier/api/response/get-by-id-supplier.dt
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
 import { AdminGetAllSuppliers } from 'src/admin/api/dto/supplier-dtos/find-all.dto';
 import { AdminGetByIdSupplier } from 'src/admin/api/dto/supplier-dtos/find-one.dto';
-
+import { ILike } from 'typeorm';
 @Injectable()
 export class SupplierService {
   constructor(
@@ -20,6 +20,17 @@ export class SupplierService {
     private medicinesService: MedicineService,
     private errorsService: MedicineError,
   ) {}
+
+  getCriteria(queryCriteria: { name: string }) {
+    let criteria: any = {};
+    if (queryCriteria.name) {
+      criteria = {
+        ...criteria,
+        name: ILike(`%${queryCriteria.name}%`),
+      };
+    }
+    return criteria;
+  }
   async findAll({
     pagination,
     criteria,
@@ -27,7 +38,7 @@ export class SupplierService {
     pagination?: Pagination;
     criteria?: FindOptionsWhere<Supplier> | FindOptionsWhere<Supplier>[];
   }) {
-    let limit, skip;
+    let limit: number, skip: number;
     if (pagination) {
       limit = pagination.limit;
       skip = pagination.skip;
@@ -89,13 +100,12 @@ export class SupplierService {
     criteria,
   }: {
     pagination?: Pagination;
-    criteria?: FindOptionsWhere<Supplier> | FindOptionsWhere<Supplier>[];
+    criteria?: { name: string };
   }) {
     const { skip, limit } = pagination;
+    const filteringCriteria = this.getCriteria(criteria);
     const suppliers = await this.supplierRepository.find({
-      where: {
-        ...criteria,
-      },
+      where: filteringCriteria,
       select: ['id', 'location', 'name', 'phoneNumber'],
       relations: {
         user: true,
@@ -104,9 +114,7 @@ export class SupplierService {
       skip,
     });
     const totalRecords = await this.supplierRepository.count({
-      where: {
-        ...criteria,
-      },
+      where: filteringCriteria,
     });
     return {
       totalRecords,

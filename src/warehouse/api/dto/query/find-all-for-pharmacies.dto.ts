@@ -1,11 +1,7 @@
 import { IsOptional, IsString } from 'class-validator';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 
-export class FindAllSuppliers extends Pagination {
-  @IsOptional()
-  @IsString()
-  category: string;
-
+export class FindAllForPharmacyDto extends Pagination {
   @IsOptional()
   @IsString()
   name: string;

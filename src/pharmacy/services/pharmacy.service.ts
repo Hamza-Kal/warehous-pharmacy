@@ -8,7 +8,7 @@ import { GetByIdPharmacy } from '../api/dtos/response/get-by-id-pharmacy.dto';
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
 import { AdminGetAllPharmacies } from 'src/admin/api/dto/pharmacy-dtos/find-all.dto';
 import { AdminGetByIdPharmacy } from 'src/admin/api/dto/pharmacy-dtos/find-one.dto';
-import { filter } from 'rxjs';
+import { IUser } from 'src/shared/interface/user.interface';
 
 @Injectable()
 export class PharmacyService {
@@ -58,9 +58,13 @@ export class PharmacyService {
     };
   }
 
-  async findOne(id: number) {
+  async findOne(user: IUser) {
+    const { pharmacyId } = user;
+
     const pharmacy = await this.pharmacyRepository.findOne({
-      where: { id },
+      where: {
+        id: pharmacyId as number,
+      },
       select: ['id', 'location', 'name', 'phoneNumber'],
       relations: {
         user: true,

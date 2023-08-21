@@ -28,3 +28,9 @@ export class UpdateMedicineDto {
   @IsOptional()
   price: number;
 }
+
+export class UpdateBatch {
+  @IsNumber()
+  @Min(0)
+  quantity: number;
+}

@@ -22,6 +22,14 @@ export class UserDashboardController {
   async acceptAccount(@Param() params: IParams) {
     return this.userService.acceptAccount({ id: +params.id });
   }
+  @AuthorizedApi({
+    api: Api.PATCH,
+    role: [Role.ADMIN],
+    url: 'reject/:id',
+  })
+  async rejectAccount(@Param() params: IParams) {
+    return this.userService.rejectAccount({ id: +params.id });
+  }
 
   @AuthorizedApi({
     api: Api.POST,

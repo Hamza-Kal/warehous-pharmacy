@@ -35,6 +35,8 @@ import { GetByIdWarehouseOutcomingOrder } from '../api/dto/response/get-by-id-wa
 import { GetByIdOrderDistribution } from '../api/dto/response/get-by-id-distribution-order.dto';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { PaymentService } from 'src/payment/services/payment.service';
+import { ReturnOrderStatus } from 'src/return order/entities/returnOrder.entities';
+import { filter } from 'rxjs';
 
 @Injectable()
 export class WarehouseOrderService {
@@ -55,6 +57,18 @@ export class WarehouseOrderService {
     private readonly deliverService: DeliverService,
   ) {}
 
+  private getCriteria(criteria: { status?: OrderStatus }): any {
+    let filteringCriteria: {
+      status?: OrderStatus;
+    } = {};
+    if (criteria.status) {
+      filteringCriteria = {
+        ...filteringCriteria,
+        status: criteria.status,
+      };
+    }
+    return filteringCriteria;
+  }
   async create(body: CreateWarehouseOrderDto, currUser: IUser) {
     // brute force
     const { supplierId, medicineOrder } = body;
@@ -600,41 +614,43 @@ export class WarehouseOrderService {
   }
 
   async findAllIncoming(
-    { pagination, criteria }: { pagination: Pagination; criteria?: any },
+    {
+      pagination,
+      criteria,
+    }: {
+      pagination: Pagination;
+      criteria?: {
+        status?: OrderStatus;
+      };
+    },
     user: IUser,
   ) {
     const { skip, limit } = pagination;
     const { warehouseId } = user;
-    const totalRecords = await this.warehouseOrderRepository.count({
-      where: {
-        ...criteria,
-        warehouse: {
-          id: warehouseId as number,
+    const filteringCriteria = this.getCriteria(criteria);
+    const [orders, totalRecords] =
+      await this.warehouseOrderRepository.findAndCount({
+        where: {
+          ...filteringCriteria,
+          warehouse: {
+            id: warehouseId as number,
+          },
         },
-      },
-    });
-    const orders = await this.warehouseOrderRepository.find({
-      where: {
-        ...criteria,
-        warehouse: {
-          id: warehouseId as number,
+        relations: {
+          supplier: true,
         },
-      },
-      relations: {
-        supplier: true,
-      },
-      select: {
-        id: true,
-        status: true,
-        created_at: true,
-        supplier: {
-          name: true,
+        select: {
+          id: true,
+          status: true,
+          created_at: true,
+          supplier: {
+            name: true,
+          },
+          totalPrice: true,
         },
-        totalPrice: true,
-      },
-      skip,
-      take: limit,
-    });
+        skip,
+        take: limit,
+      });
     return {
       totalRecords,
       data: orders.map((order) =>
@@ -644,41 +660,44 @@ export class WarehouseOrderService {
   }
 
   async findAllOutcoming(
-    { pagination, criteria }: { pagination: Pagination; criteria?: any },
+    {
+      pagination,
+      criteria,
+    }: {
+      pagination: Pagination;
+      criteria?: {
+        status?: OrderStatus;
+      };
+    },
     user: IUser,
   ) {
     const { skip, limit } = pagination;
     const { warehouseId } = user;
-    const totalRecords = await this.pharmacyOrderRepository.count({
-      where: {
-        ...criteria,
-        warehouse: {
-          id: warehouseId as number,
+
+    const filteringCriteria = this.getCriteria(criteria);
+    const [orders, totalRecords] =
+      await this.pharmacyOrderRepository.findAndCount({
+        where: {
+          ...filteringCriteria,
+          warehouse: {
+            id: warehouseId as number,
+          },
         },
-      },
-    });
-    const orders = await this.pharmacyOrderRepository.find({
-      where: {
-        ...criteria,
-        warehouse: {
-          id: warehouseId as number,
+        relations: {
+          pharmacy: true,
         },
-      },
-      relations: {
-        pharmacy: true,
-      },
-      select: {
-        id: true,
-        status: true,
-        created_at: true,
-        pharmacy: {
-          name: true,
+        select: {
+          id: true,
+          status: true,
+          created_at: true,
+          pharmacy: {
+            name: true,
+          },
+          totalPrice: true,
         },
-        totalPrice: true,
-      },
-      skip,
-      take: limit,
-    });
+        skip,
+        take: limit,
+      });
     return {
       totalRecords,
       data: orders.map((order) =>

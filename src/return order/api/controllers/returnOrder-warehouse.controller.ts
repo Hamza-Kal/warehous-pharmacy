@@ -11,6 +11,7 @@ import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { paginationParser } from 'src/shared/pagination/pagination';
 import { IParams } from 'src/shared/interface/params.interface';
 import { WarehouseReturnOrderService } from 'src/return order/services/returnOrder-warehouse.service';
+import { FindAllReturnOrdersQueryDto } from '../dto/query/find-all-returnOrders.query.dto';
 
 @AuthenticatedController({
   controller: '/returnOrder/warehouse',
@@ -43,7 +44,10 @@ export class ReturnOrderWarehouseController {
     url: '',
     role: [Role.WAREHOUSE],
   })
-  async findAll(@Query() query: Pagination, @CurrUser() user: IUser) {
+  async findAll(
+    @Query() query: FindAllReturnOrdersQueryDto,
+    @CurrUser() user: IUser,
+  ) {
     const { pagination, criteria } = paginationParser(query);
     return await this.returnOrderService.findAll(
       { pagination, criteria },

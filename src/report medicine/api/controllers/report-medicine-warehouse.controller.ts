@@ -9,6 +9,7 @@ import { IParams } from 'src/shared/interface/params.interface';
 import { WarehouseReportMedicineService } from 'src/report medicine/services/report-medicine-warehouse.service';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { paginationParser } from 'src/shared/pagination/pagination';
+import { FindAllReportMedicinesQueryDto } from '../dto/query/find-all-report-medicines.dto';
 
 @AuthenticatedController({
   controller: '/report-medicine/warehouse',
@@ -84,7 +85,10 @@ export class ReportMedicineWarehouseController {
     url: 'pharmacy',
     role: [Role.WAREHOUSE],
   })
-  async findAllPharmacy(@Query() query: Pagination, @CurrUser() user: IUser) {
+  async findAllPharmacy(
+    @Query() query: FindAllReportMedicinesQueryDto,
+    @CurrUser() user: IUser,
+  ) {
     const { criteria, pagination } = paginationParser(query);
     return this.reportMedicineService.findAllPharmacy(
       { pagination, criteria },

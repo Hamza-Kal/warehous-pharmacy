@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { IUser } from 'src/shared/interface/user.interface';
 import { SupplierService } from 'src/supplier/service/supplier.service';
 import {
+  ReturnOrderStatus,
   WarehouseReturnOrder,
   WarehouseReturnOrderDetails,
 } from '../entities/returnOrder.entities';
@@ -19,6 +20,7 @@ import { In } from 'typeorm/find-options/operator/In';
 import { SupplierError } from 'src/supplier/service/supplier-error.service';
 import { MedicineError } from 'src/medicine/services/medicine-error.service';
 import { PaymentService } from 'src/payment/services/payment.service';
+import { filter } from 'rxjs';
 
 @Injectable()
 export class WarehouseReturnOrderService {
@@ -37,6 +39,18 @@ export class WarehouseReturnOrderService {
     private paymentService: PaymentService,
   ) {}
 
+  private getCriteria(criteria: { status?: ReturnOrderStatus }) {
+    let filteringCriteria: {
+      status?: ReturnOrderStatus;
+    } = {};
+    if (criteria.status) {
+      filteringCriteria = {
+        ...filteringCriteria,
+        status: criteria.status,
+      };
+    }
+    return filteringCriteria;
+  }
   async create(body: CreateWarehouseReturnOrderDto, owner: IUser) {
     const { warehouseId } = owner;
     const { batches, returnReason } = body;
@@ -200,41 +214,45 @@ export class WarehouseReturnOrderService {
   }
 
   async findAll(
-    { pagination, criteria }: { pagination: Pagination; criteria?: any },
+    {
+      pagination,
+      criteria,
+    }: {
+      pagination: Pagination;
+      criteria?: {
+        status?: ReturnOrderStatus;
+      };
+    },
     user: IUser,
   ) {
     const { skip, limit } = pagination;
+    const { status } = criteria;
     const { warehouseId } = user;
-    const totalRecords = await this.warehouseReturnOrderRepository.count({
-      where: {
-        ...criteria,
-        warehouse: {
-          id: warehouseId as number,
+
+    const filteringCriteria = this.getCriteria(criteria);
+    const [returnOrders, totalRecords] =
+      await this.warehouseReturnOrderRepository.findAndCount({
+        where: {
+          ...filteringCriteria,
+          warehouse: {
+            id: warehouseId as number,
+          },
         },
-      },
-    });
-    const returnOrders = await this.warehouseReturnOrderRepository.find({
-      where: {
-        ...criteria,
-        warehouse: {
-          id: warehouseId as number,
+        relations: {
+          supplier: true,
         },
-      },
-      relations: {
-        supplier: true,
-      },
-      select: {
-        id: true,
-        status: true,
-        created_at: true,
-        supplier: {
-          name: true,
+        select: {
+          id: true,
+          status: true,
+          created_at: true,
+          supplier: {
+            name: true,
+          },
+          totalPrice: true,
         },
-        totalPrice: true,
-      },
-      skip,
-      take: limit,
-    });
+        skip,
+        take: limit,
+      });
     return {
       totalRecords,
       data: returnOrders.map((returnOrder) =>

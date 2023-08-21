@@ -152,7 +152,7 @@ export class MedicineSupplierService {
 
   async updateBatch(id: number, body: UpdateBatch, user: IUser) {
     const { quantity } = body;
-    const medicine = await this.supplierMedicineDetails.findOne({
+    const medicineDetails = await this.supplierMedicineDetails.findOne({
       where: {
         id,
         medicine: {
@@ -163,15 +163,26 @@ export class MedicineSupplierService {
       },
     });
 
-    if (!medicine) {
+    if (!medicineDetails) {
       throw new HttpException(
         this.medicineError.notFoundMedicine(),
         HttpStatus.NOT_FOUND,
       );
     }
 
-    medicine.quantity = quantity;
-    await this.supplierMedicineDetails.save(medicine);
+    const medicine = await this.supplierMedicineRepository.findOne({
+      where: {
+        medicineDetails: {
+          id: medicineDetails.id,
+        },
+      },
+    });
+
+    medicine.quantity += quantity - medicineDetails.quantity;
+
+    medicineDetails.quantity = quantity;
+    await this.supplierMedicineDetails.save(medicineDetails);
+    await this.supplierMedicineRepository.save(medicine);
   }
 
   async findMedicineBatches(medicineId: number, user: IUser) {

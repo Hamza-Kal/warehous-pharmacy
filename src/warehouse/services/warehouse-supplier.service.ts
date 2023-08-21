@@ -13,7 +13,7 @@ export class WarehouseSupplierService {
     private warehouseRepository: Repository<Warehouse>,
   ) {}
 
-  getCriteria(queryCriteria: { name?: string }) {
+  private getCriteria(queryCriteria: { name?: string }) {
     let criteria: any = {};
     if (queryCriteria.name) {
       criteria = {

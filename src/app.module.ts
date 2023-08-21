@@ -18,7 +18,6 @@ import { ComplaintModule } from './complaint/complaint.module';
     }),
     ...TypeOrmModule,
     ...Modules,
-    ComplaintModule,
   ],
   controllers: [],
   providers: [

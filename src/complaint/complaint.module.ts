@@ -1,12 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ComplaintService } from './services/complaint.service';
-import { ComplaintController } from './api/complaint.controller';
 import {
   PharmacyComplaint,
   SupplierComplaint,
   WarehouseComplaint,
 } from './entities/role-complaint.entities';
-import { AdminController } from 'src/admin/api/admin.controller';
 import { ComplaintAdminService } from './services/complaint.admin.service';
 import { ComplaintSupplierService } from './services/complaint.supplier.service';
 import { ComplaintPharmacyService } from './services/complaint.pharmacy.service';
@@ -33,7 +30,6 @@ import { ComplaintPharmacyController } from './api/complaint.pharmacy.controller
     ]),
   ],
   providers: [
-    ComplaintService,
     ComplaintAdminService,
     ComplaintSupplierService,
     ComplaintWarehouseService,
@@ -41,7 +37,6 @@ import { ComplaintPharmacyController } from './api/complaint.pharmacy.controller
     ComplaintError,
   ],
   controllers: [
-    ComplaintController,
     ComplaintAdminController,
     ComplaintSupplierController,
     ComplaintWarehouseController,

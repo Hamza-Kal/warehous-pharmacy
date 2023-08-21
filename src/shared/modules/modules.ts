@@ -61,6 +61,7 @@ import {
   SupplierComplaint,
   WarehouseComplaint,
 } from 'src/complaint/entities/role-complaint.entities';
+import { ComplaintModule } from 'src/complaint/complaint.module';
 
 export const Modules = [
   WarehouseModule,
@@ -76,6 +77,7 @@ export const Modules = [
   AdminModule,
   MediaModule,
   PaymentModule,
+  ComplaintModule,
 ];
 
 export const entities = [

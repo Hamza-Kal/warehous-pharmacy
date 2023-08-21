@@ -90,6 +90,7 @@ export class SupplierOrderService {
         },
       },
       select: {
+        status: true,
         id: true,
         created_at: true,
         warehouse: {

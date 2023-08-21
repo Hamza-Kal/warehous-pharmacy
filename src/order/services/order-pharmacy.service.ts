@@ -110,7 +110,17 @@ export class PharmacyOrderService {
           quantity: true,
           price: true,
           medicine: {
+            id: true,
             name: true,
+          },
+        },
+        distribution: {
+          quantity: true,
+          medicineDetails: {
+            id: true,
+            medicine: {
+              id: true,
+            },
           },
         },
       },
@@ -120,6 +130,11 @@ export class PharmacyOrderService {
         },
         details: {
           medicine: true,
+        },
+        distribution: {
+          medicineDetails: {
+            medicine: true,
+          },
         },
       },
     });

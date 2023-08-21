@@ -2,7 +2,7 @@ import { th } from '@faker-js/faker';
 import { SupplierMedicineDetails } from 'src/medicine/entities/medicine-role.entities';
 import { MedicineDetails } from 'src/medicine/entities/medicine.entities';
 import { OrderStatus, WarehouseOrder } from 'src/order/entities/order.entities';
-import { PaymentClaim } from 'src/payment/entities/payment.entities';
+
 import { User } from 'src/user/entities/user.entity';
 
 export class GetPayment {
@@ -10,19 +10,19 @@ export class GetPayment {
   supplier?: string;
   warehouse?: string;
   total: number;
-  dept: number;
+  debt: number;
   paid: number;
 
   constructor({
     total,
     user,
     paid,
-    dept,
+    debt,
   }: {
     total: number;
     user: User;
     paid: number;
-    dept: number;
+    debt: number;
   }) {
     this.pharmacy = user.pharmacy?.name;
     this.supplier = user.supplier?.name;
@@ -30,7 +30,7 @@ export class GetPayment {
 
     this.total = total;
     this.paid = paid;
-    this.dept = dept;
+    this.debt = debt;
   }
 
   toObject(): {
@@ -38,7 +38,7 @@ export class GetPayment {
     supplier?: string;
     warehouse?: string;
     total: number;
-    dept: number;
+    debt: number;
     paid: number;
   } {
     return {
@@ -46,7 +46,7 @@ export class GetPayment {
       supplier: this.supplier,
       warehouse: this.warehouse,
       paid: this.paid,
-      dept: this.dept,
+      debt: this.debt,
       total: this.total,
     };
   }

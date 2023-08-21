@@ -10,18 +10,6 @@ import {
 } from 'typeorm';
 
 //* not important
-@Entity()
-export class PaymentAccount {
-  @PrimaryGeneratedColumn({ type: 'int' })
-  id: number;
-
-  @OneToOne(() => User, (user) => user.payment)
-  @JoinColumn()
-  user: User;
-
-  @Column({ type: 'int', default: '0' })
-  balance: number;
-}
 
 @Entity()
 export class PaymentTransaction {
@@ -30,19 +18,29 @@ export class PaymentTransaction {
 
   @ManyToOne(() => User, (user) => user.outcomingPayments)
   @JoinColumn()
-  sender: User;
+  firstUser: User;
 
   @ManyToOne(() => User, (user) => user.incomingPayments)
   @JoinColumn()
-  receiver: User;
+  secondUser: User;
 
   @Column({ type: 'int', default: 0 })
-  amount: number;
+  total: number;
+
+  @Column({ type: 'int', default: 0 })
+  debt: number;
+
+  @Column({ type: 'int', default: 0 })
+  payment: number;
 
   @OneToMany(() => TransactionDetails, (details) => details.transaction)
   details: TransactionDetails[];
 }
 
+export enum TransactionStatus {
+  paid = 'Paid',
+  debt = 'debt',
+}
 @Entity()
 export class TransactionDetails {
   @PrimaryGeneratedColumn({ type: 'int' })
@@ -52,41 +50,15 @@ export class TransactionDetails {
   @JoinColumn()
   transaction: PaymentTransaction;
 
+  @Column({
+    type: 'enum',
+    enum: TransactionStatus,
+    default: TransactionStatus.paid,
+  })
+  status: TransactionStatus;
+
   @Column({ type: Date, default: () => 'CURRENT_TIMESTAMP' })
   date: Date;
-
-  @Column({ type: 'int', default: 0 })
-  amount: number;
-}
-
-@Entity()
-export class PaymentClaim {
-  @PrimaryGeneratedColumn({ type: 'int' })
-  id: number;
-
-  @ManyToOne(() => User, (user) => user.debt)
-  @JoinColumn()
-  debtor: User;
-
-  @ManyToOne(() => User, (user) => user.receive)
-  @JoinColumn()
-  receiver: User;
-
-  @Column({ type: 'int', default: 0 })
-  amount: number;
-
-  @OneToMany(() => PaymentClaimDetails, (details) => details.claim)
-  details: PaymentClaimDetails[];
-}
-
-@Entity()
-export class PaymentClaimDetails {
-  @PrimaryGeneratedColumn({ type: 'int' })
-  id: number;
-
-  @ManyToOne(() => PaymentClaim, (claim) => claim.details)
-  @JoinColumn()
-  claim: PaymentClaim;
 
   @Column({ type: 'int', default: 0 })
   amount: number;

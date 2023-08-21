@@ -1,11 +1,7 @@
 import { Transaction } from 'sequelize';
 import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { Media } from 'src/media/entities/media.entity';
-import {
-  PaymentAccount,
-  PaymentClaim,
-  PaymentTransaction,
-} from 'src/payment/entities/payment.entities';
+import { PaymentTransaction } from 'src/payment/entities/payment.entities';
 import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
 import { Role } from 'src/shared/enums/roles';
 import { hashPassword } from 'src/shared/utils/bcrypt';
@@ -88,19 +84,10 @@ export class User {
   @OneToMany(() => Media, (image) => image.user)
   image: Media;
 
-  @OneToOne(() => PaymentAccount, (payment) => payment.user)
-  payment: PaymentAccount;
-
-  @OneToMany(() => PaymentTransaction, (transaction) => transaction.sender)
+  @OneToMany(() => PaymentTransaction, (transaction) => transaction.firstUser)
   outcomingPayments: PaymentTransaction[];
 
-  @OneToMany(() => PaymentClaim, (claim) => claim.debtor)
-  debt: PaymentClaim[];
-
-  @OneToMany(() => PaymentClaim, (claim) => claim.receiver)
-  receive: PaymentClaim[];
-
-  @OneToMany(() => PaymentTransaction, (transaction) => transaction.receiver)
+  @OneToMany(() => PaymentTransaction, (transaction) => transaction.secondUser)
   incomingPayments: PaymentTransaction[];
 
   @BeforeInsert()

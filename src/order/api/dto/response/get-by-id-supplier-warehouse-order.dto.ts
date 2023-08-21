@@ -1,3 +1,4 @@
+import { or } from 'sequelize';
 import {
   DistributionPharmacyOrder,
   OrderStatus,
@@ -8,6 +9,7 @@ import {
 export class GetWarehouseSupplierOrderDetails {
   id: number;
   orderDate: Date;
+
   warehouse: {
     name: string;
     phoneNumber: string;
@@ -41,6 +43,7 @@ export class GetWarehouseSupplierOrderDetails {
         quantity: detail.quantity,
       });
     }
+    this.status = order.status;
     this.medicines = medicines;
   }
 
@@ -51,7 +54,7 @@ export class GetWarehouseSupplierOrderDetails {
       phoneNumber: string;
       location: string;
     };
-
+    status: OrderStatus;
     medicines: {
       name: string;
       price: number;
@@ -61,6 +64,7 @@ export class GetWarehouseSupplierOrderDetails {
   } {
     return {
       id: this.id,
+      status: this.status,
       warehouse: this.warehouse,
       medicines: this.medicines,
       totalPrice: this.totalPrice,

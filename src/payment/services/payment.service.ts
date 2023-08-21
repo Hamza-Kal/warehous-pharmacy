@@ -1,23 +1,24 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  PaymentClaim,
-  PaymentClaimDetails,
   PaymentTransaction,
   TransactionDetails,
+  TransactionStatus,
 } from '../entities/payment.entities';
-import { Repository } from 'typeorm';
+import { MoreThan, Not, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { MakePaymentDto } from '../api/dto/make-payment.dto';
 import { UserError } from 'src/user/services/user-error.service';
 import { UserService } from 'src/user/services/user.service';
 import { Role } from 'src/shared/enums/roles';
 import { PaymentError } from './payment-error.service';
-import { de } from '@faker-js/faker';
+import { de, fi, tr } from '@faker-js/faker';
 import { IUser } from 'src/shared/interface/user.interface';
 import { GetPayment } from '../api/dto/response/get-dept-for-user.dto';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { GetByCriteriaMyPaidDetails } from '../api/dto/response/get-by-id-my-paid-details.dto';
+import { send } from 'process';
+import { GetByCriteriaMyPaid } from '../api/dto/response/get-by-criteria.dto';
 
 @Injectable()
 export class PaymentService {
@@ -26,141 +27,251 @@ export class PaymentService {
     private transactionRepository: Repository<PaymentTransaction>,
     @InjectRepository(TransactionDetails)
     private readonly transactionDetails: Repository<TransactionDetails>,
-    @InjectRepository(PaymentClaim)
-    private readonly claimRepository: Repository<PaymentClaim>,
-    @InjectRepository(PaymentClaimDetails)
-    private readonly claimDetailsRepository: Repository<PaymentClaimDetails>,
     private readonly userError: UserError,
     private readonly paymentError: PaymentError,
     private readonly userService: UserService,
   ) {}
 
   async create(sender: number | User, receiver: number | User) {
+    console.log('fsadfasdfasd', sender);
     if (sender === receiver) this.userError.notFoundUser();
+    let firstUser = sender,
+      secondUser = receiver;
+    if (firstUser > secondUser) {
+      [firstUser, secondUser] = [secondUser, firstUser];
+    }
+
+    console.log(firstUser, secondUser);
+
+    console.log(firstUser);
 
     let paymentAccount = await this.transactionRepository.findOne({
       where: {
-        sender: {
+        firstUser: {
           id: sender as number,
         },
-        receiver: {
+        secondUser: {
           id: receiver as number,
+        },
+      },
+      relations: {
+        firstUser: true,
+      },
+      select: {
+        id: true,
+        payment: true,
+        debt: true,
+        total: true,
+        firstUser: {
+          id: true,
         },
       },
     });
     if (paymentAccount) return paymentAccount;
     paymentAccount = new PaymentTransaction();
-    paymentAccount.sender = sender as User;
-    paymentAccount.receiver = receiver as User;
+    paymentAccount.firstUser = firstUser as User;
+    paymentAccount.secondUser = secondUser as User;
     await this.transactionRepository.save(paymentAccount);
     return paymentAccount;
   }
 
-  async makePayment(transaction: PaymentTransaction, body: MakePaymentDto) {
-    console.log(body);
+  async makePayment(
+    transaction: PaymentTransaction,
+    body: MakePaymentDto,
+    user: IUser,
+  ) {
     const { date, amount } = body;
+    const paymentAmount =
+      transaction.firstUser.id === user.id ? amount : amount * -1;
+
+    console.log(paymentAmount);
+
     const payment = new TransactionDetails();
-    payment.amount = amount;
+    payment.amount = paymentAmount;
     payment.transaction = transaction;
     payment.date = date;
-    transaction.amount += amount;
+    transaction.total += paymentAmount;
+    transaction.payment += paymentAmount;
     await this.transactionRepository.save(transaction);
     await this.transactionDetails.save(payment);
   }
 
-  async createDept(
-    deptId: number | User,
-    receiverId: number | User,
-    amount: number,
-  ) {
-    await this.verifyUser(deptId as number);
-    await this.verifyUser(receiverId as number);
-
-    const deptAccount = await this.createDeptAccount(deptId, receiverId);
-    await this.addDept(deptAccount, amount);
-  }
+  //debt and payment
 
   async getDept(actor: IUser, userId: number | User) {
-    const actorId: User | number = actor.id;
-    const fromActorToUser = await this.claimRepository.findOne({
+    let firstId: User | number = actor.id;
+    let secondId: User | number = userId as number;
+
+    if (firstId > secondId) {
+      [firstId, secondId] = [secondId, firstId];
+    }
+    const transaction = await this.transactionRepository.findOne({
       where: {
-        debtor: {
+        firstUser: {
           id: actor.id as number,
         },
-        receiver: {
+        secondUser: {
           id: userId as number,
         },
       },
       relations: {
-        receiver: true,
-        debtor: true,
-      },
-    });
-
-    const fromUserToActor = await this.claimRepository.findOne({
-      where: {
-        receiver: {
-          id: actorId as number,
-        },
-        debtor: {
-          id: userId as number,
-        },
-      },
-      relations: {
-        receiver: true,
-      },
-    });
-
-    return fromActorToUser?.amount || 0 - fromUserToActor?.amount || 0;
-  }
-
-  async getPaid(actor: IUser, userId: number) {
-    const fromActorToUser = await this.transactionRepository.findOne({
-      where: {
-        sender: {
-          id: actor.id as number,
-        },
-        receiver: {
-          id: userId as number,
-        },
+        firstUser: true,
+        secondUser: true,
       },
       select: {
-        receiver: {
+        id: true,
+        debt: true,
+        firstUser: {
           id: true,
+        },
+        secondUser: {
+          id: true,
+        },
+      },
+    });
+
+    if (!transaction) return 0;
+
+    const amount =
+      transaction?.firstUser.id === firstId
+        ? transaction.debt
+        : transaction.debt * -1;
+
+    return amount;
+  }
+
+  async getAllPaymentAccounts(
+    user: IUser,
+    { pagination, criteria }: { pagination: Pagination; criteria: any },
+  ) {
+    const { limit, skip } = pagination;
+    const totalRecords = await this.transactionRepository.count({
+      where: [
+        {
+          firstUser: {
+            id: user.id,
+          },
+          total: Not(0),
+        },
+        {
+          secondUser: {
+            id: user.id,
+          },
+          total: Not(0),
+        },
+      ],
+    });
+    const payments = await this.transactionRepository.find({
+      where: [
+        {
+          firstUser: {
+            id: user.id,
+          },
+          total: Not(0),
+        },
+        {
+          secondUser: {
+            id: user.id,
+          },
+          total: Not(0),
+        },
+      ],
+      select: {
+        id: true,
+        debt: true,
+        payment: true,
+        total: true,
+        firstUser: {
+          id: true,
+          warehouse: {
+            name: true,
+          },
           pharmacy: {
             name: true,
-            phoneNumber: true,
           },
           supplier: {
             name: true,
-            phoneNumber: true,
           },
+        },
+        secondUser: {
+          id: true,
           warehouse: {
             name: true,
-            phoneNumber: true,
+          },
+          pharmacy: {
+            name: true,
+          },
+          supplier: {
+            name: true,
           },
         },
       },
       relations: {
-        receiver: {
-          pharmacy: true,
+        firstUser: {
           warehouse: true,
+          pharmacy: true,
+          supplier: true,
+        },
+        secondUser: {
+          warehouse: true,
+          pharmacy: true,
           supplier: true,
         },
       },
+      skip,
+      take: limit,
     });
-    const fromUserToActor = await this.transactionRepository.findOne({
+
+    return {
+      totalRecords,
+      data: payments.map(
+        (payment) => new GetByCriteriaMyPaid({ payment, userId: user.id }),
+      ),
+    };
+  }
+
+  async getPaid(actor: IUser, userId: number) {
+    let firstId: User | number = actor.id;
+    let secondId: User | number = userId as number;
+
+    if (firstId > secondId) {
+      [firstId, secondId] = [secondId, firstId];
+    }
+    const transaction = await this.transactionRepository.findOne({
       where: {
-        receiver: {
-          id: actor.id as number,
+        firstUser: {
+          id: firstId as number,
         },
-        sender: {
-          id: userId as number,
+        secondUser: {
+          id: secondId as number,
         },
+      },
+      select: {
+        id: true,
+        payment: true,
+        firstUser: {
+          id: true,
+        },
+        secondUser: {
+          id: true,
+        },
+      },
+      relations: {
+        firstUser: true,
+        secondUser: true,
       },
     });
 
-    return fromUserToActor?.amount || 0 - fromActorToUser?.amount || 0;
+    if (!transaction) {
+      return 0;
+    }
+
+    const amount =
+      transaction?.firstUser.id === firstId
+        ? transaction.payment
+        : transaction.payment * -1;
+
+    return amount;
   }
 
   async getMyPaidDetails(
@@ -168,14 +279,20 @@ export class PaymentService {
     userId: number,
     { criteria, pagination }: { criteria: any; pagination: Pagination },
   ) {
+    let firstId: User | number = actor.id;
+    let secondId: User | number = userId as number;
+
+    if (firstId > secondId) {
+      [firstId, secondId] = [secondId, firstId];
+    }
     const { limit, skip } = pagination;
     const transaction = await this.transactionRepository.findOne({
       where: {
-        sender: {
-          id: actor.id,
+        firstUser: {
+          id: firstId,
         },
-        receiver: {
-          id: userId,
+        secondUser: {
+          id: secondId,
         },
       },
     });
@@ -184,17 +301,32 @@ export class PaymentService {
       this.paymentError.notFoundTransaction();
     }
 
+    const totalRecords = await this.transactionDetails.count({
+      where: {
+        transaction: {
+          id: transaction.id,
+        },
+        amount: MoreThan(0),
+      },
+
+      skip,
+      take: limit,
+    });
+
     const details = await this.transactionDetails.find({
       where: {
         transaction: {
           id: transaction.id,
         },
+        amount: MoreThan(0),
       },
+
       skip,
       take: limit,
     });
 
     return {
+      totalRecords,
       data: details.map((detail) =>
         new GetByCriteriaMyPaidDetails({ detail }).toObject(),
       ),
@@ -204,56 +336,43 @@ export class PaymentService {
   async getPayment(actor: IUser, userId: number) {
     const user = await this.userService.findRole(userId);
 
-    const { total, paid, dept } = await this.getTotal(actor, userId);
+    const { total, paid, debt } = await this.getTotal(actor, userId);
 
     return {
-      data: new GetPayment({ user, total, paid, dept }),
+      data: new GetPayment({ user, total, paid, debt }),
     };
   }
 
   async getTotal(actor: IUser, userId: number) {
     const paid = await this.getPaid(actor, userId);
-    const dept = await this.getDept(actor, userId);
-    const total = paid - dept;
-    return { total, paid, dept };
+    const debt = await this.getDept(actor, userId);
+    console.log(paid, debt, 'fadsfsda');
+    const total = paid - debt;
+    return { total, paid, debt };
   }
 
-  private async createDeptAccount(
-    deptId: number | User,
-    receiverId: number | User,
+  private async addDept(
+    transaction: PaymentTransaction,
+    amount: number,
+    userId: number,
   ) {
-    let deptAccount = await this.claimRepository.findOne({
-      where: {
-        debtor: {
-          id: deptId as number,
-        },
-        receiver: {
-          id: receiverId as number,
-        },
-      },
-    });
-    if (deptAccount) return deptAccount;
+    const transactionAmount =
+      transaction.firstUser.id === userId ? amount : amount * -1;
+    transaction.total -= transactionAmount;
 
-    deptAccount = new PaymentClaim();
-    deptAccount.debtor = deptId as User;
-    deptAccount.receiver = receiverId as User;
-    await this.claimRepository.save(deptAccount);
-    return deptAccount;
+    await this.transactionRepository.save(transaction);
+    const deptDetails = new TransactionDetails();
+    deptDetails.amount = transactionAmount;
+    deptDetails.status = TransactionStatus.debt;
+    await this.transactionDetails.save(deptDetails);
   }
 
-  private async addDept(deptAccount: PaymentClaim, amount: number) {
-    if (amount < 0) return;
-
-    deptAccount.amount += amount;
-
-    await this.claimRepository.save(deptAccount);
-    const deptDetails = new PaymentClaimDetails();
-    deptDetails.claim = deptAccount;
-    deptDetails.amount = amount;
-    await this.claimDetailsRepository.save(deptDetails);
+  async createDept(firstUser: number, secondUser: number, amount: number) {
+    const transaction = await this.create(firstUser, secondUser);
+    await this.addDept(transaction, amount, firstUser);
   }
 
-  private async verifyUser(sender: number) {
+  async verifyUser(sender: number) {
     const user = await this.userService.findUser(sender);
     if (![Role.WAREHOUSE, Role.SUPPLIER, Role.PHARMACY].includes(user.role)) {
       this.paymentError.notAllowedToMakePayment();

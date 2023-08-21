@@ -49,9 +49,6 @@ import { MediaModule } from 'src/media/media.module';
 import { Media } from 'src/media/entities/media.entity';
 import { AdminModule } from 'src/admin/admin.module';
 import {
-  PaymentAccount,
-  PaymentClaim,
-  PaymentClaimDetails,
   PaymentTransaction,
   TransactionDetails,
 } from 'src/payment/entities/payment.entities';
@@ -108,12 +105,6 @@ export const entities = [
   PharmacyOrderDetails,
   DistributionPharmacyOrder,
   PharmacyReportMedicine,
-  PaymentAccount,
   PaymentTransaction,
   TransactionDetails,
-  PaymentClaim,
-  PaymentClaimDetails,
-  WarehouseComplaint,
-  SupplierComplaint,
-  PharmacyComplaint,
 ];

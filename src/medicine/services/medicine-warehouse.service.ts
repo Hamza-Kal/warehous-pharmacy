@@ -283,46 +283,45 @@ export class WarehouseMedicineService {
         },
       },
     });
-    const medicines = await this.inventoryMedicineRepository.find({
-      where: {
-        inventory: {
-          id,
-          warehouse: {
-            id: user.warehouseId as number,
-          },
-        },
-      },
-      select: {
-        id: true,
-        medicineDetails: {
-          quantity: true,
-          id: true,
-          medicineDetails: {
-            endDate: true,
-          },
-        },
-        medicine: {
-          id: true,
-
-          image: {
-            url: true,
-          },
-        },
-      },
-      relations: {
-        medicineDetails: {
-          medicineDetails: true,
-        },
-        medicine: {
-          image: true,
-        },
-      },
-      skip,
-      take: limit,
-    });
-
+    const medicinesQuery = this.inventoryMedicineRepository
+      .createQueryBuilder('inventory_medicine')
+      .leftJoinAndSelect('inventory_medicine.inventory', 'inventory')
+      .leftJoinAndSelect('inventory.warehouse', 'warehouse')
+      .leftJoinAndSelect('inventory_medicine.medicine', 'medicine')
+      .leftJoinAndSelect(
+        'inventory_medicine.medicineDetails',
+        'outerMedicineDetails',
+      )
+      .leftJoinAndSelect('medicine.image', 'image')
+      .leftJoinAndSelect('medicine.category', 'category')
+      .leftJoinAndSelect('medicine.supplier', 'supplier')
+      .leftJoinAndSelect(
+        'outerMedicineDetails.medicineDetails',
+        'medicineDetails',
+      )
+      .where('inventory.id = :id', { id })
+      .andWhere('warehouse.id = :id', { id: user.warehouseId as number })
+      .andWhere('inventory_medicine.quantity > 0', { quantity: 0 })
+      .andWhere('outerMedicineDetails.quantity > 0')
+      .select([
+        'inventory_medicine.id',
+        'medicine.id',
+        'medicine.name',
+        'category.category',
+        'outerMedicineDetails.id',
+        'outerMedicineDetails.quantity',
+        'medicineDetails.id',
+        'medicineDetails.endDate',
+        'supplier.id',
+        'supplier.name',
+        'image.id',
+        'image.url',
+      ])
+      .take(limit)
+      .skip(skip);
+    const medicines = await medicinesQuery.getMany();
     return {
-      totalRecords,
+      totalRecords: medicinesQuery.getCount(),
       data: medicines.map((medicine) =>
         new InventoryMedicinesDto({
           medicine,
@@ -499,6 +498,7 @@ export class WarehouseMedicineService {
       relations: {
         medicine: {
           category: true,
+          image: true,
         },
       },
       select: {
@@ -506,6 +506,10 @@ export class WarehouseMedicineService {
           name: true,
           category: {
             category: true,
+          },
+          image: {
+            id: true,
+            url: true,
           },
         },
         id: true,

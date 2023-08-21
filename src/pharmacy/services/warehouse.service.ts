@@ -16,12 +16,14 @@ export class PharmacyWarehouseService {
     pagination: { skip: number; limit: number };
   }) {
     const { skip, limit } = pagination;
-    const pharmacies = await this.pharmacyRepository.find({
-      select: ['id', 'name'],
-      skip,
-      take: limit,
-    });
+    const [pharmacies, totalRecords] =
+      await this.pharmacyRepository.findAndCount({
+        select: ['id', 'name'],
+        skip,
+        take: limit,
+      });
     return {
+      totalRecords,
       data: pharmacies,
     };
   }

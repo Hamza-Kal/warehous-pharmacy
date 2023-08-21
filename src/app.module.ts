@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import TypeOrmModule from './shared/modules/connection.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ComplaintModule } from './complaint/complaint.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { join } from 'path';
     }),
     ...TypeOrmModule,
     ...Modules,
+    ComplaintModule,
   ],
   controllers: [],
   providers: [

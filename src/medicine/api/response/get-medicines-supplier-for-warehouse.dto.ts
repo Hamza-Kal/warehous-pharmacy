@@ -12,7 +12,7 @@ export class WarehouseGetSupplierMedicines {
     this.name = supplierMedicine.medicine.name;
     this.category = supplierMedicine.medicine.category.category;
     this.price = supplierMedicine.price;
-    this.imageUrl = supplierMedicine.medicine?.image?.url;
+    this.imageUrl = supplierMedicine.medicine?.image?.url || null;
   }
 
   toObject(): {

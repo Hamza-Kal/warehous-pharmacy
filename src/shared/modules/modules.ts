@@ -53,6 +53,11 @@ import {
   TransactionDetails,
 } from 'src/payment/entities/payment.entities';
 import { PaymentModule } from 'src/payment/payment.module';
+import {
+  PharmacyComplaint,
+  SupplierComplaint,
+  WarehouseComplaint,
+} from 'src/complaint/entities/role-complaint.entities';
 
 export const Modules = [
   WarehouseModule,

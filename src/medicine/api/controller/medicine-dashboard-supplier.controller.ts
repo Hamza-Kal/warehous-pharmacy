@@ -71,7 +71,7 @@ export class MedicineController {
 
   @AuthorizedApi({
     api: Api.PATCH,
-    url: 'edit/:id',
+    url: 'edit-batch/:id',
     role: [Role.SUPPLIER],
   })
   async editBatch(

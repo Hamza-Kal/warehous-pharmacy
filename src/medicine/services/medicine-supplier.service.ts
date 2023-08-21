@@ -277,6 +277,7 @@ export class MedicineSupplierService {
         HttpStatus.NOT_FOUND,
       );
     }
+    console.log(medicine);
     return {
       data: new GetByIdMedicineSupplier({
         supplierMedicine: medicine,

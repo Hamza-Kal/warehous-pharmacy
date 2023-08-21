@@ -14,6 +14,8 @@ import { MedicineModule } from 'src/medicine/medicine.module';
 import { WarehouseError } from './services/warehouse-error.service';
 import { WarehousePharmacyService } from './services/warehouse-pharmacy.service';
 import { PharmacyWarehouseController } from './api/controller/pharmacy.controller';
+import { WarehouseSupplierController } from './api/controller/supplier.controller';
+import { WarehouseSupplierService } from './services/warehouse-supplier.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Warehouse, User, Inventory]),
@@ -24,12 +26,17 @@ import { PharmacyWarehouseController } from './api/controller/pharmacy.controlle
     SupplierModule,
     MedicineModule,
   ],
-  controllers: [WarehouseController, PharmacyWarehouseController],
+  controllers: [
+    WarehouseController,
+    PharmacyWarehouseController,
+    WarehouseSupplierController,
+  ],
   providers: [
     WarehouseWebService,
     WarehouseService,
     WarehouseError,
     WarehousePharmacyService,
+    WarehouseSupplierService,
   ],
   exports: [WarehouseService, WarehouseWebService],
 })

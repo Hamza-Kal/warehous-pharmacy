@@ -76,7 +76,6 @@ export class WarehousePharmacyService {
       where: {
         id: warehouseId,
       },
-      select: ['rating', 'rateCount'],
     });
     if (!warehouse)
       throw new HttpException(

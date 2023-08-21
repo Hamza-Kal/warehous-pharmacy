@@ -20,6 +20,6 @@ export class SupplierWarehouseController {
     role: [Role.WAREHOUSE],
   })
   rateWarehouse(@Body() body: RateSupplierDto) {
-    return this.supplierWarehouseService.rateWarehouse(body);
+    return this.supplierWarehouseService.rateSupplier(body);
   }
 }

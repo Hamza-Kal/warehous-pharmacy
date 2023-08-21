@@ -14,7 +14,7 @@ export class SupplierWarehouseService {
     private errorsService: SupplierError,
   ) {}
 
-  async rateWarehouse(body: RateSupplierDto) {
+  async rateSupplier(body: RateSupplierDto) {
     const { supplierId, rating } = body;
     const supplier = await this.supplierRepository.findOne({
       where: {

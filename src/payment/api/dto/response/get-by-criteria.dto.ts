@@ -1,6 +1,8 @@
 import { PaymentTransaction } from 'src/payment/entities/payment.entities';
 
 export class GetByCriteriaMyPaid {
+  id: number;
+  userId: number;
   pharmacy: string;
   supplier: string;
   warehouse: string;
@@ -14,6 +16,11 @@ export class GetByCriteriaMyPaid {
     payment: PaymentTransaction;
     userId: number;
   }) {
+    this.id = payment.id;
+    this.userId =
+      payment.firstUser.id === userId
+        ? payment.secondUser.id
+        : payment.firstUser.id;
     this.paid = payment.payment;
     this.total = payment.total;
     this.debt = payment.debt;
@@ -32,6 +39,8 @@ export class GetByCriteriaMyPaid {
   }
 
   toObject(): {
+    id: number;
+    userId: number;
     pharmacy: string;
     supplier: string;
     warehouse: string;
@@ -40,6 +49,8 @@ export class GetByCriteriaMyPaid {
     debt: number;
   } {
     return {
+      id: this.id,
+      userId: this.userId,
       pharmacy: this.pharmacy,
       supplier: this.supplier,
       warehouse: this.warehouse,

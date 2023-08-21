@@ -115,6 +115,17 @@ export class UserService {
     await this.userRepository.save(user);
     return;
   }
+  async rejectAccount({ id }: IParams) {
+    const user = await this.userRepository.findOneBy({
+      id: +id,
+      role: Role.GUEST,
+      completedAccount: true,
+    });
+    if (!user) throw new HttpException('user not found', HttpStatus.NOT_FOUND);
+    user.role = Role.Rejected;
+    await this.userRepository.save(user);
+    return;
+  }
 
   async createOne(data: CreateUserDto) {
     const user = this.userRepository.create(data);

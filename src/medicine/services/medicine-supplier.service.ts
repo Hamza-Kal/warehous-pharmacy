@@ -26,9 +26,10 @@ import {
   SupplierMedicineDetails,
 } from '../entities/medicine-role.entities';
 import { Media } from 'src/media/entities/media.entity';
-import { UpdateMedicineDto } from '../api/dto/update-medicine.dto';
+import { UpdateBatch, UpdateMedicineDto } from '../api/dto/update-medicine.dto';
 import { GetMedicineBathesDto } from '../api/response/get-medicine-batches.dto';
 import { Equals } from 'class-validator';
+import { MEDIUMINT } from 'sequelize';
 
 @Injectable()
 export class MedicineSupplierService {
@@ -149,6 +150,30 @@ export class MedicineSupplierService {
     };
   }
 
+  async updateBatch(id: number, body: UpdateBatch, user: IUser) {
+    const { quantity } = body;
+    const medicine = await this.supplierMedicineDetails.findOne({
+      where: {
+        id,
+        medicine: {
+          supplier: {
+            id: user.supplierId as number,
+          },
+        },
+      },
+    });
+
+    if (!medicine) {
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    medicine.quantity = quantity;
+    await this.supplierMedicineDetails.save(medicine);
+  }
+
   async findMedicineBatches(medicineId: number, user: IUser) {
     const { supplierId } = user;
     const batches = await this.supplierMedicineDetails.find({
@@ -252,6 +277,7 @@ export class MedicineSupplierService {
         HttpStatus.NOT_FOUND,
       );
     }
+    console.log(medicine);
     return {
       data: new GetByIdMedicineSupplier({
         supplierMedicine: medicine,

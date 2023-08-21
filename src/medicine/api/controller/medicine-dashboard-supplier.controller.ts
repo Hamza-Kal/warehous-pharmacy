@@ -11,7 +11,7 @@ import { IUser } from 'src/shared/interface/user.interface';
 import { CreateMedicineBrew } from '../dto/create-medicine-brew.dto';
 import { MedicineSupplierService } from 'src/medicine/services/medicine-supplier.service';
 import { IParams } from 'src/shared/interface/params.interface';
-import { UpdateMedicineDto } from '../dto/update-medicine.dto';
+import { UpdateBatch, UpdateMedicineDto } from '../dto/update-medicine.dto';
 import { FindAllSuppliers } from '../dto/query/find-all-supplier.dto copy';
 
 @AuthenticatedController({
@@ -67,6 +67,19 @@ export class MedicineController {
     @CurrUser() user: IUser,
   ) {
     return this.medicineService.update(+params.id, body, user);
+  }
+
+  @AuthorizedApi({
+    api: Api.PATCH,
+    url: 'edit-batch/:id',
+    role: [Role.SUPPLIER],
+  })
+  async editBatch(
+    @Param() params: IParams,
+    @Body() body: UpdateBatch,
+    @CurrUser() user: IUser,
+  ) {
+    return this.medicineService.updateBatch(+params.id, body, user);
   }
 
   @AuthorizedApi({

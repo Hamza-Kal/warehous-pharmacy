@@ -15,7 +15,11 @@ import {
 } from 'src/order/entities/order.entities';
 import { WarehouseMedicine } from 'src/medicine/entities/medicine-role.entities';
 import { WarehouseReturnOrder } from 'src/return order/entities/returnOrder.entities';
-import { WarehouseComplaint } from 'src/complaint/entities/role-complaint.entities';
+import {
+  PharmacyComplaint,
+  SupplierComplaint,
+  WarehouseComplaint,
+} from 'src/complaint/entities/role-complaint.entities';
 
 @Entity()
 export class Warehouse {
@@ -46,6 +50,7 @@ export class Warehouse {
 
   @Column({
     type: 'int',
+    default: 0,
   })
   rateCount: number;
 
@@ -111,4 +116,13 @@ export class Warehouse {
 
   @OneToMany(() => WarehouseComplaint, (complaint) => complaint.warehouse)
   complaints: WarehouseComplaint[];
+
+  @OneToMany(
+    () => PharmacyComplaint,
+    (pharmacyComplaint) => pharmacyComplaint.complaintedWarehouse,
+  )
+  recievedPharmacyComplaints: PharmacyComplaint[];
+
+  @OneToMany(() => SupplierComplaint, (complaint) => complaint.supplier)
+  recievedSupplierComplaints: SupplierComplaint[];
 }

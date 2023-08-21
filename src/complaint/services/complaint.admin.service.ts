@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   PharmacyComplaint,
@@ -11,6 +11,9 @@ import { GetAllPharmaciesComplaintsDto } from '../api/dtos/response/get-all-phar
 import { GetAllWarehouseSupplierComplaintsDto } from '../api/dtos/response/get-all-warehouseSupplier-complaints.dto';
 import { GetAllWarehousePharmacyComplaintsDto } from '../api/dtos/response/get-all-warehousePharmacy-complaints.dto';
 import { Not, IsNull } from 'typeorm';
+import { DeleteComplaintDto } from '../api/dtos/delete-complaint.dto';
+import { Role } from 'src/shared/enums/roles';
+import { ComplaintError } from './complaint-errors.service';
 @Injectable()
 export class ComplaintAdminService {
   constructor(
@@ -20,6 +23,7 @@ export class ComplaintAdminService {
     private pharmacyComplaintRepository: Repository<PharmacyComplaint>,
     @InjectRepository(WarehouseComplaint)
     private warehouseComplaintRepository: Repository<WarehouseComplaint>,
+    private errorsService: ComplaintError,
   ) {}
 
   async getAllSuppliersComplaints() {
@@ -118,5 +122,63 @@ export class ComplaintAdminService {
         }).toObject(),
       ),
     };
+  }
+
+  async deleteComplaint(complaintId: number, body: DeleteComplaintDto) {
+    const { actorRole, complaintedRole } = body;
+    let complaint: any;
+
+    if (actorRole === Role.SUPPLIER) {
+      complaint = await this.warehouseComplaintRepository.findOne({
+        where: {
+          id: complaintId,
+        },
+      });
+      if (!complaint)
+        throw new HttpException(
+          this.errorsService.notFoundComplaint,
+          HttpStatus.NOT_FOUND,
+        );
+      await this.warehouseComplaintRepository.remove(complaint);
+    } else if (actorRole === Role.PHARMACY) {
+      complaint = await this.warehouseComplaintRepository.findOne({
+        where: {
+          id: complaintId,
+        },
+      });
+      if (!complaint)
+        throw new HttpException(
+          this.errorsService.notFoundComplaint,
+          HttpStatus.NOT_FOUND,
+        );
+      await this.warehouseComplaintRepository.remove(complaint);
+    } else {
+      if (complaintedRole === Role.SUPPLIER) {
+        complaint = await this.supplierComplaintRepository.findOne({
+          where: {
+            id: complaintId,
+          },
+        });
+        if (!complaint)
+          throw new HttpException(
+            this.errorsService.notFoundComplaint,
+            HttpStatus.NOT_FOUND,
+          );
+        await this.supplierComplaintRepository.remove(complaint);
+      } else {
+        complaint = await this.pharmacyComplaintRepository.findOne({
+          where: {
+            id: complaintId,
+          },
+        });
+        if (!complaint)
+          throw new HttpException(
+            this.errorsService.notFoundComplaint,
+            HttpStatus.NOT_FOUND,
+          );
+        await this.pharmacyComplaintRepository.remove(complaint);
+      }
+    }
+    return { message: 'Done :)' };
   }
 }

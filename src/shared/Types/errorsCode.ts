@@ -15,4 +15,5 @@ export const errorsCode = {
   notFoundWarehouse: 140000,
   notAllowedToMakePayment: 150000,
   notTransactionFound: 150001,
+  notFoundComplaint: 160000,
 };

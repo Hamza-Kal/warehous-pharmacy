@@ -26,8 +26,9 @@ export class PaymentController {
     @Body() body: MakePaymentDto,
     @Param() param: IParams,
   ) {
+    await this.paymentService.verifyUser(+param.id);
     const transaction = await this.paymentService.create(+param.id, user.id);
-    await this.paymentService.makePayment(transaction, body);
+    await this.paymentService.makePayment(transaction, body, user);
   }
 
   @AuthorizedApi({
@@ -54,6 +55,19 @@ export class PaymentController {
   })
   async totalBalance(@CurrUser() user: IUser, @Param() param: IParams) {
     return await this.paymentService.getTotal(user, +param.id as number);
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '',
+    role: [Role.PHARMACY, Role.SUPPLIER, Role.WAREHOUSE],
+  })
+  async getAllPayment(@CurrUser() user: IUser, @Query() query: Pagination) {
+    const { pagination, criteria } = paginationParser(query);
+    return await this.paymentService.getAllPaymentAccounts(user, {
+      pagination,
+      criteria,
+    });
   }
 
   @AuthorizedApi({

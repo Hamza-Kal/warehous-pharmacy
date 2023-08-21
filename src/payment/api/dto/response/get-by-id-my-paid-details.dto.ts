@@ -2,10 +2,7 @@ import { de, th } from '@faker-js/faker';
 import { SupplierMedicineDetails } from 'src/medicine/entities/medicine-role.entities';
 import { MedicineDetails } from 'src/medicine/entities/medicine.entities';
 import { OrderStatus, WarehouseOrder } from 'src/order/entities/order.entities';
-import {
-  PaymentClaim,
-  TransactionDetails,
-} from 'src/payment/entities/payment.entities';
+import { TransactionDetails } from 'src/payment/entities/payment.entities';
 import { User } from 'src/user/entities/user.entity';
 
 export class GetByCriteriaMyPaidDetails {

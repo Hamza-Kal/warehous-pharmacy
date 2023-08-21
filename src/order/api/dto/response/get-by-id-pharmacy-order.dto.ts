@@ -1,3 +1,5 @@
+import { de } from '@faker-js/faker';
+import { or } from 'sequelize';
 import {
   OrderStatus,
   PharmacyOrder,
@@ -19,6 +21,10 @@ export class GetByIdPharmacyOrder {
     name: string;
     price: number;
     quantity: number;
+    details: {
+      id: number;
+      quantity: number;
+    }[];
   }[];
   constructor({ order }: { order: PharmacyOrder }) {
     this.id = order.id;
@@ -34,12 +40,29 @@ export class GetByIdPharmacyOrder {
       name: string;
       price: number;
       quantity: number;
+      details: {
+        id: number;
+        quantity: number;
+      }[];
     }[] = [];
     for (const detail of order.details) {
+      const medicineDetails: {
+        id: number;
+        quantity: number;
+      }[] = [];
+      for (const distribution of order.distribution) {
+        if (distribution.medicineDetails.medicine.id === detail.medicine.id)
+          medicineDetails.push({
+            id: distribution.medicineDetails.id,
+            quantity: distribution.quantity,
+          });
+      }
+
       medicines.push({
         name: detail.medicine.name,
         price: detail.price,
         quantity: detail.quantity,
+        details: medicineDetails,
       });
     }
     this.medicines = medicines;
@@ -58,6 +81,10 @@ export class GetByIdPharmacyOrder {
       name: string;
       price: number;
       quantity: number;
+      details: {
+        id: number;
+        quantity: number;
+      }[];
     }[];
     totalPrice: number;
   } {

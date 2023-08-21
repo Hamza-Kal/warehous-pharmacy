@@ -21,6 +21,7 @@ import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
 import { GetBannedUsersDto } from '../dtos/response/get-banned-users.dto';
 import { UserError } from './user-error.service';
+import { Pagination } from 'src/shared/pagination/pagination.validation';
 
 @Injectable()
 export class UserService {
@@ -254,4 +255,19 @@ export class UserService {
     }
     return user;
   }
+
+  // async getPayment(
+  //   user: IUser,
+  //   { pagination, criteria }: { pagination: Pagination; criteria: any },
+  // ) {
+  //   const userPayment = await this.userRepository.find({
+  //     where: {
+  //       outcomingPayments: {
+  //         sender: {
+  //           id: user.id,
+  //         },
+  //       },
+  //     },
+  //   });
+  // }
 }

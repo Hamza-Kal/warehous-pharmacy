@@ -1,9 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
-  PaymentAccount,
-  PaymentClaim,
-  PaymentClaimDetails,
   PaymentTransaction,
   TransactionDetails,
 } from './entities/payment.entities';
@@ -14,13 +11,7 @@ import { PaymentController } from './api/controllers/payment.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      PaymentAccount,
-      PaymentTransaction,
-      TransactionDetails,
-      PaymentClaim,
-      PaymentClaimDetails,
-    ]),
+    TypeOrmModule.forFeature([PaymentTransaction, TransactionDetails]),
     UserModule,
   ],
   controllers: [PaymentController],

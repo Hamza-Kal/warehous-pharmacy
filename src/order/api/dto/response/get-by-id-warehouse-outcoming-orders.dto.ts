@@ -51,7 +51,7 @@ export class GetByIdWarehouseOutcomingOrder {
         name: detail.medicine.name,
         price: detail.price,
         quantity: detail.quantity,
-        imageUrl: detail.medicine?.image?.url,
+        imageUrl: detail.medicine?.image?.url || null,
       });
     }
     this.medicines = medicines;

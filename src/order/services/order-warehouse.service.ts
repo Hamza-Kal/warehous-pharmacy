@@ -391,6 +391,7 @@ export class WarehouseOrderService {
   }
 
   async findOneIncoming({ id }: IParams, user: IUser) {
+    // TODO: do the query using query builder
     const order = await this.warehouseOrderRepository.findOne({
       where: {
         id,
@@ -543,6 +544,7 @@ export class WarehouseOrderService {
   }
 
   async findOneOutcoming({ id }: IParams, user: IUser) {
+    // TODO: do the query using query builder
     const order = await this.pharmacyOrderRepository.findOne({
       where: {
         id,

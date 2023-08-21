@@ -58,6 +58,7 @@ import {
   SupplierComplaint,
   WarehouseComplaint,
 } from 'src/complaint/entities/role-complaint.entities';
+import { ComplaintAdminController } from 'src/complaint/api/complaint.admin.controller';
 
 export const Modules = [
   WarehouseModule,
@@ -105,4 +106,7 @@ export const entities = [
   PharmacyReportMedicine,
   PaymentTransaction,
   TransactionDetails,
+  SupplierComplaint,
+  WarehouseComplaint,
+  PharmacyComplaint,
 ];

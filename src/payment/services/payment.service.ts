@@ -5,7 +5,7 @@ import {
   TransactionDetails,
   TransactionStatus,
 } from '../entities/payment.entities';
-import { MoreThan, Not, Repository } from 'typeorm';
+import { LessThan, MoreThan, Not, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { MakePaymentDto } from '../api/dto/make-payment.dto';
 import { UserError } from 'src/user/services/user-error.service';
@@ -19,6 +19,8 @@ import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { GetByCriteriaMyPaidDetails } from '../api/dto/response/get-by-id-my-paid-details.dto';
 import { send } from 'process';
 import { GetByCriteriaMyPaid } from '../api/dto/response/get-by-criteria.dto';
+import { IParams } from 'src/shared/interface/params.interface';
+import { GetByCriteriaToPaidDetails } from '../api/dto/response/get-all.paidTo-details.dto';
 
 @Injectable()
 export class PaymentService {
@@ -33,7 +35,6 @@ export class PaymentService {
   ) {}
 
   async create(sender: number | User, receiver: number | User) {
-    console.log('fsadfasdfasd', sender);
     if (sender === receiver) this.userError.notFoundUser();
     let firstUser = sender,
       secondUser = receiver;
@@ -41,17 +42,13 @@ export class PaymentService {
       [firstUser, secondUser] = [secondUser, firstUser];
     }
 
-    console.log(firstUser, secondUser);
-
-    console.log(firstUser);
-
     let paymentAccount = await this.transactionRepository.findOne({
       where: {
         firstUser: {
-          id: sender as number,
+          id: firstUser as number,
         },
         secondUser: {
-          id: receiver as number,
+          id: secondUser as number,
         },
       },
       relations: {
@@ -226,6 +223,234 @@ export class PaymentService {
       totalRecords,
       data: payments.map(
         (payment) => new GetByCriteriaMyPaid({ payment, userId: user.id }),
+      ),
+    };
+  }
+
+  async getMyPaymentDetails(
+    user: IUser,
+    { id }: IParams,
+    { pagination, criteria }: { pagination: Pagination; criteria: any },
+  ) {
+    const { limit, skip } = pagination;
+    const totalRecords = await this.transactionDetails.count({
+      where: [
+        {
+          status: TransactionStatus.paid,
+          amount: MoreThan(0),
+          transaction: {
+            id,
+            firstUser: {
+              id: user.id,
+            },
+            total: Not(0),
+          },
+        },
+        {
+          status: TransactionStatus.paid,
+          amount: LessThan(0),
+          transaction: {
+            id,
+            secondUser: {
+              id: user.id,
+            },
+            total: Not(0),
+          },
+        },
+      ],
+    });
+    const payments = await this.transactionDetails.find({
+      where: [
+        {
+          status: TransactionStatus.paid,
+          amount: MoreThan(0),
+          transaction: {
+            id,
+            firstUser: {
+              id: user.id,
+            },
+            total: Not(0),
+          },
+        },
+        {
+          status: TransactionStatus.paid,
+          amount: LessThan(0),
+          transaction: {
+            id,
+            secondUser: {
+              id: user.id,
+            },
+            total: Not(0),
+          },
+        },
+      ],
+      select: {
+        id: true,
+        amount: true,
+        transaction: {
+          firstUser: {
+            id: true,
+            warehouse: {
+              name: true,
+            },
+            pharmacy: {
+              name: true,
+            },
+            supplier: {
+              name: true,
+            },
+          },
+
+          secondUser: {
+            id: true,
+            warehouse: {
+              name: true,
+            },
+            pharmacy: {
+              name: true,
+            },
+            supplier: {
+              name: true,
+            },
+          },
+        },
+      },
+      relations: {
+        transaction: {
+          firstUser: {
+            warehouse: true,
+            pharmacy: true,
+            supplier: true,
+          },
+          secondUser: {
+            warehouse: true,
+            pharmacy: true,
+            supplier: true,
+          },
+        },
+      },
+      skip,
+      take: limit,
+    });
+
+    return {
+      totalRecords,
+      data: payments.map((detail) =>
+        new GetByCriteriaToPaidDetails({ detail }).toObject(),
+      ),
+    };
+  }
+
+  async GetUserPaymentDetails(
+    user: IUser,
+    { id }: IParams,
+    { pagination, criteria }: { pagination: Pagination; criteria: any },
+  ) {
+    const { limit, skip } = pagination;
+    const totalRecords = await this.transactionDetails.count({
+      where: [
+        {
+          status: TransactionStatus.paid,
+          amount: LessThan(0),
+          transaction: {
+            id,
+            firstUser: {
+              id: user.id,
+            },
+            total: Not(0),
+          },
+        },
+        {
+          status: TransactionStatus.paid,
+          amount: MoreThan(0),
+          transaction: {
+            id,
+            secondUser: {
+              id: user.id,
+            },
+            total: Not(0),
+          },
+        },
+      ],
+    });
+    const payments = await this.transactionDetails.find({
+      where: [
+        {
+          status: TransactionStatus.paid,
+          amount: LessThan(0),
+          transaction: {
+            id,
+            firstUser: {
+              id: user.id,
+            },
+            total: Not(0),
+          },
+        },
+        {
+          status: TransactionStatus.paid,
+          amount: MoreThan(0),
+          transaction: {
+            id,
+            secondUser: {
+              id: user.id,
+            },
+            total: Not(0),
+          },
+        },
+      ],
+      select: {
+        id: true,
+        amount: true,
+        transaction: {
+          firstUser: {
+            id: true,
+            warehouse: {
+              name: true,
+            },
+            pharmacy: {
+              name: true,
+            },
+            supplier: {
+              name: true,
+            },
+          },
+
+          secondUser: {
+            id: true,
+            warehouse: {
+              name: true,
+            },
+            pharmacy: {
+              name: true,
+            },
+            supplier: {
+              name: true,
+            },
+          },
+        },
+      },
+      relations: {
+        transaction: {
+          firstUser: {
+            warehouse: true,
+            pharmacy: true,
+            supplier: true,
+          },
+          secondUser: {
+            warehouse: true,
+            pharmacy: true,
+            supplier: true,
+          },
+        },
+      },
+      skip,
+      take: limit,
+    });
+
+    return {
+      totalRecords,
+      data: payments.map((detail) =>
+        new GetByCriteriaToPaidDetails({ detail }).toObject(),
       ),
     };
   }

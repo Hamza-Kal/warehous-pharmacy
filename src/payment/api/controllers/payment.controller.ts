@@ -72,6 +72,48 @@ export class PaymentController {
 
   @AuthorizedApi({
     api: Api.GET,
+    url: '/me/:id',
+    role: [Role.PHARMACY, Role.SUPPLIER, Role.WAREHOUSE],
+  })
+  async getMyPaid(
+    @CurrUser() user: IUser,
+    @Query() query: Pagination,
+    @Param() param: IParams,
+  ) {
+    const { pagination, criteria } = paginationParser(query);
+    return await this.paymentService.getMyPaymentDetails(
+      user,
+      { id: +param.id },
+      {
+        pagination,
+        criteria,
+      },
+    );
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/user/:id',
+    role: [Role.PHARMACY, Role.SUPPLIER, Role.WAREHOUSE],
+  })
+  async GetUserPaid(
+    @CurrUser() user: IUser,
+    @Query() query: Pagination,
+    @Param() param: IParams,
+  ) {
+    const { pagination, criteria } = paginationParser(query);
+    return await this.paymentService.GetUserPaymentDetails(
+      user,
+      { id: +param.id },
+      {
+        pagination,
+        criteria,
+      },
+    );
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
     url: ':id',
     role: [Role.PHARMACY, Role.SUPPLIER, Role.WAREHOUSE],
   })

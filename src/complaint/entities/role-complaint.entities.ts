@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity()
@@ -26,8 +27,19 @@ export class SupplierComplaint {
   @CreateDateColumn()
   created_at: Date;
 
-  @ManyToOne(() => Supplier, (supplier) => supplier.complaints)
+  @ManyToOne(() => Supplier, (supplier) => supplier.complaints, {
+    cascade: true,
+  })
+  @JoinColumn()
   supplier: Supplier;
+
+  @ManyToOne(
+    () => Warehouse,
+    (complaintedWarehouse) => complaintedWarehouse.recievedSupplierComplaints,
+    { cascade: true },
+  )
+  @JoinColumn()
+  complaintedWarehouse: Warehouse;
 }
 
 @Entity()
@@ -46,28 +58,25 @@ export class WarehouseComplaint {
   @CreateDateColumn()
   created_at: Date;
 
-  @ManyToOne(() => Warehouse, (warehouse) => warehouse.complaints)
+  // from
+  @ManyToOne(() => Warehouse, (warehouse) => warehouse.complaints, {
+    cascade: true,
+  })
+  @JoinColumn()
   warehouse: Warehouse;
-}
 
-@Entity()
-export class InventoryComplaint {
-  @PrimaryGeneratedColumn({
-    type: 'int',
+  // to
+  @ManyToOne(() => Supplier, (supplier) => supplier.recievedComplaints, {
+    cascade: true,
   })
-  id: number;
+  @JoinColumn()
+  complaintedSupplier: Supplier;
 
-  @Column({
-    type: 'varchar',
-    length: 255,
+  // to
+  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.recievedComplaints, {
+    cascade: true,
   })
-  reason: string;
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @ManyToOne(() => Inventory, (inventory) => inventory.complaints)
-  inventory: Inventory;
+  complaintedPharmacy: Pharmacy;
 }
 
 @Entity()
@@ -86,6 +95,21 @@ export class PharmacyComplaint {
   @CreateDateColumn()
   created_at: Date;
 
-  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.complaints)
+  // from
+  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.complaints, {
+    cascade: true,
+  })
+  @JoinColumn()
   pharmacy: Pharmacy;
+
+  // to
+  @ManyToOne(
+    () => Warehouse,
+    (warehouse) => warehouse.recievedPharmacyComplaints,
+    {
+      cascade: true,
+    },
+  )
+  @JoinColumn()
+  complaintedWarehouse: Warehouse;
 }

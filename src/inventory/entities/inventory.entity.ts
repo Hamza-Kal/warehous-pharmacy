@@ -1,4 +1,3 @@
-import { InventoryComplaint } from 'src/complaint/entities/role-complaint.entities';
 import { InventoryMedicine } from 'src/medicine/entities/medicine-role.entities';
 import { DistributionPharmacyOrder } from 'src/order/entities/order.entities';
 import { InventoryReportMedicine } from 'src/report medicine/entities/report-medicine.entities';
@@ -76,9 +75,4 @@ export class Inventory {
     (distribution) => distribution.inventory,
   )
   distribution: DistributionPharmacyOrder[];
-
-  // *********************** Complaints ******************
-
-  @OneToMany(() => InventoryComplaint, (complaint) => complaint.inventory)
-  complaints: InventoryComplaint[];
 }

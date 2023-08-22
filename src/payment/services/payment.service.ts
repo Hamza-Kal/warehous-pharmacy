@@ -93,6 +93,17 @@ export class PaymentService {
   }
 
   //debt and payment
+  async getStatistics(user: IUser) {
+    const paid = await this.transactionRepository
+      .createQueryBuilder('transaction')
+      .leftJoinAndSelect('transaction.firstUser', 'user')
+      .where('user.id = :id', { id: user.id })
+      .select(['transaction.id'])
+      // .groupBy('transaction.firstUser')
+      .getMany();
+
+    return paid;
+  }
 
   async getDept(actor: IUser, userId: number | User) {
     let firstId: User | number = actor.id;

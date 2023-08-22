@@ -93,6 +93,15 @@ export class PaymentController {
 
   @AuthorizedApi({
     api: Api.GET,
+    url: '/statistics',
+    role: [Role.PHARMACY, Role.SUPPLIER, Role.WAREHOUSE],
+  })
+  async statistics(@CurrUser() user: IUser) {
+    return await this.paymentService.getStatistics(user);
+  }
+
+  @AuthorizedApi({
+    api: Api.GET,
     url: '/user/:id',
     role: [Role.PHARMACY, Role.SUPPLIER, Role.WAREHOUSE],
   })

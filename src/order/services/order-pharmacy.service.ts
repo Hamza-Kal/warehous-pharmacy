@@ -267,6 +267,7 @@ export class PharmacyOrderService {
         pharmacy: {
           id: pharmacyId as number,
         },
+        isPublic: false,
         ...criteria,
       },
     });

@@ -11,6 +11,7 @@ import { query } from 'express';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { paginationParser } from 'src/shared/pagination/pagination';
 import { IParams } from 'src/shared/interface/params.interface';
+import { FindAllOrdersQueryDto } from '../dto/query/find-all-orders.dto';
 
 @AuthenticatedController({
   controller: '/order/warehouse',
@@ -65,7 +66,10 @@ export class OrderWarehouseController {
     url: 'pharmacies',
     role: [Role.WAREHOUSE],
   })
-  async findAllOutComing(@Query() query: Pagination, @CurrUser() user: IUser) {
+  async findAllOutComing(
+    @Query() query: FindAllOrdersQueryDto,
+    @CurrUser() user: IUser,
+  ) {
     const { pagination, criteria } = paginationParser(query);
     return await this.orderService.findAllOutcoming(
       { pagination, criteria },
@@ -100,7 +104,10 @@ export class OrderWarehouseController {
     url: '',
     role: [Role.WAREHOUSE],
   })
-  async findAllIncoming(@Query() query: Pagination, @CurrUser() user: IUser) {
+  async findAllIncoming(
+    @Query() query: FindAllOrdersQueryDto,
+    @CurrUser() user: IUser,
+  ) {
     const { pagination, criteria } = paginationParser(query);
     return await this.orderService.findAllIncoming(
       { pagination, criteria },

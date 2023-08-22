@@ -3,6 +3,9 @@ import { ComplaintAdminService } from '../services/complaint.admin.service';
 import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
 import { Api } from 'src/shared/enums/API';
 import { Role } from 'src/shared/enums/roles';
+import { Body, Param } from '@nestjs/common';
+import { IParams } from 'src/shared/interface/params.interface';
+import { DeleteComplaintDto } from './dtos/delete-complaint.dto';
 
 @AuthenticatedController({
   controller: 'complaint/admin',
@@ -44,5 +47,17 @@ export class ComplaintAdminController {
   })
   async getPharmaciesComplaints() {
     return this.complaintAdminService.getAllPharmaciesComplaints();
+  }
+
+  @AuthorizedApi({
+    api: Api.DELETE,
+    url: 'delete-complaint/:id',
+    role: [Role.ADMIN],
+  })
+  async deleteComplaint(
+    @Param() params: IParams,
+    @Body() body: DeleteComplaintDto,
+  ) {
+    return this.complaintAdminService.deleteComplaint(+params.id, body);
   }
 }

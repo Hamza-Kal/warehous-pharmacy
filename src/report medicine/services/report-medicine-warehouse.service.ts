@@ -26,6 +26,8 @@ import { GetByCriteriaReportMedicine } from '../api/dto/response/get-warehouse-r
 import { GetByCriteriaPharmacyReportMedicine } from '../api/dto/response/get-by-criteria-pharmacy-report-order.dto';
 import { GetByCriteriaPharmacyReportMedicineWarehouse } from '../api/dto/response/get-all-warehouse-pharmacy-report-medicine.dto';
 import { PaymentService } from 'src/payment/services/payment.service';
+import { ReturnOrderStatus } from 'src/return order/entities/returnOrder.entities';
+import { filter } from 'rxjs';
 
 @Injectable()
 export class WarehouseReportMedicineService {
@@ -41,6 +43,19 @@ export class WarehouseReportMedicineService {
     private deliverService: DeliverService,
     private paymentService: PaymentService,
   ) {}
+
+  private getCriteria(criteria: { status?: ReportMedicineStatus }): any {
+    let filteringCriteria: {
+      status?: ReportMedicineStatus;
+    } = {};
+    if (criteria.status) {
+      filteringCriteria = {
+        ...filteringCriteria,
+        status: criteria.status,
+      };
+    }
+    return filteringCriteria;
+  }
 
   async acceptReportOrder({ id }: IParams, user: IUser) {
     const reportOrder = await this.inventoryReportOrderRepository.findOne({
@@ -368,69 +383,67 @@ export class WarehouseReportMedicineService {
     };
   }
   async findAllPharmacy(
-    { criteria, pagination }: { criteria: any; pagination: Pagination },
+    {
+      criteria,
+      pagination,
+    }: {
+      criteria?: {
+        status?: ReportMedicineStatus;
+      };
+      pagination: Pagination;
+    },
     user: IUser,
   ) {
     const { skip, limit } = pagination;
-    const totalRecords = await this.pharmacyReportOrderRepository.count({
-      where: {
-        ...criteria,
 
-        order: {
-          warehouse: {
-            id: user.warehouseId as number,
-          },
-        },
-      },
-    });
+    const filteringCriteria = this.getCriteria(criteria);
 
-    const reports = await this.pharmacyReportOrderRepository.find({
-      where: {
-        ...criteria,
-
-        order: {
-          warehouse: {
-            id: user.warehouseId as number,
-          },
-        },
-      },
-      select: {
-        id: true,
-        reason: true,
-        created_at: true,
-        status: true,
-        pharmacy: {
-          name: true,
-          location: true,
-          phoneNumber: true,
-          user: {
-            email: true,
-          },
-        },
-        medicineDetails: {
-          id: true,
-          medicine: {
-            name: true,
-            image: {
-              url: true,
+    const [reports, totalRecords] =
+      await this.pharmacyReportOrderRepository.findAndCount({
+        where: {
+          ...filteringCriteria,
+          order: {
+            warehouse: {
+              id: user.warehouseId as number,
             },
           },
         },
-      },
-      relations: {
-        pharmacy: {
-          user: true,
-        },
-        medicineDetails: {
-          medicine: {
-            image: true,
+        select: {
+          id: true,
+          reason: true,
+          created_at: true,
+          status: true,
+          pharmacy: {
+            name: true,
+            location: true,
+            phoneNumber: true,
+            user: {
+              email: true,
+            },
+          },
+          medicineDetails: {
+            id: true,
+            medicine: {
+              name: true,
+              image: {
+                url: true,
+              },
+            },
           },
         },
-      },
-      skip,
-      take: limit,
-    });
-
+        relations: {
+          pharmacy: {
+            user: true,
+          },
+          medicineDetails: {
+            medicine: {
+              image: true,
+            },
+          },
+        },
+        skip,
+        take: limit,
+      });
     return {
       totalRecords,
       data: reports.map((report) =>

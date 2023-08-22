@@ -18,6 +18,14 @@ export class ComplaintError {
     message: 'Pharmacy not found',
   };
 
+  private notFoundComplaintError = {
+    code: errorsCode.notFoundComplaint,
+  };
+
+  notFoundComplaint() {
+    return this.notFoundComplaintError;
+  }
+
   notFoundSupplier() {
     return this.notFoundSupplierError;
   }

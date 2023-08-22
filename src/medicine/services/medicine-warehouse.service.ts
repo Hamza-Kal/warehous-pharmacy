@@ -751,7 +751,6 @@ export class WarehouseMedicineService {
     }
 
     for (const medicine of toBeMovedMedicine) {
-      console.log(medicine);
       const deliverdMedicine = await this.deliverService.deliverMedicine(
         RepositoryEnum.InventoryMedicine,
         to,

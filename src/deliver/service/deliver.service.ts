@@ -308,8 +308,6 @@ export class DeliverService {
       },
     });
 
-    console.log('medicine', medicienDetailsRow);
-
     if (medicienDetailsRow.quantity < quantity) {
       throw new HttpException(
         this.medicineError.notEnoughMedicine(),

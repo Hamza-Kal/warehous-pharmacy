@@ -31,7 +31,7 @@ export class WarehouseWebService {
   //     where: { warehouseId: id },
   //     relations: ['inventoy'],
   //   });
-  //   console.log(inventories);
+
   // }
 
   async createWarehouse(body: CreateWarehouseDto, currUser: IUser) {

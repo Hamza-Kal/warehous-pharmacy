@@ -9,6 +9,7 @@ import {
   DistributionPharmacyOrder,
   OrderStatus,
   PharmacyOrder,
+  PharmacyOrderDetails,
   WarehouseOrder,
   WarehouseOrderDetails,
 } from '../entities/order.entities';
@@ -48,6 +49,8 @@ export class WarehouseOrderService {
 
     @InjectRepository(WarehouseOrderDetails)
     private warehouseOrderDetailsRepository: Repository<WarehouseOrderDetails>,
+    @InjectRepository(PharmacyOrderDetails)
+    private pharmacyOrderDetailsRepository: Repository<PharmacyOrderDetails>,
     @InjectRepository(DistributionPharmacyOrder)
     private pharmacyDistributionRepository: Repository<DistributionPharmacyOrder>,
     private supplierService: SupplierService,
@@ -277,6 +280,212 @@ export class WarehouseOrderService {
         },
       );
     }
+    return;
+  }
+
+  async acceptFastOrder({ id }: IParams, user: IUser) {
+    const orders = await this.pharmacyOrderRepository.find({
+      where: {
+        isPublic: true,
+        status: OrderStatus.Pending,
+        id,
+      },
+      select: {
+        details: {
+          id: true,
+          medicine: {
+            id: true,
+          },
+          quantity: true,
+        },
+      },
+      relations: {
+        details: {
+          medicine: true,
+        },
+      },
+    });
+
+    if (!orders.length) {
+      throw new HttpException(
+        this.orderError.notFoundOrder(),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const map = new Map<number, number>();
+    for (const { quantity, medicine } of orders[0].details) {
+      if (!map.has(medicine.id)) {
+        map.set(medicine.id, quantity);
+        continue;
+      }
+      const medicineQuantity = map.get(medicine.id);
+      map.set(medicine.id, quantity + medicineQuantity);
+    }
+
+    /**
+     * {
+     *    key
+     *    medicineId,
+     *    value
+     *    [
+     *      {
+     *          inventoryId,
+     *          batchId,
+     *          quantity,
+     *      }
+     *    ]
+     * }
+     */
+    const medicines = new Map<
+      number,
+      {
+        inventoryId: number | Inventory;
+        batchId: number | MedicineDetails;
+        quantity: number;
+      }[]
+    >();
+    //? get all the medicines for the inventories that this warehouse has ordered by expireDate
+    for (const { quantity, medicine } of orders[0].details) {
+      medicines.set(medicine.id, []);
+      const inventoriesMedicines =
+        await this.medicineService.getInventoriesMedicines(
+          user.warehouseId as number,
+          medicine.id,
+        );
+
+      let wholeQuantity = quantity;
+
+      for (const { medicineDetails, inventory } of inventoriesMedicines) {
+        for (const details of medicineDetails) {
+          if (!wholeQuantity) break;
+          const batchQuantity = Math.min(details.quantity, wholeQuantity);
+          wholeQuantity -= batchQuantity;
+
+          const medicineKey = medicines.get(medicine.id);
+          medicineKey.push({
+            inventoryId: inventory.id,
+            batchId: details.medicineDetails.id,
+            quantity: batchQuantity,
+          });
+
+          medicines.set(medicine.id, medicineKey);
+        }
+      }
+
+      if (wholeQuantity)
+        throw new HttpException(
+          this.orderError.notEnoughMedicine(),
+          HttpStatus.BAD_REQUEST,
+        );
+    }
+
+    for (const medicine of medicines) {
+      const medicineId = medicine[0];
+      const inventoriesMedicines = medicine[1];
+      for (const inventoryMedicine of inventoriesMedicines) {
+        await this.deliverService.removeMedicine(
+          RepositoryEnum.WarehouseMedicine,
+          user.warehouseId as number,
+          {
+            medicineId,
+            quantity: inventoryMedicine.quantity,
+          },
+        );
+        const medicine = await this.deliverService.removeMedicine(
+          RepositoryEnum.InventoryMedicine,
+          inventoryMedicine.inventoryId as number,
+          {
+            medicineId,
+            quantity: inventoryMedicine.quantity,
+          },
+        );
+
+        await this.deliverService.removeMedicineDetails(
+          RepositoryEnum.InventoryMedicineDetails,
+          {
+            medicineId: medicine.id,
+            quantity: inventoryMedicine.quantity,
+            medicineDetails: inventoryMedicine.batchId as number,
+          },
+        );
+      }
+    }
+    //remove the medicines from the supplier medicines table
+
+    // move the medicines to the pending table
+    for (const medicine of medicines) {
+      for (const distribution of medicine[1]) {
+        const pharmacyDistribution = this.pharmacyDistributionRepository.create(
+          {
+            order: orders[0],
+            quantity: distribution.quantity,
+            medicineDetails: distribution.batchId as MedicineDetails,
+            inventory: distribution.inventoryId as Inventory,
+          },
+        );
+
+        await this.pharmacyDistributionRepository.save(pharmacyDistribution);
+      }
+
+      // accept the order
+      await this.pharmacyOrderRepository.update(
+        {
+          id,
+        },
+        {
+          status: OrderStatus.Accepted,
+        },
+      );
+    }
+
+    const order = await this.pharmacyOrderRepository.findOne({
+      where: {
+        id,
+      },
+      select: {
+        details: {
+          id: true,
+          quantity: true,
+          medicine: {
+            id: true,
+          },
+        },
+      },
+      relations: {
+        details: {
+          medicine: true,
+        },
+      },
+    });
+
+    let totalPrice = 0;
+    for (const details of order.details) {
+      const detailsId = details.id;
+      const warehouseMedicine =
+        await this.medicineService.findWarehouseMedicineByMedicine(
+          details.medicine.id,
+        );
+
+      totalPrice += details.quantity * warehouseMedicine.price;
+      await this.pharmacyOrderDetailsRepository.update(
+        {
+          id: detailsId,
+        },
+        {
+          price: warehouseMedicine.price,
+        },
+      );
+    }
+    await this.pharmacyOrderRepository.update(
+      {
+        id,
+      },
+      {
+        warehouse: user.warehouseId as Warehouse,
+        totalPrice,
+      },
+    );
     return;
   }
 
@@ -613,6 +822,70 @@ export class WarehouseOrderService {
     };
   }
 
+  async findOneFast({ id }: IParams, user: IUser) {
+    // TODO: do the query using query builder
+    const order = await this.pharmacyOrderRepository.findOne({
+      where: [
+        {
+          id,
+          isPublic: true,
+          status: OrderStatus.Pending,
+        },
+        {
+          id,
+          isPublic: true,
+          warehouse: {
+            id: user.warehouseId as number,
+          },
+        },
+      ],
+      select: {
+        id: true,
+        status: true,
+        pharmacy: {
+          id: true,
+          name: true,
+          phoneNumber: true,
+          location: true,
+          user: {
+            email: true,
+          },
+        },
+        details: {
+          quantity: true,
+          price: true,
+          medicine: {
+            name: true,
+            image: {
+              id: true,
+              url: true,
+            },
+          },
+        },
+      },
+      relations: {
+        pharmacy: {
+          user: true,
+        },
+        details: {
+          medicine: {
+            image: true,
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      throw new HttpException(
+        this.orderError.notFoundOrder(),
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return {
+      data: new GetByIdWarehouseOutcomingOrder({ order }).toObject(),
+    };
+  }
+
   async findAllIncoming(
     {
       pagination,
@@ -682,6 +955,56 @@ export class WarehouseOrderService {
           warehouse: {
             id: warehouseId as number,
           },
+        },
+        relations: {
+          pharmacy: true,
+        },
+        select: {
+          id: true,
+          status: true,
+          created_at: true,
+          pharmacy: {
+            name: true,
+          },
+          totalPrice: true,
+        },
+        skip,
+        take: limit,
+      });
+    return {
+      totalRecords,
+      data: orders.map((order) =>
+        new GetAllOutcomingWarehouseOrder({ order }).toObject(),
+      ),
+    };
+  }
+  async findAllFastOrders(
+    {
+      pagination,
+      criteria,
+    }: {
+      pagination: Pagination;
+      criteria?: {
+        status?: OrderStatus;
+      };
+    },
+    user: IUser,
+  ) {
+    const { skip, limit } = pagination;
+    const { warehouseId } = user;
+    let query = {};
+
+    query['isPublic'] = true;
+    query['status'] = criteria.status;
+    if (criteria.status !== OrderStatus.Pending) {
+      query['warehouse'] = warehouseId;
+    }
+
+    console.log(query);
+    const [orders, totalRecords] =
+      await this.pharmacyOrderRepository.findAndCount({
+        where: {
+          ...query,
         },
         relations: {
           pharmacy: true,

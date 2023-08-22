@@ -9,7 +9,10 @@ import {
   PharmacyOrder,
   PharmacyOrderDetails,
 } from '../entities/order.entities';
-import { CreatePharmacyOrderDto } from '../api/dto/create-warehouse-order.dto';
+import {
+  CreateFastOrder,
+  CreatePharmacyOrderDto,
+} from '../api/dto/create-warehouse-order.dto';
 import { MedicineService } from 'src/medicine/services/medicine.service';
 import { Warehouse } from 'src/warehouse/entities/warehouse.entity';
 import { Medicine } from 'src/medicine/entities/medicine.entities';
@@ -78,6 +81,48 @@ export class PharmacyOrderService {
       const pharmacyOrderDetails = new PharmacyOrderDetails();
       pharmacyOrderDetails.medicine = detail.medicine as Medicine;
       pharmacyOrderDetails.price = detail.price;
+      pharmacyOrderDetails.quantity = detail.quantity;
+      pharmacyOrderDetails.pharmacyOrder = pharmacyOrder;
+      await this.pharmacyOrderDetailsRepository.save(pharmacyOrderDetails);
+    }
+
+    // returning the order id
+    return { data: { id: pharmacyOrder.id } };
+  }
+
+  async createFastOrder(body: CreateFastOrder, currUser: IUser) {
+    // brute force
+    const { medicineOrder } = body;
+    const medicineIds = body.medicineOrder.map(
+      ({ medicineId }) => medicineId as number,
+    );
+    // getting the medicines with the given ids and with this supplier
+    const medicines = await this.medicineService.checkMedicines(medicineIds);
+    const details: {
+      price: number;
+      quantity: number;
+      medicine: Medicine | number;
+    }[] = [];
+
+    for (let i = 0; i < medicines.length; i++) {
+      details.push({
+        price: medicines[i].price,
+        quantity: medicineOrder[i].quantity,
+        medicine: medicines[i].medicine.id,
+      });
+    }
+
+    // creating the order
+    const pharmacyOrder = new PharmacyOrder();
+    pharmacyOrder.pharmacy = currUser.pharmacyId as Pharmacy;
+    pharmacyOrder.isPublic = true;
+
+    await this.pharmacyOrderRepository.save(pharmacyOrder);
+
+    // creating the order details
+    for (const detail of details) {
+      const pharmacyOrderDetails = new PharmacyOrderDetails();
+      pharmacyOrderDetails.medicine = detail.medicine as Medicine;
       pharmacyOrderDetails.quantity = detail.quantity;
       pharmacyOrderDetails.pharmacyOrder = pharmacyOrder;
       await this.pharmacyOrderDetailsRepository.save(pharmacyOrderDetails);
@@ -216,7 +261,7 @@ export class PharmacyOrderService {
   ) {
     const { skip, limit } = pagination;
     const { pharmacyId } = user;
-    console.log(criteria);
+
     const totalRecords = await this.pharmacyOrderRepository.count({
       where: {
         pharmacy: {

@@ -248,6 +248,53 @@ export class MedicineService {
     return medicines;
   }
 
+  async checkMedicines(medicineIds: number[]) {
+    const queries = [];
+
+    // counting how many medicines fullfill this condition
+    // here supplier id is being searched to make sure that the medicines only come from one source
+    const count = await this.warehouseMedicineRepository.count({
+      where: {
+        id: In(medicineIds),
+      },
+    });
+
+    // searching for the medicines in medicines table
+    for (const medicineId of medicineIds) {
+      queries.push(
+        this.warehouseMedicineRepository.findOne({
+          where: {
+            id: medicineId,
+          },
+          relations: {
+            medicine: {
+              image: true,
+            },
+          },
+          select: {
+            id: true,
+            price: true,
+            medicine: {
+              id: true,
+            },
+          },
+        }),
+      );
+    }
+
+    const medicines = await Promise.all(queries);
+
+    // making sure the mediecines we found are match with the one we are given
+    if (count - medicineIds.length) {
+      throw new HttpException(
+        this.medicineError.notFoundMedicine(),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return medicines;
+  }
+
   async findWarehouseMedicineByMedicine(id: number) {
     return await this.warehouseMedicineRepository.findOne({
       where: {

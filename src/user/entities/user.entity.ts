@@ -96,9 +96,7 @@ export class User {
   }
 
   @AfterInsert()
-  logAfterInsert() {
-    console.log('user with id %d inserted', this.id);
-  }
+  logAfterInsert() {}
 
   // @BeforeUpdate()
   // async logBeforeUpdate() {
@@ -106,12 +104,8 @@ export class User {
   // }
 
   @AfterUpdate()
-  logAfterUpdate() {
-    console.log('user with id %d updated', this.id);
-  }
+  logAfterUpdate() {}
 
   @BeforeRemove()
-  logBeforeRemove() {
-    console.log('user with id %d removed', this.id);
-  }
+  logBeforeRemove() {}
 }

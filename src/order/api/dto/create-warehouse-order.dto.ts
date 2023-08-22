@@ -2,7 +2,9 @@ import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
+  IsBoolean,
   IsNumber,
+  IsOptional,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -30,6 +32,16 @@ export class CreatePharmacyOrderDto {
   @IsNumber()
   warehouseId: Warehouse | number;
 
+  //TODO need to check the medicine Id are unique in the array
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => MedicineOrderDto)
+  @ArrayNotEmpty()
+  medicineOrder: MedicineOrderDto[];
+
+  totalPrice: number;
+}
+export class CreateFastOrder {
   //TODO need to check the medicine Id are unique in the array
   @IsArray()
   @ValidateNested({ each: true })

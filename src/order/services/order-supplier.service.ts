@@ -206,7 +206,7 @@ export class SupplierOrderService {
     }[] = [];
     //! the medicine of the order must be unique
     //! i should comment this
-    //* object example is above this funcion
+    //* object example is above this function
     for (const detail of orders[0].details) {
       const { quantity, medicine, price } = detail;
       let wholeQuantity = quantity;

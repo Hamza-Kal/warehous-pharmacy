@@ -7,6 +7,7 @@ import { CurrUser } from 'src/shared/decorators/user.decorator';
 import { IUser } from 'src/shared/interface/user.interface';
 import { WarehouseOrderService } from 'src/order/services/order-warehouse.service';
 import {
+  CreateFastOrder,
   CreatePharmacyOrderDto,
   CreateWarehouseOrderDto,
 } from '../dto/create-warehouse-order.dto';
@@ -29,6 +30,15 @@ export class OrderPharmacyController {
   })
   async create(@Body() body: CreatePharmacyOrderDto, @CurrUser() user: IUser) {
     return await this.orderService.create(body, user);
+  }
+
+  @AuthorizedApi({
+    api: Api.POST,
+    url: '/fast',
+    role: [Role.PHARMACY],
+  })
+  async createFast(@Body() body: CreateFastOrder, @CurrUser() user: IUser) {
+    return await this.orderService.createFastOrder(body, user);
   }
 
   @AuthorizedApi({

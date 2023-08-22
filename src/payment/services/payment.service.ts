@@ -148,10 +148,6 @@ export class PaymentService {
   ) {
     const query = { role: criteria.role as Role };
 
-    console.log(query);
-
-    console.log(query);
-
     const { limit, skip } = pagination;
     const totalRecords = await this.transactionRepository.count({
       where: [

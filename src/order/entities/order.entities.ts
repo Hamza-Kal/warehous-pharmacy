@@ -150,9 +150,12 @@ export class PharmacyOrder {
   @CreateDateColumn()
   created_at: Date;
 
+  @Column({ type: 'boolean', default: false })
+  isPublic: boolean;
+
   @ManyToOne(() => Warehouse, (warehouse) => warehouse.pharmacyOrder)
   @JoinColumn()
-  warehouse: Warehouse;
+  warehouse?: Warehouse;
 
   @Column({
     type: 'enum',
@@ -163,8 +166,9 @@ export class PharmacyOrder {
 
   @Column({
     type: 'int',
+    default: 0,
   })
-  totalPrice: number;
+  totalPrice?: number;
 
   @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyOrder)
   @JoinColumn()
@@ -213,8 +217,9 @@ export class PharmacyOrderDetails {
 
   @Column({
     type: 'int',
+    default: 0,
   })
-  price: number;
+  price?: number;
 }
 
 @Entity()

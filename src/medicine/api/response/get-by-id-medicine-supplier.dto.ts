@@ -25,7 +25,7 @@ export class GetByIdMedicineSupplier {
     this.imageUrl = supplierMedicine.medicine?.image?.url;
     this.description = supplierMedicine.medicine.description;
     this.imageId = supplierMedicine.medicine.image?.id;
-    console.log('hrererre');
+    
     const batches: {
       id: number;
       expireDate: Date;

@@ -7,3 +7,8 @@ export class FindAllOrdersQueryDto extends Pagination {
   @IsOptional()
   status: ReturnOrderStatus;
 }
+export class FindAllFastQueryDto extends Pagination {
+  @IsEnum(ReturnOrderStatus)
+  @IsOptional()
+  status: ReturnOrderStatus;
+}

@@ -12,7 +12,7 @@ export class GetAllOutcomingWarehouseOrder {
   date: Date;
   pharmacy: string;
   status: OrderStatus;
-  totalPrice: number;
+  totalPrice?: number;
   constructor({ order }: { order: PharmacyOrder }) {
     this.id = order.id;
     this.date = order.created_at;

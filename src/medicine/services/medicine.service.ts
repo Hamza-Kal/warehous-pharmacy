@@ -56,7 +56,9 @@ export class MedicineService {
     const medicineDetails =
       await this.pharmacyMedicineDetailsRepository.findOne({
         where: {
-          id,
+          medicineDetails: {
+            id,
+          },
           medicine: {
             pharmacy: {
               id: user.pharmacyId as number,

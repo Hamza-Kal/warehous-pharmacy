@@ -16,14 +16,15 @@ export class GetByCriteriaMyPaid {
     payment: PaymentTransaction;
     userId: number;
   }) {
+    const sign = payment.firstUser.id === userId ? 1 : -1;
     this.id = payment.id;
     this.userId =
       payment.firstUser.id === userId
         ? payment.secondUser.id
         : payment.firstUser.id;
-    this.paid = payment.payment;
-    this.total = payment.total;
-    this.debt = payment.debt;
+    this.paid = payment.payment * sign;
+    this.total = payment.total * sign;
+    this.debt = payment.debt * sign;
     this.warehouse =
       userId !== payment.firstUser.id
         ? payment.firstUser.warehouse?.name

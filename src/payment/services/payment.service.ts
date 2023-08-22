@@ -21,6 +21,7 @@ import { send } from 'process';
 import { GetByCriteriaMyPaid } from '../api/dto/response/get-by-criteria.dto';
 import { IParams } from 'src/shared/interface/params.interface';
 import { GetByCriteriaToPaidDetails } from '../api/dto/response/get-all.paidTo-details.dto';
+import { PaymentRole } from '../api/dto/request/find-all.dto';
 
 @Injectable()
 export class PaymentService {
@@ -81,8 +82,6 @@ export class PaymentService {
     const paymentAmount =
       transaction.firstUser.id === user.id ? amount : amount * -1;
 
-    console.log(paymentAmount);
-
     const payment = new TransactionDetails();
     payment.amount = paymentAmount;
     payment.transaction = transaction;
@@ -139,8 +138,20 @@ export class PaymentService {
 
   async getAllPaymentAccounts(
     user: IUser,
-    { pagination, criteria }: { pagination: Pagination; criteria: any },
+    {
+      pagination,
+      criteria,
+    }: {
+      pagination: Pagination;
+      criteria: { role: PaymentRole | Role };
+    },
   ) {
+    const query = { role: criteria.role as Role };
+
+    console.log(query);
+
+    console.log(query);
+
     const { limit, skip } = pagination;
     const totalRecords = await this.transactionRepository.count({
       where: [
@@ -148,9 +159,15 @@ export class PaymentService {
           firstUser: {
             id: user.id,
           },
+          secondUser: {
+            ...query,
+          },
           total: Not(0),
         },
         {
+          firstUser: {
+            ...query,
+          },
           secondUser: {
             id: user.id,
           },
@@ -164,11 +181,17 @@ export class PaymentService {
           firstUser: {
             id: user.id,
           },
+          secondUser: {
+            ...query,
+          },
           total: Not(0),
         },
         {
           secondUser: {
             id: user.id,
+          },
+          firstUser: {
+            ...query,
           },
           total: Not(0),
         },
@@ -176,6 +199,7 @@ export class PaymentService {
       select: {
         id: true,
         debt: true,
+
         payment: true,
         total: true,
         firstUser: {
@@ -287,6 +311,7 @@ export class PaymentService {
       select: {
         id: true,
         amount: true,
+        date: true,
         transaction: {
           firstUser: {
             id: true,
@@ -400,6 +425,7 @@ export class PaymentService {
       ],
       select: {
         id: true,
+        date: true,
         amount: true,
         transaction: {
           firstUser: {
@@ -533,9 +559,6 @@ export class PaymentService {
         },
         amount: MoreThan(0),
       },
-
-      skip,
-      take: limit,
     });
 
     const details = await this.transactionDetails.find({
@@ -558,24 +581,6 @@ export class PaymentService {
     };
   }
 
-  async getPayment(actor: IUser, userId: number) {
-    const user = await this.userService.findRole(userId);
-
-    const { total, paid, debt } = await this.getTotal(actor, userId);
-
-    return {
-      data: new GetPayment({ user, total, paid, debt }),
-    };
-  }
-
-  async getTotal(actor: IUser, userId: number) {
-    const paid = await this.getPaid(actor, userId);
-    const debt = await this.getDept(actor, userId);
-    console.log(paid, debt, 'fadsfsda');
-    const total = paid - debt;
-    return { total, paid, debt };
-  }
-
   private async addDept(
     transaction: PaymentTransaction,
     amount: number,
@@ -583,6 +588,7 @@ export class PaymentService {
   ) {
     const transactionAmount =
       transaction.firstUser.id === userId ? amount : amount * -1;
+    transaction.debt += transactionAmount;
     transaction.total -= transactionAmount;
 
     await this.transactionRepository.save(transaction);

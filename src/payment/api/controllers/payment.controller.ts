@@ -1,4 +1,4 @@
-import { Body, Param, Query } from '@nestjs/common';
+import { Body, Param, Query, ValidationPipe } from '@nestjs/common';
 import { AuthenticatedController } from 'src/shared/decorators/authenticated.controller.decorator';
 import { AuthorizedApi } from 'src/shared/decorators/authorization.decorator';
 import { CurrUser } from 'src/shared/decorators/user.decorator';
@@ -11,6 +11,7 @@ import { MakePaymentDto } from '../dto/make-payment.dto';
 import { PaymentService } from 'src/payment/services/payment.service';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { paginationParser } from 'src/shared/pagination/pagination';
+import { FindAll } from '../dto/request/find-all.dto';
 
 @AuthenticatedController({ controller: 'payment' })
 export class PaymentController {
@@ -50,20 +51,19 @@ export class PaymentController {
 
   @AuthorizedApi({
     api: Api.GET,
-    url: 'total-balance/:id',
-    role: [Role.PHARMACY, Role.SUPPLIER, Role.WAREHOUSE],
-  })
-  async totalBalance(@CurrUser() user: IUser, @Param() param: IParams) {
-    return await this.paymentService.getTotal(user, +param.id as number);
-  }
-
-  @AuthorizedApi({
-    api: Api.GET,
     url: '',
     role: [Role.PHARMACY, Role.SUPPLIER, Role.WAREHOUSE],
   })
-  async getAllPayment(@CurrUser() user: IUser, @Query() query: Pagination) {
-    const { pagination, criteria } = paginationParser(query);
+  async getAllPayment(
+    @CurrUser() user: IUser,
+    @Query()
+    query: FindAll,
+  ) {
+    const { pagination, criteria } = paginationParser(query) as {
+      pagination: Pagination;
+      criteria: { role: Role };
+    };
+
     return await this.paymentService.getAllPaymentAccounts(user, {
       pagination,
       criteria,
@@ -110,14 +110,5 @@ export class PaymentController {
         criteria,
       },
     );
-  }
-
-  @AuthorizedApi({
-    api: Api.GET,
-    url: ':id',
-    role: [Role.PHARMACY, Role.SUPPLIER, Role.WAREHOUSE],
-  })
-  async getPayment(@CurrUser() user: IUser, @Param() param: IParams) {
-    return await this.paymentService.getPayment(user, +param.id as number);
   }
 }

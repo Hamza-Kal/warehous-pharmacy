@@ -97,7 +97,11 @@ export class PharmacyOrderService {
       ({ medicineId }) => medicineId as number,
     );
     // getting the medicines with the given ids and with this supplier
-    const medicines = await this.medicineService.checkMedicines(medicineIds);
+    const medicines = await this.medicineService.checkMedicines(
+      medicineIds,
+      currUser.warehouseId as number,
+    );
+
     const details: {
       price: number;
       quantity: number;
@@ -263,17 +267,19 @@ export class PharmacyOrderService {
     const { pharmacyId } = user;
 
     const totalRecords = await this.pharmacyOrderRepository.count({
-      where: {
-        pharmacy: {
-          id: pharmacyId as number,
+      where: [
+        {
+          pharmacy: {
+            id: pharmacyId as number,
+          },
+          ...criteria,
         },
-        isPublic: false,
-        ...criteria,
-      },
+      ],
     });
     const orders = await this.pharmacyOrderRepository.find({
       where: {
         ...criteria,
+
         pharmacy: {
           id: pharmacyId as number,
         },

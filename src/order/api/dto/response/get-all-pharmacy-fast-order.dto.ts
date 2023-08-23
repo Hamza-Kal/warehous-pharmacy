@@ -1,4 +1,5 @@
 import { th } from '@faker-js/faker';
+import { or } from 'sequelize';
 import { SupplierMedicineDetails } from 'src/medicine/entities/medicine-role.entities';
 import { MedicineDetails } from 'src/medicine/entities/medicine.entities';
 import {
@@ -7,31 +8,43 @@ import {
   WarehouseOrder,
 } from 'src/order/entities/order.entities';
 
-export class GetAllPharmacyOrder {
+export class GetAllFastWarehouseOrder {
   id: number;
-  orderDate: Date;
-  warehouseName: string | null;
+  date: Date;
+  pharmacy: {
+    name: string;
+    location: string;
+    phoneNumber: string;
+  };
   status: OrderStatus;
-  totalPrice: number;
+  totalPrice?: number;
   constructor({ order }: { order: PharmacyOrder }) {
     this.id = order.id;
-    this.orderDate = order.created_at;
-    this.warehouseName = order.warehouse?.name || null;
+    this.date = order.created_at;
+    this.pharmacy = {
+      name: order.pharmacy.name,
+      location: order.pharmacy.location,
+      phoneNumber: order.pharmacy.phoneNumber,
+    };
     this.status = order.status;
     this.totalPrice = order.totalPrice;
   }
 
   toObject(): {
     id: number;
-    orderDate: Date;
-    warehouseName: string | null;
+    date: Date;
+    pharmacy: {
+      name: string;
+      location: string;
+      phoneNumber: string;
+    };
     status: OrderStatus;
     totalPrice: number;
   } {
     return {
       id: this.id,
-      warehouseName: this.warehouseName,
-      orderDate: this.orderDate,
+      pharmacy: this.pharmacy,
+      date: this.date,
       status: this.status,
       totalPrice: this.totalPrice,
     };

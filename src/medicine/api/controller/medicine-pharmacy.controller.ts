@@ -45,6 +45,22 @@ export class MedicinePharmacyController {
     return await this.medicineService.findAll({ pagination, criteria }, user);
   }
 
+  // @AuthorizedApi({
+  //   api: Api.GET,
+  //   url: '/all',
+  //   role: [Role.PHARMACY],
+  // })
+  // async findAllMedicines(
+  //   @Query() query: FindAllPharmacy,
+  //   @CurrUser() user: IUser,
+  // ) {
+  //   const { pagination, criteria } = paginationParser(query);
+  //   return await this.medicineService.findAllMedicines({
+  //     pagination,
+  //     criteria,
+  //   });
+  // }
+
   @AuthorizedApi({
     api: Api.GET,
     url: '/warehouse/medicine/:id',

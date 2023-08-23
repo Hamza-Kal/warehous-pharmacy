@@ -248,14 +248,19 @@ export class MedicineService {
     return medicines;
   }
 
-  async checkMedicines(medicineIds: number[]) {
+  async checkMedicines(medicineIds: number[], warehouseId: number) {
     const queries = [];
 
     // counting how many medicines fullfill this condition
     // here supplier id is being searched to make sure that the medicines only come from one source
     const count = await this.warehouseMedicineRepository.count({
       where: {
-        id: In(medicineIds),
+        warehouse: {
+          id: warehouseId,
+        },
+        medicine: {
+          id: In(medicineIds),
+        },
       },
     });
 
@@ -264,7 +269,12 @@ export class MedicineService {
       queries.push(
         this.warehouseMedicineRepository.findOne({
           where: {
-            id: medicineId,
+            warehouse: {
+              id: warehouseId,
+            },
+            medicine: {
+              id: medicineId,
+            },
           },
           relations: {
             medicine: {
@@ -283,7 +293,7 @@ export class MedicineService {
     }
 
     const medicines = await Promise.all(queries);
-
+    console.log(medicines);
     // making sure the mediecines we found are match with the one we are given
     if (count - medicineIds.length) {
       throw new HttpException(

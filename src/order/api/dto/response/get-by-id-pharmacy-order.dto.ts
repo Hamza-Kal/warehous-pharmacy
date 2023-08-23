@@ -14,7 +14,7 @@ export class GetByIdPharmacyOrder {
     phoneNumber: string;
     location: string;
     email: string;
-  };
+  } | null;
   totalPrice: number;
   status: OrderStatus;
   medicines: {
@@ -30,12 +30,14 @@ export class GetByIdPharmacyOrder {
     this.id = order.id;
     this.orderDate = order.created_at;
     this.totalPrice = order.totalPrice;
-    this.warehouse = {
-      name: order.warehouse.name,
-      email: order.warehouse.owner.email,
-      phoneNumber: order.warehouse.phoneNumber,
-      location: order.warehouse.location,
-    };
+    this.warehouse = order.warehouse
+      ? {
+          name: order.warehouse.name,
+          email: order.warehouse.owner.email,
+          phoneNumber: order.warehouse.phoneNumber,
+          location: order.warehouse.location,
+        }
+      : null;
     const medicines: {
       name: string;
       price: number;
@@ -75,7 +77,7 @@ export class GetByIdPharmacyOrder {
       phoneNumber: string;
       location: string;
       email: string;
-    };
+    } | null;
 
     medicines: {
       name: string;

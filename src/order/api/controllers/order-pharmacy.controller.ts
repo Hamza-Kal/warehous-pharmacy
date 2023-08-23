@@ -32,14 +32,14 @@ export class OrderPharmacyController {
     return await this.orderService.create(body, user);
   }
 
-  @AuthorizedApi({
-    api: Api.POST,
-    url: '/fast',
-    role: [Role.PHARMACY],
-  })
-  async createFast(@Body() body: CreateFastOrder, @CurrUser() user: IUser) {
-    return await this.orderService.createFastOrder(body, user);
-  }
+  // @AuthorizedApi({
+  //   api: Api.POST,
+  //   url: '/fast',
+  //   role: [Role.PHARMACY],
+  // })
+  // async createFast(@Body() body: CreateFastOrder, @CurrUser() user: IUser) {
+  //   return await this.orderService.createFastOrder(body, user);
+  // }
 
   @AuthorizedApi({
     api: Api.GET,

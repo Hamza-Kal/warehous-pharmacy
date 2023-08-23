@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IUser } from 'src/shared/interface/user.interface';
-import { MedicineDetails } from '../entities/medicine.entities';
+import { Medicine, MedicineDetails } from '../entities/medicine.entities';
 import { ILike, Not, Repository, SelectQueryBuilder } from 'typeorm';
 import { MedicineError } from './medicine-error.service';
 import {
@@ -13,6 +13,7 @@ import { PharmacyGetByIdWarehouseMedicine } from '../api/dto/response/pharmacy-g
 import { PharmacyGetByCriteriaMedicine } from '../api/dto/response/pharmacy-get-by-criteria.dto';
 import { IParams } from 'src/shared/interface/params.interface';
 import { Pagination } from 'src/shared/pagination/pagination.validation';
+import { PharmacyGetByCriteriaAllMedicine } from '../api/dto/response/pharmacy-get-all-medicines.dto';
 
 @Injectable()
 export class PharmacyMedicineService {
@@ -21,6 +22,8 @@ export class PharmacyMedicineService {
     private warehouseMedicineRepository: Repository<WarehouseMedicine>,
     @InjectRepository(PharmacyMedicine)
     private pharmacyMedicineRepository: Repository<PharmacyMedicine>,
+    @InjectRepository(Medicine)
+    private medicineRepository: Repository<Medicine>,
     @InjectRepository(MedicineDetails)
     private medicineDetails: Repository<MedicineDetails>,
     private medicineError: MedicineError,
@@ -28,6 +31,23 @@ export class PharmacyMedicineService {
 
   AddCriteriaPharmacyMedicine(
     dbQuery: SelectQueryBuilder<PharmacyMedicine>,
+    queryParams: { name?: string; category?: string },
+  ) {
+    if (queryParams.name) {
+      dbQuery.andWhere('medicine.name LIKE :name', {
+        name: `%${queryParams.name}%`,
+      });
+    }
+    if (queryParams.category) {
+      dbQuery.andWhere('category.category = :category', {
+        category: queryParams.category,
+      });
+    }
+    return dbQuery;
+  }
+
+  AddCriteriaMedicine(
+    dbQuery: SelectQueryBuilder<Medicine>,
     queryParams: { name?: string; category?: string },
   ) {
     if (queryParams.name) {
@@ -131,6 +151,28 @@ export class PharmacyMedicineService {
       totalRecords: await dbQuery.getCount(),
       data: medicines.map((medicine) =>
         new PharmacyGetByCriteriaMedicine({
+          medicine,
+        }).toObject(),
+      ),
+    };
+  }
+
+  async findAllMedicines({ criteria, pagination }) {
+    const { skip, limit } = pagination;
+    const medicinesQuery = this.medicineRepository
+      .createQueryBuilder('medicine')
+      .leftJoinAndSelect('medicine.category', 'category')
+      .leftJoinAndSelect('medicine.image', 'image')
+      .select(['medicine.id', 'medicine.name', 'image.url'])
+      .take(limit)
+      .skip(skip);
+    const dbQuery = this.AddCriteriaMedicine(medicinesQuery, criteria);
+    const medicines = await dbQuery.getMany();
+
+    return {
+      totalRecords: await dbQuery.getCount(),
+      data: medicines.map((medicine) =>
+        new PharmacyGetByCriteriaAllMedicine({
           medicine,
         }).toObject(),
       ),

@@ -29,6 +29,8 @@ import {
 import {
   DistributionPharmacyOrder,
   DistributionWarehouseOrder,
+  PharmacyFastOrder,
+  PharmacyFastOrderDetails,
   PharmacyOrder,
   PharmacyOrderDetails,
   WarehouseOrder,
@@ -110,4 +112,6 @@ export const entities = [
   SupplierComplaint,
   WarehouseComplaint,
   PharmacyComplaint,
+  PharmacyFastOrder,
+  PharmacyFastOrderDetails,
 ];

@@ -9,7 +9,10 @@ import {
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { PharmacyMedicine } from 'src/medicine/entities/medicine-role.entities';
-import { PharmacyOrder } from 'src/order/entities/order.entities';
+import {
+  PharmacyFastOrder,
+  PharmacyOrder,
+} from 'src/order/entities/order.entities';
 import { PharmacyReportMedicine } from 'src/report medicine/entities/report-medicine.entities';
 import {
   PharmacyComplaint,
@@ -59,6 +62,9 @@ export class Pharmacy {
 
   @OneToMany(() => PharmacyOrder, (pharmacyOrder) => pharmacyOrder.pharmacy)
   pharmacyOrder: PharmacyOrder[];
+
+  @OneToMany(() => PharmacyFastOrder, (pharmacyOrder) => pharmacyOrder.pharmacy)
+  pharmacyFastOrder: PharmacyOrder[];
 
   @OneToMany(
     () => PharmacyReportMedicine,

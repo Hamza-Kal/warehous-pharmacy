@@ -4,6 +4,8 @@ import { WarehouseOrderService } from './services/order-warehouse.service';
 import {
   DistributionPharmacyOrder,
   DistributionWarehouseOrder,
+  PharmacyFastOrder,
+  PharmacyFastOrderDetails,
   PharmacyOrder,
   PharmacyOrderDetails,
   WarehouseOrder,
@@ -30,6 +32,8 @@ import { PaymentModule } from 'src/payment/payment.module';
       PharmacyOrder,
       PharmacyOrderDetails,
       DistributionPharmacyOrder,
+      PharmacyFastOrder,
+      PharmacyFastOrderDetails,
     ]),
     MedicineModule,
     SupplierModule,

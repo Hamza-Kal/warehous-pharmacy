@@ -23,6 +23,16 @@ import { GetOrder } from '../dto/get-order-request-by-criteria.dto';
 })
 export class OrderPharmacyController {
   constructor(private orderService: PharmacyOrderService) {}
+
+  @AuthorizedApi({
+    api: Api.POST,
+    url: '/fast',
+    role: [Role.PHARMACY],
+  })
+  async createFast(@Body() body: CreateFastOrder, @CurrUser() user: IUser) {
+    return await this.orderService.createFastOrder(body, user);
+  }
+  //******************** create Order ********************/
   @AuthorizedApi({
     api: Api.POST,
     url: '',
@@ -32,14 +42,9 @@ export class OrderPharmacyController {
     return await this.orderService.create(body, user);
   }
 
-  // @AuthorizedApi({
-  //   api: Api.POST,
-  //   url: '/fast',
-  //   role: [Role.PHARMACY],
-  // })
-  // async createFast(@Body() body: CreateFastOrder, @CurrUser() user: IUser) {
-  //   return await this.orderService.createFastOrder(body, user);
-  // }
+  //******************** create fast Order ********************/
+
+  //******************** find Order Details مالو طعمة ********************/
 
   @AuthorizedApi({
     api: Api.GET,
@@ -49,6 +54,20 @@ export class OrderPharmacyController {
   async findDetails(@Param() param: IParams, @CurrUser() user: IUser) {
     return await this.orderService.findDetails({ id: +param.id }, user);
   }
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/fast',
+    role: [Role.PHARMACY],
+  })
+  async findAllFast(@Query() query: GetOrder, @CurrUser() user: IUser) {
+    const { pagination, criteria } = paginationParser(query);
+    return await this.orderService.findAllFastOrders(
+      { pagination, criteria },
+      user,
+    );
+  }
+
+  //******************** Find Order Details ********************/
 
   @AuthorizedApi({
     api: Api.GET,
@@ -58,6 +77,8 @@ export class OrderPharmacyController {
   async findOne(@Param() param: IParams, @CurrUser() user: IUser) {
     return await this.orderService.findOne({ id: +param.id }, user);
   }
+
+  //******************** Find All My Orders ********************/
 
   @AuthorizedApi({
     api: Api.GET,

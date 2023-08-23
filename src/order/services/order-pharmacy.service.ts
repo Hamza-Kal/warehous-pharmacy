@@ -6,6 +6,8 @@ import { SupplierService } from 'src/supplier/service/supplier.service';
 import {
   DistributionPharmacyOrder,
   OrderStatus,
+  PharmacyFastOrder,
+  PharmacyFastOrderDetails,
   PharmacyOrder,
   PharmacyOrderDetails,
 } from '../entities/order.entities';
@@ -24,15 +26,20 @@ import { GetByIdPharmacyOrder } from '../api/dto/response/get-by-id-pharmacy-ord
 import { Pagination } from 'src/shared/pagination/pagination.validation';
 import { GetAllWarehouseOrder } from '../api/dto/response/get-warehouse-order.dto';
 import { GetAllPharmacyOrder } from '../api/dto/response/get-all-pharmacy-order.dto';
+import { GetAllFastPharmacyOrder } from '../api/dto/response/get-all-pharmacy-fast-order-pharmacy.dto';
 
 @Injectable()
 export class PharmacyOrderService {
   constructor(
     @InjectRepository(PharmacyOrder)
     private pharmacyOrderRepository: Repository<PharmacyOrder>,
+    @InjectRepository(PharmacyFastOrder)
+    private pharmacyFastOrderRepository: Repository<PharmacyFastOrder>,
 
     @InjectRepository(PharmacyOrderDetails)
     private pharmacyOrderDetailsRepository: Repository<PharmacyOrderDetails>,
+    @InjectRepository(PharmacyFastOrderDetails)
+    private pharmacyFastOrderDetailsRepository: Repository<PharmacyFastOrderDetails>,
     @InjectRepository(DistributionPharmacyOrder)
     private pharmacyDistributionRepository: Repository<DistributionPharmacyOrder>,
     private supplierService: SupplierService,
@@ -90,6 +97,61 @@ export class PharmacyOrderService {
     return { data: { id: pharmacyOrder.id } };
   }
 
+  async findAllFastOrders(
+    {
+      pagination,
+      criteria,
+    }: {
+      pagination: Pagination;
+      criteria?: {
+        status?: OrderStatus;
+      };
+    },
+    user: IUser,
+  ) {
+    const { skip, limit } = pagination;
+    const { warehouseId } = user;
+
+    const [orders, totalRecords] =
+      await this.pharmacyFastOrderRepository.findAndCount({
+        where: {
+          pharmacy: {
+            id: user.pharmacyId as number,
+          },
+        },
+        relations: {
+          pharmacy: true,
+          details: {
+            medicine: {
+              image: true,
+            },
+          },
+        },
+        select: {
+          id: true,
+          created_at: true,
+          details: {
+            id: true,
+            medicine: {
+              name: true,
+              image: {
+                url: true,
+              },
+            },
+            quantity: true,
+          },
+        },
+        skip,
+        take: limit,
+      });
+    return {
+      totalRecords,
+      data: orders.map((order) =>
+        new GetAllFastPharmacyOrder({ order }).toObject(),
+      ),
+    };
+  }
+
   async createFastOrder(body: CreateFastOrder, currUser: IUser) {
     // brute force
     const { medicineOrder } = body;
@@ -97,39 +159,36 @@ export class PharmacyOrderService {
       ({ medicineId }) => medicineId as number,
     );
     // getting the medicines with the given ids and with this supplier
-    const medicines = await this.medicineService.checkMedicines(
-      medicineIds,
-      currUser.warehouseId as number,
-    );
+    const medicines = await this.medicineService.checkMedicines(medicineIds);
 
     const details: {
-      price: number;
       quantity: number;
       medicine: Medicine | number;
     }[] = [];
 
     for (let i = 0; i < medicines.length; i++) {
       details.push({
-        price: medicines[i].price,
         quantity: medicineOrder[i].quantity,
-        medicine: medicines[i].medicine.id,
+        medicine: medicines[i].id,
       });
     }
 
-    // creating the order
-    const pharmacyOrder = new PharmacyOrder();
-    pharmacyOrder.pharmacy = currUser.pharmacyId as Pharmacy;
-    pharmacyOrder.isPublic = true;
+    console.log('fasfdsaf', details);
 
-    await this.pharmacyOrderRepository.save(pharmacyOrder);
+    // creating the order
+    const pharmacyOrder = new PharmacyFastOrder();
+    pharmacyOrder.pharmacy = currUser.pharmacyId as Pharmacy;
+    // pharmacyOrder.isPublic = true;
+    console.log(pharmacyOrder);
+    await this.pharmacyFastOrderRepository.save(pharmacyOrder);
 
     // creating the order details
     for (const detail of details) {
-      const pharmacyOrderDetails = new PharmacyOrderDetails();
+      const pharmacyOrderDetails = new PharmacyFastOrderDetails();
       pharmacyOrderDetails.medicine = detail.medicine as Medicine;
       pharmacyOrderDetails.quantity = detail.quantity;
       pharmacyOrderDetails.pharmacyOrder = pharmacyOrder;
-      await this.pharmacyOrderDetailsRepository.save(pharmacyOrderDetails);
+      await this.pharmacyFastOrderDetailsRepository.save(pharmacyOrderDetails);
     }
 
     // returning the order id

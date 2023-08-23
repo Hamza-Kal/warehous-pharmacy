@@ -38,14 +38,14 @@ export class OrderWarehouseController {
     return await this.orderService.acceptOrder({ id: +param.id }, user);
   }
 
-  // @AuthorizedApi({
-  //   api: Api.PATCH,
-  //   url: '/accept-fast/:id',
-  //   role: [Role.WAREHOUSE],
-  // })
-  // async acceptFast(@CurrUser() user: IUser, @Param() param: IParams) {
-  //   return await this.orderService.acceptFastOrder({ id: +param.id }, user);
-  // }
+  @AuthorizedApi({
+    api: Api.PATCH,
+    url: '/accept-fast/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async acceptFast(@CurrUser() user: IUser, @Param() param: IParams) {
+    return await this.orderService.acceptFastOrder({ id: +param.id }, user);
+  }
 
   //**********************  DeliverOrder  **********************/
 
@@ -86,30 +86,31 @@ export class OrderWarehouseController {
     );
   }
 
-  // @AuthorizedApi({
-  //   api: Api.GET,
-  //   url: 'pharmacies/fast',
-  //   role: [Role.WAREHOUSE],
-  // })
-  // async findAllFastOutComing(
-  //   @Query() query: Pagination,
-  //   @CurrUser() user: IUser,
-  // ) {
-  //   const { pagination, criteria } = paginationParser(query);
-  //   return await this.orderService.findAllFastOrders(
-  //     { pagination, criteria },
-  //     user,
-  //   );
-  // }
+  @AuthorizedApi({
+    api: Api.GET,
+    url: 'pharmacies/fast',
+    role: [Role.WAREHOUSE],
+  })
+  async findAllFastOutComing(
+    @Query() query: Pagination,
+    @CurrUser() user: IUser,
+  ) {
+    const { pagination, criteria } = paginationParser(query);
+    return await this.orderService.findAllFastOrders(
+      { pagination, criteria },
+      user,
+    );
+  }
 
-  // @AuthorizedApi({
-  //   api: Api.GET,
-  //   url: '/pharmacies/fast/:id',
-  //   role: [Role.WAREHOUSE],
-  // })
-  // async findOneFast(@Param() param: IParams, @CurrUser() user: IUser) {
-  //   return await this.orderService.findOneFast({ id: +param.id }, user);
-  // }
+  @AuthorizedApi({
+    api: Api.GET,
+    url: '/pharmacies/fast/:id',
+    role: [Role.WAREHOUSE],
+  })
+  async findOneFast(@Param() param: IParams, @CurrUser() user: IUser) {
+    return await this.orderService.findOneFast({ id: +param.id }, user);
+  }
+
   @AuthorizedApi({
     api: Api.GET,
     url: '/pharmacies/:id',

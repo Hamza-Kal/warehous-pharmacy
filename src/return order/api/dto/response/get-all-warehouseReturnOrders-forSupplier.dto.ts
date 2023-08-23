@@ -6,7 +6,8 @@ import {
 export class GetWarehouseReturnOrdersForSupplierDto {
   id: number;
   returnOrderDate: Date;
-  warehouseName: string;
+  warehouse: { name: string };
+  // warehouseName: string;
   status: ReturnOrderStatus;
   reason: string;
   totalPrice: number;
@@ -19,7 +20,7 @@ export class GetWarehouseReturnOrdersForSupplierDto {
   constructor({ returnOrder }: { returnOrder: WarehouseReturnOrder }) {
     this.id = returnOrder.id;
     this.returnOrderDate = returnOrder.created_at;
-    this.warehouseName = returnOrder.medicine.name;
+    this.warehouse = returnOrder.warehouse;
     this.status = returnOrder.status;
     this.totalPrice = returnOrder.totalPrice;
     this.medicineName = returnOrder.medicine.name;
@@ -36,7 +37,7 @@ export class GetWarehouseReturnOrdersForSupplierDto {
   toObject(): {
     id: number;
     returnOrderDate: Date;
-    warehouseName: string;
+    warehouse: { name: string };
     status: ReturnOrderStatus;
     totalPrice: number;
     reason: string;
@@ -49,7 +50,7 @@ export class GetWarehouseReturnOrdersForSupplierDto {
   } {
     return {
       id: this.id,
-      warehouseName: this.warehouseName,
+      warehouse: this.warehouse,
       returnOrderDate: this.returnOrderDate,
       status: this.status,
       reason: this.reason,

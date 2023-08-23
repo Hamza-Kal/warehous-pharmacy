@@ -9,42 +9,44 @@ import {
   WarehouseOrder,
 } from 'src/order/entities/order.entities';
 
-export class GetAllFastWarehouseOrder {
+export class GetAllFastPharmacyOrder {
   id: number;
   date: Date;
-  pharmacy: {
+  medicines: {
     name: string;
-    location: string;
-    phoneNumber: string;
-  };
-  status: OrderStatus;
+    quantity: number;
+  }[];
 
   constructor({ order }: { order: PharmacyFastOrder }) {
     this.id = order.id;
     this.date = order.created_at;
-    this.pharmacy = {
-      name: order.pharmacy.name,
-      location: order.pharmacy.location,
-      phoneNumber: order.pharmacy.phoneNumber,
-    };
-    this.status = order.status;
+    const medicines: {
+      name: string;
+      quantity: number;
+    }[] = [];
+
+    for (const medicine of order.details) {
+      medicines.push({
+        name: medicine.medicine.name,
+        quantity: medicine.quantity,
+      });
+    }
+
+    this.medicines = medicines;
   }
 
   toObject(): {
     id: number;
     date: Date;
-    pharmacy: {
+    medicines: {
       name: string;
-      location: string;
-      phoneNumber: string;
-    };
-    status: OrderStatus;
+      quantity: number;
+    }[];
   } {
     return {
       id: this.id,
-      pharmacy: this.pharmacy,
+      medicines: this.medicines,
       date: this.date,
-      status: this.status,
     };
   }
 }

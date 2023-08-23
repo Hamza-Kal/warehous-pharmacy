@@ -8,6 +8,8 @@ import { SupplierService } from 'src/supplier/service/supplier.service';
 import {
   DistributionPharmacyOrder,
   OrderStatus,
+  PharmacyFastOrder,
+  PharmacyFastOrderDetails,
   PharmacyOrder,
   PharmacyOrderDetails,
   WarehouseOrder,
@@ -39,6 +41,8 @@ import { PaymentService } from 'src/payment/services/payment.service';
 import { ReturnOrderStatus } from 'src/return order/entities/returnOrder.entities';
 import { filter } from 'rxjs';
 import { GetAllFastWarehouseOrder } from '../api/dto/response/get-all-pharmacy-fast-order.dto';
+import { Pharmacy } from 'src/pharmacy/entities/pharmacy.entity';
+import { GetByIdFastWarehouseOutcomingOrder } from '../api/dto/response/find-by-id-fast-order.dto';
 
 @Injectable()
 export class WarehouseOrderService {
@@ -47,11 +51,15 @@ export class WarehouseOrderService {
     private warehouseOrderRepository: Repository<WarehouseOrder>,
     @InjectRepository(PharmacyOrder)
     private pharmacyOrderRepository: Repository<PharmacyOrder>,
+    @InjectRepository(PharmacyFastOrder)
+    private pharmacyFastOrderRepository: Repository<PharmacyFastOrder>,
 
     @InjectRepository(WarehouseOrderDetails)
     private warehouseOrderDetailsRepository: Repository<WarehouseOrderDetails>,
     @InjectRepository(PharmacyOrderDetails)
     private pharmacyOrderDetailsRepository: Repository<PharmacyOrderDetails>,
+    @InjectRepository(PharmacyFastOrderDetails)
+    private pharmacyFastOrderDetailsRepository: Repository<PharmacyFastOrderDetails>,
     @InjectRepository(DistributionPharmacyOrder)
     private pharmacyDistributionRepository: Repository<DistributionPharmacyOrder>,
     private supplierService: SupplierService,
@@ -285,13 +293,15 @@ export class WarehouseOrderService {
   }
 
   async acceptFastOrder({ id }: IParams, user: IUser) {
-    const orders = await this.pharmacyOrderRepository.find({
+    const orders = await this.pharmacyFastOrderRepository.find({
       where: {
-        isPublic: true,
         status: OrderStatus.Pending,
         id,
       },
       select: {
+        pharmacy: {
+          id: true,
+        },
         details: {
           id: true,
           medicine: {
@@ -301,13 +311,12 @@ export class WarehouseOrderService {
         },
       },
       relations: {
+        pharmacy: true,
         details: {
           medicine: true,
         },
       },
     });
-
-    console.log('ordererer', orders);
 
     if (!orders.length) {
       throw new HttpException(
@@ -416,34 +425,14 @@ export class WarehouseOrderService {
     }
     //remove the medicines from the supplier medicines table
 
-    // move the medicines to the pending table
-    for (const medicine of medicines) {
-      for (const distribution of medicine[1]) {
-        const pharmacyDistribution = this.pharmacyDistributionRepository.create(
-          {
-            order: orders[0],
-            quantity: distribution.quantity,
-            medicineDetails: distribution.batchId as MedicineDetails,
-            inventory: distribution.inventoryId as Inventory,
-          },
-        );
+    // accept the order
+    const order = new PharmacyOrder();
+    order.pharmacy = orders[0].pharmacy;
+    order.warehouse = user.warehouseId as Warehouse;
+    order.status = OrderStatus.Accepted;
+    await this.pharmacyOrderRepository.save(order);
 
-        await this.pharmacyDistributionRepository.save(pharmacyDistribution);
-      }
-
-      // accept the order
-      await this.pharmacyOrderRepository.update(
-        {
-          id,
-        },
-        {
-          isPublic: false,
-          status: OrderStatus.Accepted,
-        },
-      );
-    }
-
-    const order = await this.pharmacyOrderRepository.findOne({
+    const [fastOrder] = await this.pharmacyFastOrderRepository.find({
       where: {
         id,
       },
@@ -464,30 +453,52 @@ export class WarehouseOrderService {
     });
 
     let totalPrice = 0;
-    for (const details of order.details) {
-      const detailsId = details.id;
+    for (const details of fastOrder.details) {
       const warehouseMedicine =
         await this.medicineService.findWarehouseMedicineByMedicine(
           details.medicine.id,
         );
 
       totalPrice += details.quantity * warehouseMedicine.price;
-      await this.pharmacyOrderDetailsRepository.update(
-        {
-          id: detailsId,
-        },
-        {
-          price: warehouseMedicine.price,
-        },
-      );
+      const pharmacyOrderDetails = new PharmacyOrderDetails();
+      pharmacyOrderDetails.medicine = details.medicine;
+      pharmacyOrderDetails.pharmacyOrder = order;
+      pharmacyOrderDetails.quantity = details.quantity;
+      pharmacyOrderDetails.price = warehouseMedicine.price;
+      await this.pharmacyOrderDetailsRepository.save(pharmacyOrderDetails);
+    }
+
+    // move the medicines to the pending table
+    for (const medicine of medicines) {
+      for (const distribution of medicine[1]) {
+        const pharmacyDistribution = this.pharmacyDistributionRepository.create(
+          {
+            order: order,
+            quantity: distribution.quantity,
+            medicineDetails: distribution.batchId as MedicineDetails,
+            inventory: distribution.inventoryId as Inventory,
+          },
+        );
+
+        await this.pharmacyDistributionRepository.save(pharmacyDistribution);
+      }
     }
     await this.pharmacyOrderRepository.update(
       {
-        id,
+        id: order.id,
       },
       {
         warehouse: user.warehouseId as Warehouse,
         totalPrice,
+      },
+    );
+
+    await this.pharmacyFastOrderRepository.update(
+      {
+        id,
+      },
+      {
+        status: OrderStatus.Accepted,
       },
     );
     return;
@@ -828,11 +839,10 @@ export class WarehouseOrderService {
 
   async findOneFast({ id }: IParams, user: IUser) {
     // TODO: do the query using query builder
-    const [order] = await this.pharmacyOrderRepository.find({
+    const [order] = await this.pharmacyFastOrderRepository.find({
       where: [
         {
           id,
-          isPublic: true,
           status: OrderStatus.Pending,
         },
       ],
@@ -879,7 +889,7 @@ export class WarehouseOrderService {
       );
     }
     return {
-      data: new GetByIdWarehouseOutcomingOrder({ order }).toObject(),
+      data: new GetByIdFastWarehouseOutcomingOrder({ order }).toObject(),
     };
   }
 
@@ -991,9 +1001,8 @@ export class WarehouseOrderService {
     const { warehouseId } = user;
 
     const [orders, totalRecords] =
-      await this.pharmacyOrderRepository.findAndCount({
+      await this.pharmacyFastOrderRepository.findAndCount({
         where: {
-          isPublic: true,
           status: OrderStatus.Pending,
         },
         relations: {
@@ -1008,7 +1017,6 @@ export class WarehouseOrderService {
             location: true,
             phoneNumber: true,
           },
-          totalPrice: true,
         },
         skip,
         take: limit,

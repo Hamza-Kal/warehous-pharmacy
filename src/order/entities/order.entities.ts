@@ -141,7 +141,7 @@ export class DistributionWarehouseOrder {
 }
 
 @Entity()
-export class PharmacyOrder {
+export class PharmacyFastOrder {
   @PrimaryGeneratedColumn({
     type: 'int',
   })
@@ -150,8 +150,66 @@ export class PharmacyOrder {
   @CreateDateColumn()
   created_at: Date;
 
-  @Column({ type: 'boolean', default: false })
-  isPublic: boolean;
+  @Column({
+    type: 'enum',
+    enum: OrderStatus,
+    default: OrderStatus.Pending,
+  })
+  status: OrderStatus;
+
+  @ManyToOne(() => Pharmacy, (pharmacy) => pharmacy.pharmacyOrder)
+  @JoinColumn()
+  pharmacy: Pharmacy;
+
+  @OneToMany(
+    () => PharmacyFastOrderDetails,
+    (pharmacyOrderDetails) => pharmacyOrderDetails.pharmacyOrder,
+  )
+  details: PharmacyFastOrderDetails[];
+}
+
+@Entity()
+export class PharmacyFastOrderDetails {
+  @PrimaryGeneratedColumn({
+    type: 'int',
+  })
+  id: number;
+
+  @ManyToOne(
+    () => PharmacyFastOrder,
+    (pharmacyOrder) => pharmacyOrder.details,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
+  @JoinColumn()
+  pharmacyOrder: PharmacyFastOrder;
+
+  @ManyToOne(() => Medicine, (medicine) => medicine.pharmacyOrderDetails)
+  @JoinColumn()
+  medicine: Medicine;
+
+  @Column({
+    type: 'int',
+  })
+  quantity: number;
+
+  @Column({
+    type: 'int',
+    default: 0,
+  })
+  price?: number;
+}
+
+@Entity()
+export class PharmacyOrder {
+  @PrimaryGeneratedColumn({
+    type: 'int',
+  })
+  id: number;
+
+  @CreateDateColumn()
+  created_at: Date;
 
   @ManyToOne(() => Warehouse, (warehouse) => warehouse.pharmacyOrder)
   @JoinColumn()

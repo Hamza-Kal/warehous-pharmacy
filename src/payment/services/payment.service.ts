@@ -602,6 +602,7 @@ export class PaymentService {
     const deptDetails = new TransactionDetails();
     deptDetails.amount = transactionAmount;
     deptDetails.status = TransactionStatus.debt;
+    deptDetails.transaction = transaction;
     await this.transactionDetails.save(deptDetails);
   }
 

@@ -19,7 +19,7 @@ export class GetWarehouseReturnOrdersForSupplierDto {
   constructor({ returnOrder }: { returnOrder: WarehouseReturnOrder }) {
     this.id = returnOrder.id;
     this.returnOrderDate = returnOrder.created_at;
-    this.warehouseName = returnOrder.medicine.name;
+    this.warehouseName = returnOrder.warehouse.name;
     this.status = returnOrder.status;
     this.totalPrice = returnOrder.totalPrice;
     this.medicineName = returnOrder.medicine.name;

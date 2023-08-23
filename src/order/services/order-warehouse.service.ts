@@ -38,6 +38,7 @@ import { Inventory } from 'src/inventory/entities/inventory.entity';
 import { PaymentService } from 'src/payment/services/payment.service';
 import { ReturnOrderStatus } from 'src/return order/entities/returnOrder.entities';
 import { filter } from 'rxjs';
+import { GetAllFastWarehouseOrder } from '../api/dto/response/get-all-pharmacy-fast-order.dto';
 
 @Injectable()
 export class WarehouseOrderService {
@@ -306,6 +307,8 @@ export class WarehouseOrderService {
       },
     });
 
+    console.log('ordererer', orders);
+
     if (!orders.length) {
       throw new HttpException(
         this.orderError.notFoundOrder(),
@@ -434,6 +437,7 @@ export class WarehouseOrderService {
           id,
         },
         {
+          isPublic: false,
           status: OrderStatus.Accepted,
         },
       );
@@ -768,7 +772,7 @@ export class WarehouseOrderService {
 
   async findOneOutcoming({ id }: IParams, user: IUser) {
     // TODO: do the query using query builder
-    const order = await this.pharmacyOrderRepository.findOne({
+    const [order] = await this.pharmacyOrderRepository.find({
       where: {
         id,
         warehouse: {
@@ -824,19 +828,12 @@ export class WarehouseOrderService {
 
   async findOneFast({ id }: IParams, user: IUser) {
     // TODO: do the query using query builder
-    const order = await this.pharmacyOrderRepository.findOne({
+    const [order] = await this.pharmacyOrderRepository.find({
       where: [
         {
           id,
           isPublic: true,
           status: OrderStatus.Pending,
-        },
-        {
-          id,
-          isPublic: true,
-          warehouse: {
-            id: user.warehouseId as number,
-          },
         },
       ],
       select: {
@@ -992,19 +989,12 @@ export class WarehouseOrderService {
   ) {
     const { skip, limit } = pagination;
     const { warehouseId } = user;
-    let query = {};
 
-    query['isPublic'] = true;
-    query['status'] = criteria.status;
-    if (criteria.status !== OrderStatus.Pending) {
-      query['warehouse'] = warehouseId;
-    }
-
-    console.log(query);
     const [orders, totalRecords] =
       await this.pharmacyOrderRepository.findAndCount({
         where: {
-          ...query,
+          isPublic: true,
+          status: OrderStatus.Pending,
         },
         relations: {
           pharmacy: true,
@@ -1015,6 +1005,8 @@ export class WarehouseOrderService {
           created_at: true,
           pharmacy: {
             name: true,
+            location: true,
+            phoneNumber: true,
           },
           totalPrice: true,
         },
@@ -1024,7 +1016,7 @@ export class WarehouseOrderService {
     return {
       totalRecords,
       data: orders.map((order) =>
-        new GetAllOutcomingWarehouseOrder({ order }).toObject(),
+        new GetAllFastWarehouseOrder({ order }).toObject(),
       ),
     };
   }

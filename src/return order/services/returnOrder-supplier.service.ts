@@ -246,6 +246,4 @@ export class SupplierReturnOrderService {
     );
     await this.warehouseReturnOrderRepository.save(returnOrder);
   }
-
-  
 }

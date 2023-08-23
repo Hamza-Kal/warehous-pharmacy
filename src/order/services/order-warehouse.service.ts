@@ -630,7 +630,7 @@ export class WarehouseOrderService {
 
   async findOneIncoming({ id }: IParams, user: IUser) {
     // TODO: do the query using query builder
-    const order = await this.warehouseOrderRepository.findOne({
+    const [order] = await this.warehouseOrderRepository.find({
       where: {
         id,
         warehouse: {
